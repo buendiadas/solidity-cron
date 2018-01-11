@@ -9,7 +9,7 @@ contract PrivateList is Owned {
     mapping (address => uint8) public votesReceived; // Amount that only can be changed in exchange of FTR
     mapping (address => bool) public candidatesList;
 
-    uint256 public numCandidates;
+    uint256 public maxNumCandidates;
     uint256 private candidateCounter;
 
     address public bountyPoolAddress = 0xdead; // By default, no Pool, tokens are removed
@@ -19,11 +19,11 @@ contract PrivateList is Owned {
     /**
     * Creates a new Instance of a Voting Lists
     * @param _tokenAddress Address of the token used for
-    * @param _numCandidate id of the candidate
+    * @param _maxNumCandidates maximum number of candidates
     **/
-    function PrivateList(address _tokenAddress, uint256 _numCandidate) public {
+    function PrivateList(address _tokenAddress, uint256 _maxNumCandidates) public {
         token = Standard20Token(_tokenAddress);
-        numCandidate = _numCandidate;
+        maxNumCandidates = _maxNumCandidates;
     }
 
     /**
@@ -31,7 +31,7 @@ contract PrivateList is Owned {
     * @param _candidateAddress Account of the candidate to be added to the List
     **/
     function addCandidate(address _candidateAddress) public onlyOwner {
-        require(candidateCounter <= numCandidates);
+        require(candidateCounter <= maxNumCandidates);
         candidatesList[_candidateAddress] = true;
         candidateCounter += 1;
     }
