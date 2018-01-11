@@ -19,9 +19,11 @@ contract PrivateList is Owned {
     /**
     * Creates a new Instance of a Voting Lists
     * @param _tokenAddress Address of the token used for
-    **/ // _numCandidates is not used
-    function PrivateList(address _tokenAddress) public {
+    * @param _numCandidate id of the candidate
+    **/
+    function PrivateList(address _tokenAddress, uint256 _numCandidate) public {
         token = Standard20Token(_tokenAddress);
+        numCandidate = _numCandidate;
     }
 
     /**
