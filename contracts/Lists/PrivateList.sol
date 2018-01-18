@@ -1,14 +1,14 @@
 pragma solidity 0.4.18;
 
 import "../lib/Standard20Token.sol";
-import "../lib/IterableMapping.sol";
 import "../lib/Owned.sol";
 
 
 contract PrivateList is Owned {
 
     mapping (address => uint8) public votesReceived; // Amount that only can be changed in exchange of FTR
-    IterableMapping.Itmap public candidatesList;
+    mapping (address => bool) public candidatesList;
+    address[] candidateAddressList; // To be removed (not necessary)
 
     uint256 public maxNumCandidates;
     uint256 private candidateCounter;
@@ -33,9 +33,10 @@ contract PrivateList is Owned {
     **/
     function addCandidate(address _candidateAddress) public onlyOwner {
         require(candidateCounter <= maxNumCandidates);
-        //candidatesList[_candidateAddress] = true;
-        IterableMapping.insert(candidatesList, _candidateAddress, true);
+        candidatesList[_candidateAddress] = true;
+        candidateAddressList.push(_candidateAddress);
         candidateCounter += 1;
+        Add(_candidateAddress);
     }
 
     /**
@@ -43,9 +44,9 @@ contract PrivateList is Owned {
     * @param _candidateAddress Account of the candidate to be removed to the List
     **/
     function removeCandidate (address _candidateAddress) public onlyOwner {
-        //candidatesList[_candidateAddress] = false;
-        IterableMapping.remove(candidatesList, _candidateAddress);
+        candidatesList[_candidateAddress] = false;
         candidateCounter -= 1;
+        Remove(_candidateAddress);
     }
 
     /**
@@ -54,8 +55,7 @@ contract PrivateList is Owned {
     * @param _amount of votes used
     **/
     function vote(address _candidateAddress, uint256 _amount) public returns (uint8) {
-        //require(candidatesList[_candidateAddress] = true);
-        require(IterableMapping.contains(candidatesList, _candidateAddress) == true);
+        require(candidatesList[_candidateAddress] = true);
         require(token.transferFrom(msg.sender, bountyPoolAddress, _amount));
         votesReceived[_candidateAddress] += 1;
         return votesReceived[_candidateAddress];
@@ -68,19 +68,7 @@ contract PrivateList is Owned {
     function setBountyPool(address _bountyPoolAddress) public {
         bountyPoolAddress = _bountyPoolAddress;
     }
+
+    event Add(address _candidateAddress);
+    event Remove(address _candidateAddress);
 }
-
-
-
-struct s {
-       address candidate;
-       bool exist;
-   }
-
-   function sum() public constant returns (s returned) {
-       for (var i = IterableMapping.iterateStart(candidatesList); IterableMapping.iterateValid(candidatesList, i); i = IterableMapping.iterateNext(candidatesList, i)) {
-           var (key, value) = IterableMapping.iterateGet(candidatesList, i);
-           returned.candidate = key;
-          // returned.exist += value;
-       }
-   }
