@@ -8,12 +8,17 @@ import "../lib/Owned.sol";
 contract PrivateList is Owned {
 
     mapping (address => uint8) public votesReceived; // Amount that only can be changed in exchange of FTR
+<<<<<<< Updated upstream
     IterableMapping.Itmap public candidatesList;
+=======
+    mapping (address => bool) public candidatesList;
+    address[] candidateAddressList;
+>>>>>>> Stashed changes
 
     uint256 public maxNumCandidates;
     uint256 private candidateCounter;
 
-    address public bountyPoolAddress = 0xdead; // By default, no Pool, tokens are removed
+    address public bountyPoolAddress = 0x00; // By default, no Pool, tokens are removed
 
     Standard20Token public token;
 
@@ -53,12 +58,17 @@ contract PrivateList is Owned {
     * @param _candidateAddress address of the candidate selected
     * @param _amount of votes used
     **/
+<<<<<<< Updated upstream
     function vote(address _candidateAddress, uint256 _amount) public returns (uint8) {
         //require(candidatesList[_candidateAddress] = true);
         require(IterableMapping.contains(candidatesList, _candidateAddress) == true);
+=======
+    function vote(address _candidateAddress, uint256 _amount) public {
+        require(candidatesList[_candidateAddress] = true);
+>>>>>>> Stashed changes
         require(token.transferFrom(msg.sender, bountyPoolAddress, _amount));
         votesReceived[_candidateAddress] += 1;
-        return votesReceived[_candidateAddress];
+        Vote(_candidateAddress, _amount);
     }
 
     /**
@@ -68,6 +78,13 @@ contract PrivateList is Owned {
     function setBountyPool(address _bountyPoolAddress) public {
         bountyPoolAddress = _bountyPoolAddress;
     }
+<<<<<<< Updated upstream
+=======
+
+    event Add(address _candidateAddress);
+    event Remove(address _candidateAddress);
+    event Vote(address _candidateAddress, uint256 _amount);
+>>>>>>> Stashed changes
 }
 
 
