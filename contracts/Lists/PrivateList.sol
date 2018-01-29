@@ -33,7 +33,7 @@ contract PrivateList is Owned {
     **/
     function addCandidate(address _candidateAddress) public onlyOwner {
         require(candidateCounter <= maxNumCandidates);
-	require(candidatesList[candidateAddress]==false);
+	require(candidatesList[_candidateAddress]==false);
         candidatesList[_candidateAddress] = true;
         candidateAddressList.push(_candidateAddress);
         candidateCounter += 1;
