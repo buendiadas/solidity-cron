@@ -8,7 +8,7 @@ contract PrivateList is Owned {
 
     mapping (address => uint8) public votesReceived; // Amount that only can be changed in exchange of FTR
     mapping (address => bool) public candidatesList;
-    address[] candidateAddressList; // To be removed (not necessary)
+    address[] public candidateAddressList;
 
     uint256 public maxNumCandidates;
     uint256 private candidateCounter;
@@ -58,7 +58,7 @@ contract PrivateList is Owned {
         require(candidatesList[_candidateAddress] = true);
         require(token.transferFrom(msg.sender, bountyPoolAddress, _amount));
         votesReceived[_candidateAddress] += 1;
-        return votesReceived[_candidateAddress];
+        Vote(_candidateAddress, _amount);
     }
 
     /**
@@ -71,4 +71,5 @@ contract PrivateList is Owned {
 
     event Add(address _candidateAddress);
     event Remove(address _candidateAddress);
+    event Vote(address _candidateAddress, uint256 _amount);
 }
