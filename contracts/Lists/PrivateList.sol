@@ -7,17 +7,8 @@ import "../lib/Owned.sol";
 contract PrivateList is Owned {
 
     mapping (address => uint8) public votesReceived; // Amount that only can be changed in exchange of FTR
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-    IterableMapping.Itmap public candidatesList;
-=======
     mapping (address => bool) public candidatesList;
     address[] candidateAddressList;
->>>>>>> Stashed changes
-=======
-    mapping (address => bool) public candidatesList;
-    address[] public candidateAddressList;
->>>>>>> 662553c416085e70f78a317bdb8bf18a2f60564d
 
     uint256 public maxNumCandidates;
     uint256 private candidateCounter;
@@ -42,7 +33,7 @@ contract PrivateList is Owned {
     **/
     function addCandidate(address _candidateAddress) public onlyOwner {
         require(candidateCounter <= maxNumCandidates);
-	require(candidatesList[_candidateAddress]==false);
+	      require(candidatesList[_candidateAddress]==false);
         candidatesList[_candidateAddress] = true;
         candidateAddressList.push(_candidateAddress);
         candidateCounter += 1;
