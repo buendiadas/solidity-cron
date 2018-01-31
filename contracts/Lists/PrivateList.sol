@@ -55,18 +55,9 @@ contract PrivateList is Owned {
     * @param _candidateAddress address of the candidate selected
     * @param _amount of votes used
     **/
-<<<<<<< Updated upstream
-    function vote(address _candidateAddress, uint256 _amount) public returns (uint8) {
-<<<<<<< HEAD
-        //require(candidatesList[_candidateAddress] = true);
-        require(IterableMapping.contains(candidatesList, _candidateAddress) == true);
-=======
+
     function vote(address _candidateAddress, uint256 _amount) public {
         require(candidatesList[_candidateAddress] = true);
->>>>>>> Stashed changes
-=======
-        require(candidatesList[_candidateAddress] = true);
->>>>>>> 662553c416085e70f78a317bdb8bf18a2f60564d
         require(token.transferFrom(msg.sender, bountyPoolAddress, _amount));
         votesReceived[_candidateAddress] += 1;
         Vote(_candidateAddress, _amount);
@@ -79,19 +70,6 @@ contract PrivateList is Owned {
     function setBountyPool(address _bountyPoolAddress) public {
         bountyPoolAddress = _bountyPoolAddress;
     }
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-=======
-
-    event Add(address _candidateAddress);
-    event Remove(address _candidateAddress);
-    event Vote(address _candidateAddress, uint256 _amount);
->>>>>>> Stashed changes
-}
-
-
-=======
->>>>>>> 662553c416085e70f78a317bdb8bf18a2f60564d
 
     event Add(address _candidateAddress);
     event Remove(address _candidateAddress);
