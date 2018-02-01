@@ -1,28 +1,33 @@
-pragma solidity ^0.4.11;
+pragma solidity 0.4.18;
+
 
 contract Owned {
+
     address public owner;
+
     event OwnerChanged(address oldOwner, address newOwner);
-    modifier onlyOwner(){
-        if(msg.sender != owner)
-            throw;
-        _;
-    }
-    function Owned() {
+
+    function Owned() public {
         owner = msg.sender;
     }
+
+    modifier onlyOwner() {
+        if (msg.sender != owner) revert();
+        _;
+    }
+
     /**
      * Transfers the ownership of the contract
      * @param _newOwner Address of the new owner
      * TODO: Check KeyRecovery
      */
-    function changeOwner(address _newOwner) onlyOwner {
+    function changeOwner(address _newOwner) public onlyOwner {
         owner = _newOwner;
         OwnerChanged(msg.sender, _newOwner);
 
     }
 
-    function isOwner(address _addr) constant returns(bool) {
+    function isOwner(address _addr) public constant returns(bool) {
         return _addr == owner;
     }
 }
