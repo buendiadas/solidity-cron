@@ -11,7 +11,7 @@ contract PrivateList is Owned {
     address[] candidateAddressList;
 
     uint256 public maxNumCandidates;
-    uint256 private candidateCounter;
+    uint256 public candidateCounter;
 
     address public bountyPoolAddress = 0x00; // By default, no Pool, tokens are removed
 
@@ -37,7 +37,7 @@ contract PrivateList is Owned {
         candidatesList[_candidateAddress] = true;
         candidateAddressList.push(_candidateAddress);
         candidateCounter += 1;
-        Add(_candidateAddress);
+        Add(_candidateAddress, candidateCounter);
     }
 
     /**
@@ -71,7 +71,7 @@ contract PrivateList is Owned {
         bountyPoolAddress = _bountyPoolAddress;
     }
 
-    event Add(address _candidateAddress);
+    event Add(address _candidateAddress, uint256 _candidateCounter);
     event Remove(address _candidateAddress);
     event Vote(address _candidateAddress, uint256 _amount);
 }
