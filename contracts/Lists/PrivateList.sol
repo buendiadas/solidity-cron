@@ -3,14 +3,18 @@ pragma solidity 0.4.18;
 import "../lib/Standard20Token.sol";
 import "../lib/Owned.sol";
 
-
+/**
+*
+*
+**/
 contract PrivateList is Owned {
 
-    mapping (address => uint8) public votesReceived; // Amount that only can be changed in exchange of FTR
+    mapping (address => uint256) public votesReceived; // Amount that only can be changed in exchange of FTR
     mapping (address => bool) public candidatesList;
-    address[] candidateAddressList;
+    mapping (address => bool) public voterList;
 
     uint256 public maxNumCandidates;
+    uint256 public maxNumVoters;
     uint256 public candidateCounter;
 
     address public bountyPoolAddress = 0x00; // By default, no Pool, tokens are removed
@@ -35,9 +39,8 @@ contract PrivateList is Owned {
         require(candidateCounter <= maxNumCandidates);
 	      require(candidatesList[_candidateAddress]==false);
         candidatesList[_candidateAddress] = true;
-        candidateAddressList.push(_candidateAddress);
         candidateCounter += 1;
-        Add(_candidateAddress, candidateCounter);
+        AddCandidate(_candidateAddress, candidateCounter);
     }
 
     /**
@@ -47,7 +50,27 @@ contract PrivateList is Owned {
     function removeCandidate (address _candidateAddress) public onlyOwner {
         candidatesList[_candidateAddress] = false;
         candidateCounter -= 1;
-        Remove(_candidateAddress);
+        RemoveCandidate(_candidateAddress);
+    }
+
+    /**
+    * Adds a new candidate to the voterList
+    * @param _voterAddress Account of the voter to be added to the List
+    **/
+    function addVoter(address _voterAddress) public onlyOwner {
+        require(voterList[_voterAddress]==false);
+        voterList[_voterAddress] = true;
+        AddVoter(_voterAddress);
+    }
+
+    /**
+    * Removes a voter from the voterList
+    * @param _voterAddress Account of the candidate to be removed to the List
+    **/
+
+    function removeVoter (address _voterAddress) public onlyOwner {
+        voterList[_voterAddress] = false;
+        RemoveVoter(_voterAddress);
     }
 
     /**
@@ -57,9 +80,10 @@ contract PrivateList is Owned {
     **/
 
     function vote(address _candidateAddress, uint256 _amount) public {
-        require(candidatesList[_candidateAddress] = true);
-        require(token.transferFrom(msg.sender, bountyPoolAddress, _amount));
-        votesReceived[_candidateAddress] += 1;
+        require(candidatesList[_candidateAddress] == true);
+        require(voterList[msg.sender]==true);
+        //require(token.transferFrom(msg.sender, bountyPoolAddress, _amount));
+        votesReceived[_candidateAddress] += _amount;
         Vote(_candidateAddress, _amount);
     }
 
@@ -67,11 +91,14 @@ contract PrivateList is Owned {
     * Sets the bounty pool address
     * @param _bountyPoolAddress address of the bounty pool
     **/
+
     function setBountyPool(address _bountyPoolAddress) public {
         bountyPoolAddress = _bountyPoolAddress;
     }
 
-    event Add(address _candidateAddress, uint256 _candidateCounter);
-    event Remove(address _candidateAddress);
+    event AddCandidate(address _candidateAddress, uint256 _candidateCounter);
+    event AddVoter(address _candidateAddress);
+    event RemoveCandidate(address _candidateAddress);
+    event RemoveVoter(address _voterAddress);
     event Vote(address _candidateAddress, uint256 _amount);
 }

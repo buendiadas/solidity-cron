@@ -18,11 +18,13 @@ contract('PrivateList', function (accounts) {
 
       it('Should have set as an owner the creator of the List', async () => {
         let owner = await PrivateList.owner.call();
+
         assert.strictEqual(accounts[0], owner);
       })
 
       it('Should have the total number of candidates to the specified in constructor', async () => {
         let numCandidates = await PrivateList.maxNumCandidates.call();
+
         assert.equal(MAXNUMCANDIDATES, await numCandidates);
       })
   });
@@ -33,11 +35,13 @@ contract('PrivateList', function (accounts) {
         let newCandidate= accounts[1];
         await PrivateList.addCandidate(newCandidate);
         let isInTheList = await PrivateList.candidatesList.call(newCandidate);
+
         assert.strictEqual(true, isInTheList);
       })
 
       it('Should NOT add a candidate if it is required by an account different than the owner', async () => {
         let newCandidate= accounts[1];
+
         await expectThrow(PrivateList.addCandidate(newCandidate,{from:accounts[2]}))
       })
 
@@ -46,6 +50,7 @@ contract('PrivateList', function (accounts) {
         let newCandidate= await accounts[2];
         await PrivateList.addCandidate(newCandidate);
         let updatedNumberOfCandidates= await PrivateList.candidateCounter.call();
+
         assert.equal(1, updatedNumberOfCandidates);
       })
 
@@ -58,6 +63,7 @@ contract('PrivateList', function (accounts) {
           i++;
         }
         let updatedNumberOfCandidates= await PrivateList.candidateCounter.call();
+
         assert.equal(MAXNUMCANDIDATES, updatedNumberOfCandidates);
       })
 
@@ -67,9 +73,105 @@ contract('PrivateList', function (accounts) {
         await PrivateList.addCandidate(newCandidate);
         await expectThrow(PrivateList.addCandidate(newCandidate));
         let updatedNumberOfCandidates= await PrivateList.candidateCounter.call();
+
         assert.equal(1, updatedNumberOfCandidates);
       })
-    });
+  });
+
+  describe('Removing candidates', async () => {
+
+    it('Should remove a candidate if it is required by the owner', async () => {
+      let newCandidate= accounts[1];
+      await PrivateList.addCandidate(newCandidate);
+      await PrivateList.removeCandidate(newCandidate);
+      let isInTheList = await PrivateList.candidatesList.call(newCandidate);
+
+      assert.strictEqual(false, isInTheList);
+    })
+
+    it('Should NOT remove a candidate if it is required by an account different than the owner', async () => {
+      let newCandidate= accounts[1];
+
+      await expectThrow(PrivateList.addCandidate(newCandidate,{from:accounts[2]}))
+    })
+
+    it('Should decrease the analysts counter after removing a candidate ', async () => {
+      let initialNumberOfCandidates= await PrivateList.candidateCounter.call();
+      let newCandidate= await accounts[2];
+      await PrivateList.addCandidate(newCandidate);
+      await PrivateList.removeCandidate(newCandidate);
+      let updatedNumberOfCandidates= await PrivateList.candidateCounter.call();
+
+      assert.equal(0, updatedNumberOfCandidates);
+    })
+  });
+
+  describe('Adding voters', async () => {
+
+      it('Should add a voter if it is required by the owner', async () => {
+        let newVoter= accounts[1];
+        await PrivateList.addVoter(newVoter);
+        let isInTheList = await PrivateList.voterList.call(newVoter);
+
+        assert.strictEqual(true, isInTheList);
+      })
+
+      it('Should NOT add a candidate if it is required by an account different than the owner', async () => {
+        let newVoter= accounts[1];
+
+        await expectThrow(PrivateList.addVoter(newVoter,{from:accounts[2]}))
+      })
+
+      it('Should throw if the analyst is added twice', async () => {
+        let initialNumberOfCandidates= await PrivateList.candidateCounter.call();
+        let newCandidate= await accounts[2];
+        await PrivateList.addCandidate(newCandidate);
+        await expectThrow(PrivateList.addCandidate(newCandidate));
+        let updatedNumberOfCandidates= await PrivateList.candidateCounter.call();
+
+        assert.equal(1, updatedNumberOfCandidates);
+      })
+  });
+
+  describe('Removing voters', async () => {
+
+      it('Should remove a voter if it is required by the owner', async () => {
+        let newVoter= accounts[1];
+        await PrivateList.addVoter(newVoter);
+        await PrivateList.removeVoter(newVoter);
+        let isInTheList = await PrivateList.voterList.call(newVoter);
+
+        assert.strictEqual(false, isInTheList);
+      })
+
+      it('Should NOT remove a candidate if it is required by an account different than the owner', async () => {
+        let newVoter= accounts[1];
+
+        await expectThrow(PrivateList.removeVoter(newVoter,{from:accounts[2]}))
+      })
+  });
+
+  describe('Voting', async () => {
+
+      it('Should not throw if the vote comes from a voter', async () => {
+        let newCandidate= accounts[2];
+        await PrivateList.addCandidate(newCandidate);
+
+        let newVoter= accounts[3];
+        await PrivateList.addVoter(newVoter);
+
+        await expectThrow(PrivateList.vote(newCandidate,{from:newVoter}))
+      });
+
+      it('Should NOT remove a candidate if it is required by an account different than the owner', async () => {
+        let newCandidate= accounts[1];
+
+        await expectThrow(PrivateList.removeVoter(newVoter,{from:accounts[2]}))
+      })
+  });
+
+
+
 
 
 
