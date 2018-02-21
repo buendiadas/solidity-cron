@@ -82,7 +82,7 @@ contract PrivateList is Owned {
     function vote(address _candidateAddress, uint256 _amount) public {
         require(candidatesList[_candidateAddress] == true);
         require(voterList[msg.sender]==true);
-        //require(token.transferFrom(msg.sender, bountyPoolAddress, _amount));
+        require(token.transferFrom(msg.sender, bountyPoolAddress, _amount));
         votesReceived[_candidateAddress] += _amount;
         Vote(_candidateAddress, _amount);
     }
