@@ -97,7 +97,7 @@ contract PrivateList is Owned {
     }
 
     event AddCandidate(address _candidateAddress, uint256 _candidateCounter);
-    event AddVoter(address _candidateAddress);
+    event AddVoter(address _voterAddress);
     event RemoveCandidate(address _candidateAddress);
     event RemoveVoter(address _voterAddress);
     event Vote(address _candidateAddress, uint256 _amount);
