@@ -4,7 +4,7 @@ import "../lib/Standard20Token.sol";
 import "../lib/Owned.sol";
 
 /**
-*
+* Simplest case of a TRL, voters and candidates are added by an Admin
 *
 **/
 contract PrivateList is Owned {
@@ -38,6 +38,7 @@ contract PrivateList is Owned {
     function addCandidate(address _candidateAddress) public onlyOwner {
         require(candidateCounter <= maxNumCandidates);
 	      require(candidatesList[_candidateAddress]==false);
+        require(voterList[_candidateAddress]==false); // Candidate cannot be a voter
         candidatesList[_candidateAddress] = true;
         candidateCounter += 1;
         AddCandidate(_candidateAddress, candidateCounter);
@@ -59,6 +60,7 @@ contract PrivateList is Owned {
     **/
     function addVoter(address _voterAddress) public onlyOwner {
         require(voterList[_voterAddress]==false);
+        require(candidatesList[_voterAddress]==false); // Voter cannot be a candidate
         voterList[_voterAddress] = true;
         AddVoter(_voterAddress);
     }
