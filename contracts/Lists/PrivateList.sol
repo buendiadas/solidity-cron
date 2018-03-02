@@ -9,17 +9,26 @@ import "../lib/Owned.sol";
 **/
 contract PrivateList is Owned {
 
-    mapping (address => uint256) public votesReceived; // Amount that only can be changed in exchange of FTR
+    mapping (uint256 => mapping(address=> uint256)) public votesReceived; // Amount that only can be changed in exchange of FTR
     mapping (address => bool) public candidatesList;
     mapping (address => bool) public voterList;
 
     uint256 public maxNumCandidates;
     uint256 public maxNumVoters;
     uint256 public candidateCounter;
-
+    uint256 public periodTTL;
     address public bountyPoolAddress = 0x00; // By default, no Pool, tokens are removed
-
     Standard20Token public token;
+
+    uint256 currentPeriod;
+
+    struct PeriodConfig{
+       uint256 startTime;
+       uint8 status;
+       uint256 TTL;
+    }
+
+    mapping (uint256 => PeriodConfig) periods;
 
     /**
     * Creates a new Instance of a Voting Lists
@@ -29,7 +38,16 @@ contract PrivateList is Owned {
     function PrivateList(address _tokenAddress, uint256 _maxNumCandidates) public {
         token = Standard20Token(_tokenAddress);
         maxNumCandidates = _maxNumCandidates;
+        currentPeriod=0;
     }
+
+    function initPeriod(uint256 TTL) onlyOwner public {
+        periods
+
+    }
+
+
+    function closePeriod ()
 
     /**
     * Adds a new candidate to the List
@@ -85,9 +103,10 @@ contract PrivateList is Owned {
         require(candidatesList[_candidateAddress] == true);
         require(voterList[msg.sender]==true);
         require(token.transferFrom(msg.sender, bountyPoolAddress, _amount));
-        votesReceived[_candidateAddress] += _amount;
+        votesReceived[currentPeriod][_candidateAddress] += _amount;
         Vote(_candidateAddress, _amount);
     }
+
 
     /**
     * Sets the bounty pool address
