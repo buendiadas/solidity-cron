@@ -46,10 +46,6 @@ contract PrivateList is Owned {
         startTime= now;
     }
 
-    function closePeriod (){
-        require(periods[currentPeriod])
-
-    }
 
     /**
     * Adds a new candidate to the List
