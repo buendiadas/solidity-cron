@@ -20,12 +20,12 @@ contract PrivateList is Owned {
     address public bountyPoolAddress = 0x00; // By default, no Pool, tokens are removed
     Standard20Token public token;
 
-    uint256 currentPeriod;
+    uint256 currentPeriod=0;
 
     struct PeriodConfig{
-       uint256 startTime;
-       uint8 status;
-       uint256 TTL;
+        uint256 startTime;
+        uint8 status;
+        uint256 TTL;
     }
 
     mapping (uint256 => PeriodConfig) periods;
@@ -38,16 +38,18 @@ contract PrivateList is Owned {
     function PrivateList(address _tokenAddress, uint256 _maxNumCandidates) public {
         token = Standard20Token(_tokenAddress);
         maxNumCandidates = _maxNumCandidates;
-        currentPeriod=0;
-    }
-
-    function initPeriod(uint256 TTL) onlyOwner public {
-        periods
-
     }
 
 
-    function closePeriod ()
+    function initPeriod(){
+        periods[currentPeriod].TTL= periodTTL;
+        startTime= now;
+    }
+
+    function closePeriod (){
+        require(periods[currentPeriod])
+
+    }
 
     /**
     * Adds a new candidate to the List
