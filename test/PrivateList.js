@@ -1,4 +1,7 @@
-const expectThrow = require('./helpers/expectThrow.js').expectThrow;
+const expectThrow  = require('./helpers/expectThrow.js').expectThrow;
+const { assertRevert } = require('./helpers/assertRevert');
+
+
 const Standard20TokenMock = artifacts.require('Standard20TokenMock');
 const PrivateListContract = artifacts.require('PrivateList');
 const MAXNUMCANDIDATES=5;
@@ -8,6 +11,7 @@ const VOTER_ACCOUNT= web3.eth.accounts[2];
 const BOUNTY_POOL_ACCOUNT= 0x00;
 const TOTAL_TOKENS=1000;
 const STAKED_AMOUNT=100;
+const INITIAL_TTL = 10;
 
 let PrivateList;
 let FrontierToken;
@@ -15,9 +19,9 @@ let FrontierToken;
 
 contract('PrivateList', function (accounts) {
   beforeEach(async() => {
-    FrontierToken = await Standard20TokenMock.new(VOTER_ACCOUNT,TOTAL_TOKENS,{from: ADMIN_ACCOUNT});
+    FrontierToken = await Standard20TokenMock.new(VOTER_ACCOUNT, VOTER_ACCOUNT, TOTAL_TOKENS,{from: ADMIN_ACCOUNT});
     let tokenAddress= await FrontierToken.address;
-    PrivateList = await PrivateListContract.new(tokenAddress, MAXNUMCANDIDATES,{from:accounts[0]});
+    PrivateList = await PrivateListContract.new(tokenAddress, MAXNUMCANDIDATES, INITIAL_TTL, {from:accounts[0]});
   })
 
   describe('Creating the contract', async () => {
@@ -38,7 +42,17 @@ contract('PrivateList', function (accounts) {
         assert.strictEqual(contractTokenAddress,testingTokenAddress);
       })
 
-      it('Balance of Voter should be set to STAKED_AMOUNT', async () => {
+      it('Period should have been set to 0', async () => {
+        let currentPeriod= await PrivateList.currentPeriod.call();
+        assert.equal(0, currentPeriod.toNumber());
+      })
+
+      it('Default TTL should have been set to INITIAL_TTL', async () => {
+        let ttl = await PrivateList.periodTTL.call();
+        assert.strictEqual(INITIAL_TTL, ttl.toNumber());
+      })
+
+      it('Balance of Voter should be set to TOTAL_TOKENS', async () => {
         let balance= await FrontierToken.balanceOf.call(VOTER_ACCOUNT);
         assert.equal(TOTAL_TOKENS, balance.toNumber());
       });
@@ -56,7 +70,7 @@ contract('PrivateList', function (accounts) {
 
       it('Should NOT add a candidate if it is required by an account different than the owner', async () => {
         let newCandidate= CANDIDATE_ACCOUNT;
-        await expectThrow(PrivateList.addCandidate(newCandidate,{from:accounts[2]}))
+        await assertRevert(PrivateList.addCandidate(newCandidate,{from:accounts[2]}))
       })
 
       it('Should increase the analysts counter after adding a new candidate ', async () => {
@@ -82,7 +96,7 @@ contract('PrivateList', function (accounts) {
         let initialNumberOfCandidates= await PrivateList.candidateCounter.call();
         let newCandidate= await CANDIDATE_ACCOUNT;
         await PrivateList.addCandidate(newCandidate);
-        await expectThrow(PrivateList.addCandidate(newCandidate));
+        await assertRevert(PrivateList.addCandidate(newCandidate));
         let updatedNumberOfCandidates= await PrivateList.candidateCounter.call();
         assert.equal(1, updatedNumberOfCandidates);
       })
@@ -100,7 +114,7 @@ contract('PrivateList', function (accounts) {
 
     it('Should NOT remove a candidate if it is required by an account different than the owner', async () => {
       let newCandidate= CANDIDATE_ACCOUNT;
-      await expectThrow(PrivateList.addCandidate(newCandidate,{from:accounts[2]}))
+      await assertRevert(PrivateList.addCandidate(newCandidate,{from:accounts[2]}))
     })
 
     it('Should decrease the analysts counter after removing a candidate ', async () => {
@@ -124,14 +138,14 @@ contract('PrivateList', function (accounts) {
 
       it('Should NOT add a candidate if it is required by an account different than the owner', async () => {
         let newVoter= VOTER_ACCOUNT;
-        await expectThrow(PrivateList.addVoter(newVoter,{from:accounts[2]}))
+        await assertRevert(PrivateList.addVoter(newVoter,{from:accounts[2]}))
       })
 
       it('Should throw if the analyst is added twice', async () => {
         let initialNumberOfCandidates= await PrivateList.candidateCounter.call();
         let newCandidate= await VOTER_ACCOUNT;
         await PrivateList.addCandidate(newCandidate);
-        await expectThrow(PrivateList.addCandidate(newCandidate));
+        await assertRevert(PrivateList.addCandidate(newCandidate));
         let updatedNumberOfCandidates= await PrivateList.candidateCounter.call();
         assert.equal(1, updatedNumberOfCandidates);
       })
@@ -149,7 +163,7 @@ contract('PrivateList', function (accounts) {
 
       it('Should NOT remove a candidate if it is required by an account different than the owner', async () => {
         let newVoter= VOTER_ACCOUNT;
-        await expectThrow(PrivateList.removeVoter(newVoter,{from:accounts[2]}))
+        await assertRevert(PrivateList.removeVoter(newVoter,{from:accounts[2]}))
       })
   });
 
@@ -161,6 +175,18 @@ contract('PrivateList', function (accounts) {
         let totalStaked = await FrontierToken.allowance.call(VOTER_ACCOUNT, listAddress);
         assert.equal(STAKED_AMOUNT,totalStaked);
       });
+
+      it('Should increase the number of votes in the period', async () => {
+        let listAddress= await PrivateList.address;
+        let newVoter= VOTER_ACCOUNT;
+        await PrivateList.addVoter(newVoter);
+        await FrontierToken.approve(listAddress, STAKED_AMOUNT,{from:VOTER_ACCOUNT});
+        await PrivateList.buyTokenVotes(STAKED_AMOUNT, {from:VOTER_ACCOUNT});
+        let votesBalance = await PrivateList.votesBalance.call(0, VOTER_ACCOUNT);
+        assert.equal(STAKED_AMOUNT, votesBalance);
+      });
+
+
   });
 
   describe('Voting', async () => {
@@ -169,7 +195,7 @@ contract('PrivateList', function (accounts) {
         await PrivateList.addCandidate(newCandidate);
         let newVoter= VOTER_ACCOUNT;
         await PrivateList.addVoter(newVoter);
-        await expectThrow(PrivateList.vote(CANDIDATE_ACCOUNT,STAKED_AMOUNT,{from:newVoter}))
+        await assertRevert(PrivateList.vote(CANDIDATE_ACCOUNT,STAKED_AMOUNT,{from:newVoter}))
       });
 
       it('Token should not enable transferFrom from admin', async () => {
@@ -223,6 +249,7 @@ contract('PrivateList', function (accounts) {
         let bountyPoolBalance= await FrontierToken.balanceOf.call(BOUNTY_POOL_ACCOUNT);
         assert.equal(totalVotes.toNumber(),bountyPoolBalance.toNumber());
       });
+
   });
 
 

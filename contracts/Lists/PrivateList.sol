@@ -9,8 +9,12 @@ import "../lib/Owned.sol";
 **/
 contract PrivateList is Owned {
 
-    mapping (uint256 => mapping(address=> uint256)) public votesReceived; // Amount that only can be changed in exchange of FTR
-    mapping (uint256 => mapping(address => uint256)) public votesBalance; // For each period, maps user's address to voteToken balance
+     // Amount that only can be changed in exchange of FTR
+    mapping (uint256 => mapping(address=> uint256)) public votesReceived;
+
+    // For each period, maps user's address to voteToken balance
+    mapping (uint256 => mapping(address => uint256)) public votesBalance;
+
     mapping (address => bool) public candidatesList; //Replace with registry address
     mapping (address => bool) public voterList; // Replace with registry address
 
@@ -22,7 +26,7 @@ contract PrivateList is Owned {
     address public bountyPoolAddress = 0x00;
     Standard20Token public token;
 
-    uint256 currentPeriod=0;
+    uint256 public currentPeriod=0;
 
     enum PeriodState{CREATED, ACTIVE, CLAIM, CLOSED}
 
@@ -35,7 +39,10 @@ contract PrivateList is Owned {
         uint256 claimTTL;
     }
 
+
     mapping (uint256 => Period) public periods;
+
+
 
     /**
     * Creates a new Instance of a Voting Lists
@@ -69,7 +76,7 @@ contract PrivateList is Owned {
     function initPeriod() public{
         require(periods[currentPeriod].state == PeriodState.CREATED);
         periods[currentPeriod].TTL= periodTTL;
-        periods[currentPeriod].state= PeriodState.ACTIVE;
+        nextState();
         periods[currentPeriod].startTime = now;
     }
 
@@ -80,7 +87,7 @@ contract PrivateList is Owned {
     function initClaimingState() public {
       require(periods[currentPeriod].state == PeriodState.ACTIVE);
       require ((now - periods[currentPeriod].startTime) > (periods[currentPeriod].TTL + periods[currentPeriod].claimTTL));
-      periods[currentPeriod].state= PeriodState.CLAIM;
+      nextState();
     }
 
     /**
@@ -104,8 +111,8 @@ contract PrivateList is Owned {
     function closePeriod() public {
         require (periods[currentPeriod].state == PeriodState.CLAIM);
         require (now - periods[currentPeriod].startTime > periods[currentPeriod].TTL);
-        periods[currentPeriod].state= PeriodState.CLOSED;
-        currentPeriod +=1;
+        nextState();
+        nextPeriod();
     }
 
 
@@ -167,6 +174,16 @@ contract PrivateList is Owned {
         votesReceived[currentPeriod][_candidateAddress] += _amount;
         Vote(_candidateAddress, _amount);
     }
+
+    function nextState() internal {
+        periods[currentPeriod].state = PeriodState(uint(periods[currentPeriod].state) + 1);
+    }
+
+    function nextPeriod() internal {
+        currentPeriod +=1;
+    }
+
+
 
 
 
