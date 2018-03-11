@@ -2,12 +2,13 @@ pragma solidity 0.4.19;
 
 import "../lib/Standard20Token.sol";
 import "../lib/Owned.sol";
+import "../OwnedRegistry.sol";
 
 /**
 * Simplest case of a TRL, voters and candidates are added by an Admin
 *
 **/
-contract PrivateList is Owned {
+contract PrivateTRL is Owned {
 
      // Amount that only can be changed in exchange of FTR
     mapping (uint256 => mapping(address=> uint256)) public votesReceived;
@@ -15,18 +16,17 @@ contract PrivateList is Owned {
     // For each period, maps user's address to voteToken balance
     mapping (uint256 => mapping(address => uint256)) public votesBalance;
 
-    mapping (address => bool) public candidatesList; //Replace with registry address
-    mapping (address => bool) public voterList; // Replace with registry address
+    // Registry of candidates to be voted
+    Registry candidateRegistry;
 
+    // Registry of candidates allowed to vote
+    Registry VoterRegistry;
 
-    uint256 public maxNumCandidates; // To the registry
-    uint256 public maxNumVoters; // To the registry
-    uint256 public candidateCounter; // To the registry
-    uint256 public periodTTL;
-    address public bountyPoolAddress = 0x00;
+    // Master Token, used to buy votes
     Standard20Token public token;
 
-    uint256 public currentPeriod=0;
+
+    uint256 public periodIndex=0;
 
     enum PeriodState{CREATED, ACTIVE, CLAIM, CLOSED}
 
@@ -38,7 +38,6 @@ contract PrivateList is Owned {
         uint256 TTL;
         uint256 claimTTL;
     }
-
 
     mapping (uint256 => Period) public periods;
 
@@ -58,26 +57,15 @@ contract PrivateList is Owned {
     }
 
     /**
-    * Exchanges the main token for an amount of votes
-    * Requires previous allowance of expenditure of at least the amount required
-    * @param _amount Amount of votes that the voter wants to buy
-    **/
-
-    function buyTokenVotes(uint256 _amount) public {
-      require(token.transferFrom(msg.sender,this, _amount));
-      votesBalance[currentPeriod][msg.sender] += _amount;
-    }
-
-    /**
     * Initializes a new period, taking as the TTL value the current from storage, and setting the state to 1
     * Requires that the current period is Preparing (0)
     **/
 
     function initPeriod() public{
-        require(periods[currentPeriod].state == PeriodState.CREATED);
-        periods[currentPeriod].TTL= periodTTL;
+        require(periods[periodIndex].state == PeriodState.CREATED);
+        periods[periodIndex].TTL= periodTTL;
         nextState();
-        periods[currentPeriod].startTime = now;
+        periods[eriodIndex].startTime = now;
     }
 
     /**
@@ -85,8 +73,8 @@ contract PrivateList is Owned {
     *
     **/
     function initClaimingState() public {
-      require(periods[currentPeriod].state == PeriodState.ACTIVE);
-      require ((now - periods[currentPeriod].startTime) > (periods[currentPeriod].TTL + periods[currentPeriod].claimTTL));
+      require(periods[periodIndex].state == PeriodState.ACTIVE);
+      require ((now - periods[periodIndex].startTime) > (periods[periodIndex].TTL + periods[periodIndex].claimTTL));
       nextState();
     }
 
@@ -97,9 +85,9 @@ contract PrivateList is Owned {
     **/
 
     function claimBounty() public {
-        require(periods[currentPeriod].state == PeriodState.CLAIM);
+        require(periods[periodIndex].state == PeriodState.CLAIM);
         require(candidatesList[msg.sender] == true);
-        uint256 totalAmount = votesReceived[currentPeriod][msg.sender] * token.balanceOf(this)/periods[currentPeriod].totalVotes;
+        uint256 totalAmount = votesReceived[periodIndex][msg.sender] * token.balanceOf(this)/periods[periodIndex].totalVotes;
         token.transfer(msg.sender, totalAmount);
     }
 
@@ -109,8 +97,8 @@ contract PrivateList is Owned {
     **/
 
     function closePeriod() public {
-        require (periods[currentPeriod].state == PeriodState.CLAIM);
-        require (now - periods[currentPeriod].startTime > periods[currentPeriod].TTL);
+        require (periods[periodIndex].state == PeriodState.CLAIM);
+        require (now - periods[periodIndex].startTime > periods[periodIndex].TTL);
         nextState();
         nextPeriod();
     }
@@ -161,6 +149,18 @@ contract PrivateList is Owned {
     }
 
     /**
+    * Exchanges the main token for an amount of votes
+    * Requires previous allowance of expenditure of at least the amount required
+    * @param _amount Amount of votes that the voter wants to buy
+    **/
+
+    function buyTokenVotes(uint256 _amount) public {
+      require(token.transferFrom(msg.sender,this, _amount));
+      votesBalance[periodIndex][msg.sender] += _amount;
+    }
+
+
+    /**
     * Adds a new vote for a candidate. It fails if the candidate hasn't approved before the specified amount
     * @param _candidateAddress address of the candidate selected
     * @param _amount of votes used
@@ -168,19 +168,21 @@ contract PrivateList is Owned {
 
     function vote(address _candidateAddress, uint256 _amount) public {
         require(candidatesList[_candidateAddress] == true);
-        require (periods[currentPeriod].state == PeriodState.CLAIM);
+        require (periods[periodIndex].state == PeriodState.CLAIM);
         require(voterList[msg.sender]==true);
         require(token.transferFrom(msg.sender, bountyPoolAddress, _amount));
-        votesReceived[currentPeriod][_candidateAddress] += _amount;
+        votesReceived[periodIndex][_candidateAddress] += _amount;
         Vote(_candidateAddress, _amount);
     }
 
+
+
     function nextState() internal {
-        periods[currentPeriod].state = PeriodState(uint(periods[currentPeriod].state) + 1);
+        periods[periodIndex].state = PeriodState(uint(periods[periodIndex].state) + 1);
     }
 
     function nextPeriod() internal {
-        currentPeriod +=1;
+        periodIndex +=1;
     }
 
 
