@@ -1,6 +1,6 @@
 # Frontier Lists - Docs 0.2
 
-## About Version `[V0.2](https://github.com/Frontier-project/FrontierLists/tree/feature/periodic_voting)`
+## About Version `[V0.2]`
 
 * Includes a State machine with periodic voting included
 * Usage of Lazy Execution from period and Stage from admin
@@ -22,7 +22,6 @@ To incentivise continuous activity on the platform, FrontierLists  processes per
 * `02 Claiming:`
 * `03 Closed:`
 
-undefined
 ## Stages
 
 ### List Creation
@@ -44,7 +43,7 @@ As a previous requirement to create the list, an ERC20 compliant token (main tok
 
 ### Initialising the period
 
-Once that the list has been created, you will need to start the first period. To do that, it will be needed to establish the TTL of the Period. At this point, the state is changed to ``active``.
+Once that the list has been created, you will need to start the first period. To do that, it will be needed to establish the `TTL` of the Period. At this point, the state is changed to ``active``.
 
 ```
     function initPeriod(){

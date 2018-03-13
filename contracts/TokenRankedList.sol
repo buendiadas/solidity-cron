@@ -1,14 +1,13 @@
 pragma solidity 0.4.19;
 
-import "../lib/Standard20Token.sol";
-import "../lib/Owned.sol";
-import "../OwnedRegistry.sol";
+import "./lib/Standard20Token.sol";
+import "./OwnedRegistry.sol";
 
 /**
-* Simplest case of a TRL, voters and candidates are added by an Admin
+* A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates
 *
 **/
-contract PrivateTRL is Owned {
+contract TokenRankedList {
 
      // Amount that only can be changed in exchange of FTR
     mapping (uint256 => mapping(address=> uint256)) public votesReceived;
@@ -17,10 +16,10 @@ contract PrivateTRL is Owned {
     mapping (uint256 => mapping(address => uint256)) public votesBalance;
 
     // Registry of candidates to be voted
-    Registry candidateRegistry;
+    OwnedRegistry public candidateRegistry;
 
     // Registry of candidates allowed to vote
-    Registry VoterRegistry;
+    OwnedRegistry public voterRegistry;
 
     // Master Token, used to buy votes
     Standard20Token public token;
@@ -31,7 +30,6 @@ contract PrivateTRL is Owned {
     enum PeriodState{CREATED, ACTIVE, CLAIM, CLOSED}
 
     struct Period {
-        Standard20Token votingToken;
         uint256 startTime;
         uint256 totalVotes;
         PeriodState state;
@@ -42,18 +40,23 @@ contract PrivateTRL is Owned {
     mapping (uint256 => Period) public periods;
 
 
-
     /**
     * Creates a new Instance of a Voting Lists
     * @param _tokenAddress Address of the token used for
-    * @param _maxNumCandidates maximum number of candidates
+    *
     **/
 
-    function PrivateList(address _tokenAddress, uint256 _maxNumCandidates, uint256 _initialTTL) public {
+    function TokenRankedList(
+        address _tokenAddress,
+        address _candidateRegistryAddress,
+        address _voterRegistryAddress,
+        uint256 _initialTTL)
+        public {
+
         token = Standard20Token(_tokenAddress);
-        maxNumCandidates = _maxNumCandidates;
-        periodTTL = _initialTTL;
-        initPeriod();
+        candidateRegistry= OwnedRegistry(_candidateRegistryAddress);
+        voterRegistry = OwnedRegistry(_voterRegistryAddress);
+        initPeriod(_initialTTL);
     }
 
     /**
@@ -61,11 +64,11 @@ contract PrivateTRL is Owned {
     * Requires that the current period is Preparing (0)
     **/
 
-    function initPeriod() public{
+    function initPeriod(uint256 _periodTTL) public {
         require(periods[periodIndex].state == PeriodState.CREATED);
-        periods[periodIndex].TTL= periodTTL;
+        periods[periodIndex].TTL= _periodTTL;
+        periods[periodIndex + 1].startTime = now;
         nextState();
-        periods[eriodIndex].startTime = now;
     }
 
     /**
@@ -86,9 +89,10 @@ contract PrivateTRL is Owned {
 
     function claimBounty() public {
         require(periods[periodIndex].state == PeriodState.CLAIM);
-        require(candidatesList[msg.sender] == true);
+        require(candidateRegistry.isWhitelisted(msg.sender) == true);
         uint256 totalAmount = votesReceived[periodIndex][msg.sender] * token.balanceOf(this)/periods[periodIndex].totalVotes;
         token.transfer(msg.sender, totalAmount);
+        BountyRelased(msg.sender, totalAmount);
     }
 
     /**
@@ -101,51 +105,6 @@ contract PrivateTRL is Owned {
         require (now - periods[periodIndex].startTime > periods[periodIndex].TTL);
         nextState();
         nextPeriod();
-    }
-
-
-    /**
-    * Adds a new candidate to the List
-    * @param _candidateAddress Account of the candidate to be added to the List
-    **/
-    function addCandidate(address _candidateAddress) public onlyOwner {
-        require(candidateCounter <= maxNumCandidates);
-	      require(candidatesList[_candidateAddress]==false);
-        require(voterList[_candidateAddress]==false); // Candidate cannot be a voter
-        candidatesList[_candidateAddress] = true;
-        candidateCounter += 1;
-        AddCandidate(_candidateAddress, candidateCounter);
-    }
-
-    /**
-    * Removes a candidate to the List
-    * @param _candidateAddress Account of the candidate to be removed to the List
-    **/
-    function removeCandidate (address _candidateAddress) public onlyOwner {
-        candidatesList[_candidateAddress] = false;
-        candidateCounter -= 1;
-        RemoveCandidate(_candidateAddress);
-    }
-
-    /**
-    * Adds a new candidate to the voterList
-    * @param _voterAddress Account of the voter to be added to the List
-    **/
-    function addVoter(address _voterAddress) public onlyOwner {
-        require(voterList[_voterAddress]==false);
-        require(candidatesList[_voterAddress]==false); // Voter cannot be a candidate
-        voterList[_voterAddress] = true;
-        AddVoter(_voterAddress);
-    }
-
-    /**
-    * Removes a voter from the voterList
-    * @param _voterAddress Account of the candidate to be removed to the List
-    **/
-
-    function removeVoter (address _voterAddress) public onlyOwner {
-        voterList[_voterAddress] = false;
-        RemoveVoter(_voterAddress);
     }
 
     /**
@@ -167,31 +126,36 @@ contract PrivateTRL is Owned {
     **/
 
     function vote(address _candidateAddress, uint256 _amount) public {
-        require(candidatesList[_candidateAddress] == true);
         require (periods[periodIndex].state == PeriodState.CLAIM);
-        require(voterList[msg.sender]==true);
-        require(token.transferFrom(msg.sender, bountyPoolAddress, _amount));
+        require (candidateRegistry.isWhitelisted(_candidateAddress));
+        require (voterRegistry.isWhitelisted(msg.sender));
+        require(token.transferFrom(msg.sender,this, _amount));
         votesReceived[periodIndex][_candidateAddress] += _amount;
         Vote(_candidateAddress, _amount);
     }
 
 
+    /**
+    * Moves from the current state to the Next State {CREATED, ACTIVE, CLAIM, CLOSED}
+    *
+    **/
 
     function nextState() internal {
         periods[periodIndex].state = PeriodState(uint(periods[periodIndex].state) + 1);
+        StateChange(uint(periods[periodIndex].state)-1 , uint(periods[periodIndex].state));
     }
+
+    /**
+    * Moves from the current period to the next period
+    **/
 
     function nextPeriod() internal {
         periodIndex +=1;
+        PeriodForward(periodIndex-1, periodIndex);
     }
 
-
-
-
-
-    event AddCandidate(address _candidateAddress, uint256 _candidateCounter);
-    event AddVoter(address _voterAddress);
-    event RemoveCandidate(address _candidateAddress);
-    event RemoveVoter(address _voterAddress);
+    event BountyRelased(address _recipient, uint256 _amount);
+    event StateChange(uint256 _stateFrom, uint256 _stateTo);
+    event PeriodForward(uint256 _periodFrom, uint256 _periodTo);
     event Vote(address _candidateAddress, uint256 _amount);
 }

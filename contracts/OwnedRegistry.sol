@@ -1,7 +1,7 @@
 pragma solidity 0.4.19;
 
-import "../lib/Standard20Token.sol";
-import "../lib/Owned.sol";
+import "./lib/Standard20Token.sol";
+import "./lib/Owned.sol";
 
 /**
 * Generic Registry, used for Candidates and Voters
@@ -9,69 +9,47 @@ import "../lib/Owned.sol";
 **/
 
 
-contract Registry{
+contract OwnedRegistry is Owned{
 
-  mapping (bytes32 => bool) public isWhitelisted;
-  uint256 maxNumListings;
+  mapping (address => bool) public isWhitelisted;
+  uint256 public maxNumListings;
+  uint256 public listingCounter;
 
-
-  /**
-  *@dev Allows a user to start an application. Takes tokens from user and sets apply stage end time.
-  *@param _listingHash The hash of a potential listing a user is applying to add to the registry
-  *@param _amount The number of ERC20 tokens a user is willing to potentially stake
-  @param _data   Extra data relevant to the application. Think IPFS hashes.
-  */
-
-  function apply(bytes32 _listingHash, uint _amount, string _data) external {
-      require(!isWhitelisted(_listingHash));
-      require(!appWasMade(_listingHash));
-      require(_amount >= parameterizer.get("minDeposit"));
-
-      // Sets owner
-      Listing storage listing = listings[_listingHash];
-      listing.owner = msg.sender;
-
-      // Transfers tokens from user to Registry contract
-      require(token.transferFrom(listing.owner, this, _amount));
-
-      // Sets apply stage end time
-      listing.applicationExpiry = block.timestamp + parameterizer.get("applyStageLen");
-      listing.unstakedDeposit = _amount;
-
-      _Application(_listingHash, _amount, _data);
+  function OwnedRegistry(uint256 _maxNumListings) public {
+      maxNumListings = _maxNumListings;
   }
 
+  /**
+  * Adds a new account to the registry
+  * @param _accountToWhiteList account to be added to the registry
+  **/
 
-  function whiteList(bytes32 listingHash) public{
+  function whiteList(address _accountToWhiteList) public{
       require(msg.sender==owner);
-      isWhitelisted(listingHash)=true;
-
+      require(listingCounter <= maxNumListings);
+      require(!isWhitelisted[_accountToWhiteList]);
+      isWhitelisted[_accountToWhiteList]=true;
+      listingCounter +=1;
+      WhiteList(_accountToWhiteList);
   }
 
   /**
-  *@dev Allows a user to start an application. Takes tokens from user and sets apply stage end time.
-  *@param _listingHash The hash of a potential listing a user is applying to add to the registry
-  *@param _amount The number of ERC20 tokens a user is willing to potentially stake
-  @param _data   Extra data relevant to the application. Think IPFS hashes.
-  */
-  function remove(bytes32 _listingHash, uint _amount, string _data) external {
-      require(!isWhitelisted(_listingHash));
-      require(!appWasMade(_listingHash));
-      require(_amount >= parameterizer.get("minDeposit"));
+  * Removes an account from the registry
+  * @param _accountToRemove account to be removed from
+  **/
 
-      // Sets owner
-      Listing storage listing = listings[_listingHash];
-      listing.owner = msg.sender;
+  function remove(address _accountToRemove) external {
+      require(msg.sender==owner);
+      require(listingCounter <= maxNumListings);
+      isWhitelisted[_accountToRemove]=false;
+      listingCounter -=1;
+      Remove(_accountToRemove);
 
-      // Transfers tokens from user to Registry contract
-      require(token.transferFrom(listing.owner, this, _amount));
-
-      // Sets apply stage end time
-      listing.applicationExpiry = block.timestamp + parameterizer.get("applyStageLen");
-      listing.unstakedDeposit = _amount;
-
-      _Application(_listingHash, _amount, _data);
   }
+
+
+  event Remove(address _removedAccount);
+  event WhiteList(address _whiteListedAccount);
 
 
 
