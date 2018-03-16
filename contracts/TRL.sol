@@ -7,7 +7,7 @@ import "./OwnedRegistry.sol";
 * A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates
 *
 **/
-contract TokenRankedList {
+contract TRL {
 
      // Amount that only can be changed in exchange of FTR
     mapping (uint256 => mapping(address=> uint256)) public votesReceived;
@@ -24,8 +24,8 @@ contract TokenRankedList {
     // Master Token, used to buy votes
     Standard20Token public token;
 
-
-    uint256 public periodIndex=0;
+    // Index, Defines the current period
+    uint256 public periodIndex;
 
     enum PeriodState{CREATED, ACTIVE, CLAIM, CLOSED}
 
@@ -39,14 +39,13 @@ contract TokenRankedList {
 
     mapping (uint256 => Period) public periods;
 
-
     /**
     * Creates a new Instance of a Voting Lists
     * @param _tokenAddress Address of the token used for
     *
     **/
 
-    function TokenRankedList(
+    function TRL(
         address _tokenAddress,
         address _candidateRegistryAddress,
         address _voterRegistryAddress,
@@ -58,6 +57,18 @@ contract TokenRankedList {
         voterRegistry = OwnedRegistry(_voterRegistryAddress);
         initPeriod(_initialTTL);
     }
+
+    /**
+    * Exchanges the main token for an amount of votes
+    * Requires previous allowance of expenditure of at least the amount required
+    * @param _amount Amount of votes that the voter wants to buy
+    **/
+
+    function buyTokenVotes(uint256 _amount) public {
+        require(token.transferFrom(msg.sender,this, _amount));
+        votesBalance[periodIndex][msg.sender] += _amount;
+    }
+
 
     /**
     * Initializes a new period, taking as the TTL value the current from storage, and setting the state to 1
@@ -76,9 +87,9 @@ contract TokenRankedList {
     *
     **/
     function initClaimingState() public {
-      require(periods[periodIndex].state == PeriodState.ACTIVE);
-      require ((now - periods[periodIndex].startTime) > (periods[periodIndex].TTL + periods[periodIndex].claimTTL));
-      nextState();
+        require(periods[periodIndex].state == PeriodState.ACTIVE);
+        require ((now - periods[periodIndex].startTime) > (periods[periodIndex].TTL + periods[periodIndex].claimTTL));
+        nextState();
     }
 
     /**
@@ -105,17 +116,6 @@ contract TokenRankedList {
         require (now - periods[periodIndex].startTime > periods[periodIndex].TTL);
         nextState();
         nextPeriod();
-    }
-
-    /**
-    * Exchanges the main token for an amount of votes
-    * Requires previous allowance of expenditure of at least the amount required
-    * @param _amount Amount of votes that the voter wants to buy
-    **/
-
-    function buyTokenVotes(uint256 _amount) public {
-      require(token.transferFrom(msg.sender,this, _amount));
-      votesBalance[periodIndex][msg.sender] += _amount;
     }
 
 
