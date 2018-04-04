@@ -1,4 +1,3 @@
-const { increaseTimeTo, duration } = require('./helpers/increaseTime')
 const expectThrow  = require('./helpers/expectThrow.js').expectThrow
 const { assertRevert } = require('./helpers/assertRevert')
 
