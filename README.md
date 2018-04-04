@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.com/Frontier-project/TokenRankedLists.svg?token=DJeMzxJJncp3nRaEUuxH&branch=v0.2)](https://travis-ci.com/Frontier-project/TokenRankedLists)
+
+
 ## About
 
 Frontier Lists enable to create periodic incentivized Ballots and Token Ranked Lists (TRL)
@@ -12,6 +15,11 @@ The package needs from a running Ethereum rpc instance in `localhost`, port `854
 
 ```bash
 npm install
+```
+## Start Ganache-cli
+
+```bash
+npm start
 ```
 
 ## Test
