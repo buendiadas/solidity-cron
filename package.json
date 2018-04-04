@@ -8,6 +8,8 @@
     "test": "test"
   },
   "scripts": {
+    "start": "npm run start:testrpc",
+    "start:testrpc": "ganache-cli -p 8545 -i 5777",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
     "test": "truffle test"
@@ -42,6 +44,7 @@
   },
   "dependencies": {
     "dotenv": "^5.0.1",
+    "ganache-cli": "^6.1.0",
     "truffle-hdwallet-provider": "0.0.3",
     "truffle-hdwallet-provider-privkey": "^0.2.0"
   }
