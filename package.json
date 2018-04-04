@@ -8,6 +8,7 @@
     "test": "test"
   },
   "scripts": {
+    "compile": "truffle compile",
     "migrate": "truffle migrate",
     "test": "truffle test"
   },
@@ -30,6 +31,18 @@
   },
   "homepage": "https://github.com/Frontier-project/FrontierLists#readme",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "babel-preset-stage-3": "^6.17.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-register": "^6.23.0",
+    "babel-preset-env": "^1.6.1",
     "solidity-coverage": "^0.4.9"
+  },
+  "dependencies": {
+    "dotenv": "^5.0.1",
+    "truffle-hdwallet-provider": "0.0.3",
+    "truffle-hdwallet-provider-privkey": "^0.2.0"
   }
 }
