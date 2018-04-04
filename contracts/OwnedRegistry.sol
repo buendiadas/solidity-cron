@@ -8,7 +8,6 @@ import "./lib/Owned.sol";
 *
 **/
 
-
 contract OwnedRegistry is Owned{
 
   mapping (address => bool) public isWhitelisted;
@@ -44,13 +43,9 @@ contract OwnedRegistry is Owned{
       isWhitelisted[_accountToRemove]=false;
       listingCounter -=1;
       Remove(_accountToRemove);
-
   }
-
 
   event Remove(address _removedAccount);
   event WhiteList(address _whiteListedAccount);
-
-
 
 }
