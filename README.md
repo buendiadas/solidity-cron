@@ -1,3 +1,15 @@
+## About
+
+Frontier Lists enable to create periodic incentivized Ballots and Token Ranked Lists (TRL)
+
+Version `V0.2`
+
+* Includes a State machine with periodic voting included
+* Usage of Lazy execution from period and Stage from admin
+* Voters and Candidates inclusion is centralized in admin
+* Votes are public
+
+
 ## Initialize
 The only environmental dependency you need is Node.
 ```
