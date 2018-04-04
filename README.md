@@ -1,32 +1,45 @@
+[![Build Status](https://travis-ci.com/Frontier-project/TokenRankedLists.svg?token=DJeMzxJJncp3nRaEUuxH&branch=v0.2)](https://travis-ci.com/Frontier-project/TokenRankedLists)
+
+
 ## About
 
 Frontier Lists enable to create periodic incentivized Ballots and Token Ranked Lists (TRL)
 
-Version `V0.2`
 
-* Includes a State machine with periodic voting included
-* Usage of Lazy execution from period and Stage from admin
-* Voters and Candidates inclusion is centralized in admin
-* Votes are public
+## Dependencies
+
+The package needs from a running Ethereum rpc instance in `localhost`, port `8545`. You can run a [ganache-cli](https://github.com/trufflesuite/ganache-cli) instance or run [geth](https://github.com/ethereum/go-ethereum)
 
 
-## Initialize
-The only environmental dependency you need is Node.
-```
+## Install
+
+```bash
 npm install
+```
+## Start Ganache-cli
+
+```bash
+npm start
+```
+
+## Test
+The repo has a comprehensive test suite. You can run it with:
+
+```bash
+npm run test
+```
+
+## Compile
+In order to get the ABI and bytecode, it is opened a npm command
+
+```bash
 npm run compile
 ```
 
-## Tests
-The repo has a comprehensive test suite. You can run it with `npm run test`.
+## Deploy
 
-## Rinkeby Settings
+Registries and TRL are deployed by calling the migrate command
 
-Today, the current accounts are used :
-
-- `ADMIN_ACCOUNT`: [0x501C9d92325c6240BEc5cBE18117d3b91eCc65F4](https://rinkeby.etherscan.io/address/0xb24f8f0f7462751bfe83416cfd1a3f373c0c94e2)
-
-- `PRIVATE KEY: 5ad59d70a4fbe36eea9110ec1d7c74b0036a8bda4f97e35abf87a47611e30f45`
-
-
-- Frontier Token Contract Account: [0xf231e33a943f1080506da899e24fe810df9957b3](https://rinkeby.etherscan.io/address/0xf231e33a943f1080506da899e24fe810df9957b3)
+```bash
+npm run migrate
+```
