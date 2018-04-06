@@ -1,4 +1,4 @@
-const latestTime = require('./latestTime');
+import latestTime from './latestTime'
 
 // Increases testrpc time by the passed duration in seconds
 export default function increaseTime (duration) {

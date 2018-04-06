@@ -90,7 +90,7 @@ contract TRL {
 
     function initClaimingState() public {
         require(periodRegistry[periodIndex].state == PeriodState.ACTIVE);
-        require ((now - periodRegistry[periodIndex].startTime) > periodRegistry[periodIndex].TTL);
+        require ((now - periodRegistry[periodIndex].startTime) >= periodRegistry[periodIndex].TTL);
         nextState();
     }
 
@@ -131,7 +131,6 @@ contract TRL {
         require(periodRegistry[periodIndex].state == PeriodState.ACTIVE);
         require(candidateRegistry.isWhitelisted(_candidateAddress));
         require(voterRegistry.isWhitelisted(msg.sender));
-        require(token.transferFrom(msg.sender,this, _amount));
         votesReceived[periodIndex][_candidateAddress] += _amount;
         Vote(_candidateAddress, _amount, periodIndex);
     }
