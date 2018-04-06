@@ -26,12 +26,13 @@ contract('TRL', function (accounts) {
   let startTime
 
   beforeEach(async() => {
-      await advanceBlock();
       FrontierToken = await Standard20TokenMock.new(voterAccount, voterAccount, totalTokens,{from: adminAccount})
       CandidateRegistry = await OwnedRegistryContract.new(candidateAccount, maxNumCandidates,{from : adminAccount})
       VoterRegistry = await OwnedRegistryContract.new(voterAccount, maxNumCandidates,{from : adminAccount})
       TRL = await TRLContract.new(FrontierToken.address, CandidateRegistry.address,VoterRegistry.address,initialTTL, {from: adminAccount})
-      startTime = await web3.eth.getBlock('latest').timestamp // TODO: change with txReceipt.getBlockTime
+      const currentPeriodIndex = await TRL.periodIndex.call()
+      const currentPeriod = await TRL.periodRegistry.call(currentPeriodIndex)
+      startTime = await currentPeriod[0].toNumber()
   })
   describe('Creating the contract', async () => {
       it('Should have set the correct token as the token voting address', async () => {
