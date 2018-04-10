@@ -1,39 +1,40 @@
-import { advanceBlock } from './helpers/advanceToBlock';
-import latestTime from './helpers/latestTime'
-const { increaseTimeTo, duration } = require('./helpers/increaseTime')
-const expectThrow  = require('./helpers/expectThrow.js').expectThrow
-const { assertRevert } = require('./helpers/assertRevert')
+import { advanceBlock } from '../helpers/advanceToBlock';
+import latestTime from '../helpers/latestTime'
+const config = require('../..//config')
+const { increaseTimeTo, duration } = require('../helpers/increaseTime')
+const expectThrow  = require('../helpers/expectThrow.js').expectThrow
+const { assertRevert } = require('../helpers/assertRevert')
 const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 const TRLContract = artifacts.require('TRL')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
 
 
-let TRL
-let FrontierToken
-let CandidateRegistry
-let VoterRegistry
+contract('TRL<Active>', function (accounts) {
 
-contract('TRL', function (accounts) {
+  let TRL
+  let TRLClaiming
+  let FrontierToken
+  let CandidateRegistry
+  let VoterRegistry
+  let startTime
+  let adminAccount = web3.eth.accounts[0]
+  let voterAccounts = web3.eth.accounts.slice(1,4)
+  let candidateAccounts = web3.eth.accounts.slice(5,8)
 
-  const maxNumCandidates=5
-  const adminAccount= web3.eth.accounts[0]
-  const candidateAccount= web3.eth.accounts[1]
-  const voterAccount= web3.eth.accounts[2]
-  const bountyPoolAccount= 0x00
   const totalTokens=1000
   const stakedAmount=100
-  const initialTTL = 1000
-  let startTime
+
 
   beforeEach(async() => {
-      FrontierToken = await Standard20TokenMock.new(voterAccount, voterAccount, totalTokens,{from: adminAccount})
-      CandidateRegistry = await OwnedRegistryContract.new(candidateAccount, maxNumCandidates,{from : adminAccount})
-      VoterRegistry = await OwnedRegistryContract.new(voterAccount, maxNumCandidates,{from : adminAccount})
-      TRL = await TRLContract.new(FrontierToken.address, CandidateRegistry.address,VoterRegistry.address,initialTTL, {from: adminAccount})
+      FrontierToken = await Standard20TokenMock.new(voterAccounts,totalTokens,{from: adminAccount})
+      CandidateRegistry = await OwnedRegistryContract.new(candidateAccounts,config.candidateLength,{from:adminAccount})
+      VoterRegistry = await OwnedRegistryContract.new(voterAccounts,config.voterLength,{from:adminAccount})
+      TRL = await TRLContract.new(FrontierToken.address, CandidateRegistry.address,VoterRegistry.address,config.ttl,config.activeTime, config.claimTime,{from: adminAccount})
       const currentPeriodIndex = await TRL.periodIndex.call()
       const currentPeriod = await TRL.periodRegistry.call(currentPeriodIndex)
       startTime = await currentPeriod[0].toNumber()
   })
+
   describe('Creating the contract', async () => {
       it('Should have set the correct token as the token voting address', async () => {
           const contractTokenAddress = await TRL.token.call()
@@ -58,10 +59,10 @@ contract('TRL', function (accounts) {
           const currentPeriodIndex = await TRL.periodIndex.call()
           const currentPeriod = await TRL.periodRegistry.call(currentPeriodIndex)
           const currentTTL = await currentPeriod[3].toNumber()
-          assert.strictEqual(initialTTL, currentTTL)
+          assert.strictEqual(config.ttl, currentTTL)
       })
       it('Balance of Voter should be set to totalTokens', async () => {
-          const balance= await FrontierToken.balanceOf.call(voterAccount)
+          const balance= await FrontierToken.balanceOf.call(voterAccounts[0])
           assert.equal(totalTokens, balance.toNumber())
       })
   })
@@ -73,35 +74,37 @@ contract('TRL', function (accounts) {
           assert.strictEqual(1, currentState)
       })
       it('Should throw when someone tries to claim a Bounty', async () => {
-          await assertRevert(TRL.claimBounty({from:candidateAccount}))
+          await assertRevert(TRL.claimBounty({from:candidateAccounts[0]}))
       })
-      it('Should throw when someone tries to move to Claiming state 1 ms before TTL', async () => {
-          await increaseTimeTo(startTime + initialTTL -1);
-          await assertRevert(TRL.initClaimingState({from:candidateAccount}))
+      it('Should throw when someone tries to move to Claiming state before activeTime', async () => {
+          await assertRevert(TRL.initClaimingState({from:candidateAccounts[0]}))
+      })
+      it('Should throw when someone tries to close the period', async () => {
+          await assertRevert(TRL.closePeriod({from:adminAccount}))
       })
       it('Should enable to stake Tokens', async () => {
           const listAddress= await TRL.address
-          const isApproved= await FrontierToken.approve(listAddress,stakedAmount,{from:voterAccount})
-          const totalPreStaked = await FrontierToken.allowance.call(voterAccount, listAddress)
+          const isApproved= await FrontierToken.approve(listAddress,stakedAmount,{from:voterAccounts[0]})
+          const totalPreStaked = await FrontierToken.allowance.call(voterAccounts[0], listAddress)
           const currentPeriodIndex = await TRL.periodIndex.call()
-          await TRL.buyTokenVotes(totalPreStaked, {from:voterAccount})
-          const votingBalance = await TRL.votesBalance.call(currentPeriodIndex,voterAccount)
+          await TRL.buyTokenVotes(totalPreStaked, {from:voterAccounts[0]})
+          const votingBalance = await TRL.votesBalance.call(currentPeriodIndex,voterAccounts[0])
           assert.equal(totalPreStaked,votingBalance.toNumber())
       })
       it('Should increase the number of votes received per analyst in the period after voting', async () => {
           const listAddress= await TRL.address
-          const isApproved= await FrontierToken.approve(listAddress,stakedAmount,{from:voterAccount})
-          const totalPreStaked = await FrontierToken.allowance.call(voterAccount, listAddress)
+          const isApproved= await FrontierToken.approve(listAddress,stakedAmount,{from:voterAccounts[0]})
+          const totalPreStaked = await FrontierToken.allowance.call(voterAccounts[0], listAddress)
           const currentPeriodIndex = await TRL.periodIndex.call()
-          await TRL.buyTokenVotes(totalPreStaked, {from:voterAccount})
-          const votingBalance = await TRL.votesBalance.call(currentPeriodIndex,voterAccount)
-          await TRL.vote(candidateAccount,votingBalance,{from:voterAccount})
-          const votesReceived = await TRL.votesReceived.call(currentPeriodIndex,candidateAccount)
+          await TRL.buyTokenVotes(totalPreStaked, {from:voterAccounts[0]})
+          const votingBalance = await TRL.votesBalance.call(currentPeriodIndex,voterAccounts[0])
+          await TRL.vote(candidateAccounts[0],votingBalance,{from:voterAccounts[0]})
+          const votesReceived = await TRL.votesReceived.call(currentPeriodIndex,candidateAccounts[0])
           assert.equal(votingBalance.toNumber(), votesReceived.toNumber())
       })
-      it('Should change state to <Claiming> when someone tries to move to Claiming state after TTL', async () => {
-          await increaseTimeTo(startTime + initialTTL + 1)
-          await TRL.initClaimingState({from:candidateAccount})
+      it('Should change state to <Claiming> when someone tries to move to Claiming state after activeTime', async () => {
+          await increaseTimeTo(startTime + config.activeTime + 1)
+          await TRL.initClaimingState({from:candidateAccounts[0]})
           const currentPeriodIndex = await TRL.periodIndex.call()
           const currentPeriod = await TRL.periodRegistry.call(currentPeriodIndex)
           const currentState = await currentPeriod[2].toNumber()

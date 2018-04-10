@@ -7,14 +7,14 @@ import "../OwnedRegistry.sol";
 *
 **/
 
-
 contract OwnedRegistryMock is OwnedRegistry{
 
-  function OwnedRegistryMock(address _whiteListedAccount, uint256 _maxNumListings)
+  function OwnedRegistryMock(address[] _whiteListedAccounts, uint256 _maxNumListings)
       OwnedRegistry(_maxNumListings)
       public
   {
-      whiteList(_whiteListedAccount);
+    for (uint i= 0; i < _whiteListedAccounts.length; i++){
+      whiteList(_whiteListedAccounts[i]);
+    }
   }
-
 }
