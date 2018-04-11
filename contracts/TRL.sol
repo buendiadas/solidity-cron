@@ -34,7 +34,8 @@ contract TRL {
         uint256 totalVotes;
         PeriodState state;
         uint256 TTL;
-        uint256 claimTTL;
+        uint256 activeTime;
+        uint256 claimTime;
     }
 
     mapping (uint256 => Period) public periodRegistry;
@@ -49,27 +50,17 @@ contract TRL {
         address _tokenAddress,
         address _candidateRegistryAddress,
         address _voterRegistryAddress,
-        uint256 _initialTTL)
+        uint256 _initialTTL,
+        uint256 _initialActiveTime,
+        uint256 _initialClaimTime)
         public
     {
         token = Standard20Token(_tokenAddress);
         candidateRegistry= OwnedRegistry(_candidateRegistryAddress);
         voterRegistry = OwnedRegistry(_voterRegistryAddress);
+        periodRegistry[periodIndex] = Period(now, 0,PeriodState.CREATED, _initialTTL, _initialActiveTime, _initialClaimTime);
         initPeriod(_initialTTL);
     }
-
-    /**
-    * Exchanges the main token for an amount of votes
-    * Requires previous allowance of expenditure of at least the amount required
-    * @param _amount Amount of votes that the voter wants to buy
-    **/
-
-    function buyTokenVotes(uint256 _amount) public {
-        require(token.transferFrom(msg.sender,this, _amount));
-        votesBalance[periodIndex][msg.sender] += _amount;
-        VotesBought(msg.sender, _amount, periodIndex);
-    }
-
 
     /**
     * Initializes a new period, taking as the TTL value the current from storage, and setting the state to 1
@@ -84,13 +75,42 @@ contract TRL {
     }
 
     /**
+    * Exchanges the main token for an amount of votes
+    * Requires previous allowance of expenditure of at least the amount required
+    * Currently 1:1 exchange used, but this rate could be changed
+    * @param _amount Amount of votes that the voter wants to buy
+    **/
+
+    function buyTokenVotes(uint256 _amount) public {
+        require(periodRegistry[periodIndex].state == PeriodState.ACTIVE);
+        require(token.transferFrom(msg.sender,this, _amount));
+        votesBalance[periodIndex][msg.sender] += _amount;
+        VotesBought(msg.sender, _amount, periodIndex);
+    }
+
+    /**
+    * Adds a new vote for a candidate. It fails if the candidate hasn't approved before the specified amount
+    * @param _candidateAddress address of the candidate selected
+    * @param _amount of votes used
+    **/
+
+    function vote(address _candidateAddress, uint256 _amount) public {
+        require(periodRegistry[periodIndex].state == PeriodState.ACTIVE);
+        require(candidateRegistry.isWhitelisted(_candidateAddress));
+        require(voterRegistry.isWhitelisted(msg.sender));
+        votesReceived[periodIndex][_candidateAddress] += _amount;
+        periodRegistry[periodIndex].totalVotes += _amount;
+        Vote(_candidateAddress, _amount, periodIndex);
+    }
+
+    /**
     * Moves the period from active to Claiming.
     *
     **/
 
     function initClaimingState() public {
         require(periodRegistry[periodIndex].state == PeriodState.ACTIVE);
-        require ((now - periodRegistry[periodIndex].startTime) >= periodRegistry[periodIndex].TTL);
+        require ((now - periodRegistry[periodIndex].startTime) >= periodRegistry[periodIndex].activeTime);
         nextState();
     }
 
@@ -103,6 +123,7 @@ contract TRL {
     function claimBounty() public {
         require(periodRegistry[periodIndex].state == PeriodState.CLAIM);
         require(candidateRegistry.isWhitelisted(msg.sender) == true);
+        require(periodRegistry[periodIndex].totalVotes>0);
         uint256 totalAmount = votesReceived[periodIndex][msg.sender] * token.balanceOf(this)/periodRegistry[periodIndex].totalVotes;
         token.transfer(msg.sender, totalAmount);
         BountyRelased(msg.sender, totalAmount, periodIndex);
@@ -118,21 +139,6 @@ contract TRL {
         require (now - periodRegistry[periodIndex].startTime > periodRegistry[periodIndex].TTL);
         nextState();
         nextPeriod();
-    }
-
-
-    /**
-    * Adds a new vote for a candidate. It fails if the candidate hasn't approved before the specified amount
-    * @param _candidateAddress address of the candidate selected
-    * @param _amount of votes used
-    **/
-
-    function vote(address _candidateAddress, uint256 _amount) public {
-        require(periodRegistry[periodIndex].state == PeriodState.ACTIVE);
-        require(candidateRegistry.isWhitelisted(_candidateAddress));
-        require(voterRegistry.isWhitelisted(msg.sender));
-        votesReceived[periodIndex][_candidateAddress] += _amount;
-        Vote(_candidateAddress, _amount, periodIndex);
     }
 
 
@@ -155,6 +161,7 @@ contract TRL {
         PeriodForward(periodIndex-1, periodIndex);
     }
 
+    event ContractCreated (uint256 _time);
     event VotesBought(address _recipient, uint256 _amount, uint256 _period);
     event BountyRelased(address _recipient, uint256 _amount, uint256 _period);
     event StateChange(uint256 _stateFrom, uint256 _stateTo, uint256 _time);

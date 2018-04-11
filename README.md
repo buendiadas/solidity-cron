@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/Frontier-project/TokenRankedLists.svg?token=DJeMzxJJncp3nRaEUuxH&branch=v0.2)](https://travis-ci.com/Frontier-project/TokenRankedLists)
+[![Build Status](https://travis-ci.com/Frontier-project/TokenRankedLists.svg?token=DJeMzxJJncp3nRaEUuxH&branch=master)](https://travis-ci.com/Frontier-project/TokenRankedLists)
 
 
 ## About
