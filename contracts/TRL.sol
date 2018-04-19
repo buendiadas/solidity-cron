@@ -97,8 +97,10 @@ contract TRL {
     function vote(address _candidateAddress, uint256 _amount) public {
         require(periodRegistry[periodIndex].state == PeriodState.ACTIVE);
         require(candidateRegistry.isWhitelisted(_candidateAddress));
+        require(votesBalance[periodIndex][msg.sender] >= _amount);
         require(voterRegistry.isWhitelisted(msg.sender));
         votesReceived[periodIndex][_candidateAddress] += _amount;
+        votesBalance[periodIndex][msg.sender]-= _amount;
         periodRegistry[periodIndex].totalVotes += _amount;
         Vote(_candidateAddress, _amount, periodIndex);
     }
