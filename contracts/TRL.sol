@@ -102,7 +102,7 @@ contract TRL {
         votesReceived[periodIndex][_candidateAddress] += _amount;
         votesBalance[periodIndex][msg.sender]-= _amount;
         periodRegistry[periodIndex].totalVotes += _amount;
-        Vote(_candidateAddress, _amount, periodIndex);
+        Vote(msg.sender,_candidateAddress, _amount, periodIndex);
     }
 
     /**
@@ -169,4 +169,4 @@ contract TRL {
     event StateChange(uint256 indexed _stateFrom, uint256 _stateTo, uint256 _time);
     event PeriodForward(uint256 indexed _periodFrom, uint256 _periodTo);
     event Vote(address indexed _candidateAddress, uint256 _amount, uint256 _periodIndex);
-}
+
