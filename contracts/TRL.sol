@@ -164,9 +164,9 @@ contract TRL {
     }
 
     event ContractCreated (uint256 _time);
-    event VotesBought(address _recipient, uint256 _amount, uint256 _period);
-    event BountyRelased(address _recipient, uint256 _amount, uint256 _period);
-    event StateChange(uint256 _stateFrom, uint256 _stateTo, uint256 _time);
-    event PeriodForward(uint256 _periodFrom, uint256 _periodTo);
-    event Vote(address _voterAddress, address _candidateAddress, uint256 _amount, uint256 _periodIndex);
+    event VotesBought(address indexed _recipient, uint256 _amount, uint256 _period);
+    event BountyRelased(address indexed _recipient, uint256 _amount, uint256 _period);
+    event StateChange(uint256 indexed _stateFrom, uint256 _stateTo, uint256 _time);
+    event PeriodForward(uint256 indexed _periodFrom, uint256 _periodTo);
+    event Vote(address indexed _voterAddress, address indexed _candidateAddress, uint256 _amount, uint256 _periodIndex);
 }
