@@ -26,10 +26,10 @@ contract('TRL<Active>', function (accounts) {
 
 
   beforeEach(async() => {
-      FrontierToken = await Standard20TokenMock.new(voterAccounts,totalTokens,{from: adminAccount})
-      CandidateRegistry = await OwnedRegistryContract.new(candidateAccounts,config.candidateLength,{from:adminAccount})
-      VoterRegistry = await OwnedRegistryContract.new(voterAccounts,config.voterLength,{from:adminAccount})
-      TRL = await TRLContract.new(FrontierToken.address, CandidateRegistry.address,VoterRegistry.address,config.ttl,config.activeTime, config.claimTime,{from: adminAccount})
+      FrontierToken = await Standard20TokenMock.new(voterAccounts,totalTokens,{from:adminAccount})
+      CandidateRegistry = await OwnedRegistryContract.new(candidateAccounts, 5,{from:adminAccount})
+      VoterRegistry = await OwnedRegistryContract.new(voterAccounts,5,{from:adminAccount})
+      TRL = await TRLContract.new(FrontierToken.address, CandidateRegistry.address,VoterRegistry.address,config.ttl,config.activeTime, config.claimTime, {from: adminAccount})
       const currentPeriodIndex = await TRL.periodIndex.call()
       const currentPeriod = await TRL.periodRegistry.call(currentPeriodIndex)
       startTime = await currentPeriod[0].toNumber()
