@@ -1,6 +1,7 @@
-pragma solidity ^0.4.19;
+pragma solidity 0.4.21;
 
-import "./lib/Standard20Token.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "./OwnedRegistry.sol";
 
 /**
@@ -8,6 +9,7 @@ import "./OwnedRegistry.sol";
 *
 **/
 contract TRL {
+    using SafeMath for uint256;
 
      // Amount that only can be changed in exchange of FTR
     mapping (uint256 => mapping(address=> uint256)) public votesReceived;
@@ -22,7 +24,7 @@ contract TRL {
     OwnedRegistry public voterRegistry;
 
     // Master Token, used to buy votes
-    Standard20Token public token;
+    StandardToken public token;
 
     // Index, Defines the current period
     uint256 public periodIndex;
@@ -55,10 +57,10 @@ contract TRL {
         uint256 _initialClaimTime)
         public
     {
-        token = Standard20Token(_tokenAddress);
-        candidateRegistry= OwnedRegistry(_candidateRegistryAddress);
+        token = StandardToken(_tokenAddress);
+        candidateRegistry = OwnedRegistry(_candidateRegistryAddress);
         voterRegistry = OwnedRegistry(_voterRegistryAddress);
-        periodRegistry[periodIndex] = Period(now, 0,PeriodState.CREATED, _initialTTL, _initialActiveTime, _initialClaimTime);
+        periodRegistry[periodIndex] = Period(block.timestamp, 0,PeriodState.CREATED, _initialTTL, _initialActiveTime, _initialClaimTime);
         initPeriod(_initialTTL);
     }
 
@@ -69,7 +71,7 @@ contract TRL {
 
     function initPeriod(uint256 _periodTTL) public {
         require(periodRegistry[periodIndex].state == PeriodState.CREATED);
-        periodRegistry[periodIndex].TTL= _periodTTL;
+        periodRegistry[periodIndex].TTL = _periodTTL;
         periodRegistry[periodIndex].startTime = now;
         nextState();
     }
@@ -84,8 +86,8 @@ contract TRL {
     function buyTokenVotes(uint256 _amount) public {
         require(periodRegistry[periodIndex].state == PeriodState.ACTIVE);
         require(token.transferFrom(msg.sender,this, _amount));
-        votesBalance[periodIndex][msg.sender] += _amount;
-        VotesBought(msg.sender, _amount, periodIndex);
+        votesBalance[periodIndex][msg.sender] = votesBalance[periodIndex][msg.sender].add(_amount);
+        emit VotesBought(msg.sender, _amount, periodIndex);
     }
 
     /**
@@ -99,10 +101,10 @@ contract TRL {
         require(candidateRegistry.isWhitelisted(_candidateAddress));
         require(votesBalance[periodIndex][msg.sender] >= _amount);
         require(voterRegistry.isWhitelisted(msg.sender));
-        votesReceived[periodIndex][_candidateAddress] += _amount;
-        votesBalance[periodIndex][msg.sender]-= _amount;
-        periodRegistry[periodIndex].totalVotes += _amount;
-        Vote(msg.sender,_candidateAddress, _amount, periodIndex);
+        votesReceived[periodIndex][_candidateAddress] = votesReceived[periodIndex][_candidateAddress].add(_amount);
+        votesBalance[periodIndex][msg.sender] -= _amount;
+        periodRegistry[periodIndex].totalVotes = periodRegistry[periodIndex].totalVotes.add(_amount);
+        emit Vote(msg.sender,_candidateAddress, _amount, periodIndex);
     }
 
     /**
@@ -128,7 +130,7 @@ contract TRL {
         require(periodRegistry[periodIndex].totalVotes>0);
         uint256 totalAmount = votesReceived[periodIndex][msg.sender] * token.balanceOf(this)/periodRegistry[periodIndex].totalVotes;
         token.transfer(msg.sender, totalAmount);
-        BountyRelased(msg.sender, totalAmount, periodIndex);
+        emit BountyRelased(msg.sender, totalAmount, periodIndex);
     }
 
     /**
@@ -150,8 +152,8 @@ contract TRL {
     **/
 
     function nextState() internal {
-        periodRegistry[periodIndex].state = PeriodState(uint(periodRegistry[periodIndex].state) + 1);
-        StateChange(uint(periodRegistry[periodIndex].state)-1 , uint(periodRegistry[periodIndex].state), now);
+        periodRegistry[periodIndex].state = PeriodState(uint(periodRegistry[periodIndex].state).add(1));
+        emit StateChange(uint(periodRegistry[periodIndex].state)-1 , uint(periodRegistry[periodIndex].state), now);
     }
 
     /**
@@ -159,8 +161,8 @@ contract TRL {
     **/
 
     function nextPeriod() internal {
-        periodIndex +=1;
-        PeriodForward(periodIndex-1, periodIndex);
+        periodIndex = periodIndex.add(1);
+        emit PeriodForward(periodIndex-1, periodIndex);
     }
 
     event ContractCreated (uint256 _time);
