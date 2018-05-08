@@ -1,4 +1,4 @@
-pragma solidity 0.4.19;
+pragma solidity 0.4.21;
 
 import "./OwnedRegistry.sol";
 
@@ -16,7 +16,7 @@ contract OwnedRegistryFactory{
     */
     function newRegistry(uint256 _maxNumListings) public returns (OwnedRegistry _reg){
         OwnedRegistry reg = new OwnedRegistry(_maxNumListings);
-        OwnedRegistryCreation(msg.sender);
+        emit OwnedRegistryCreation(msg.sender);
         return reg;
     }
 

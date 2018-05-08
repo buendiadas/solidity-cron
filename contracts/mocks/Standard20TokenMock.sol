@@ -1,11 +1,12 @@
-pragma solidity ^0.4.18;
-import "../lib/Standard20Token.sol";
+pragma solidity 0.4.21;
 
-contract Standard20TokenMock is Standard20Token {
+import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 
-  function Standard20TokenMock(address[] accounts, uint256 initialBalance) public {
-    for (uint i= 0; i < accounts.length; i++){
-        balances[accounts[i]] = initialBalance;
+contract Standard20TokenMock is StandardToken {
+
+    function Standard20TokenMock(address[] accounts, uint256 initialBalance) public {
+        for (uint i = 0; i < accounts.length; i++){
+            balances[accounts[i]] = initialBalance;
+        }
     }
-  }
 }

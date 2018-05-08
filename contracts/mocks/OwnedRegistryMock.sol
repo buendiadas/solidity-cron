@@ -1,4 +1,4 @@
-pragma solidity 0.4.19;
+pragma solidity 0.4.21;
 
 import "../OwnedRegistry.sol";
 
@@ -9,12 +9,12 @@ import "../OwnedRegistry.sol";
 
 contract OwnedRegistryMock is OwnedRegistry{
 
-  function OwnedRegistryMock(address[] _whiteListedAccounts, uint256 _maxNumListings)
-      OwnedRegistry(_maxNumListings)
-      public
-  {
-    for (uint i= 0; i < _whiteListedAccounts.length; i++){
-      whiteList(_whiteListedAccounts[i]);
+    function OwnedRegistryMock(address[] _whiteListedAccounts, uint256 _maxNumListings)
+        OwnedRegistry(_maxNumListings)
+        public
+    {
+        for (uint i = 0; i < _whiteListedAccounts.length; i++){
+            whiteList(_whiteListedAccounts[i]);
+        }
     }
-  }
 }
