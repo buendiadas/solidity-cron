@@ -31,7 +31,7 @@ contract('TRL<Claiming>', function (accounts) {
       FrontierToken = await Standard20TokenMock.new(voterAccounts,totalTokens,{from:adminAccount})
       CandidateRegistry = await OwnedRegistryContract.new(candidateAccounts, 5,{from:adminAccount})
       VoterRegistry = await OwnedRegistryContract.new(voterAccounts,5,{from:adminAccount})
-      TRL = await TRLContract.new(FrontierToken.address, CandidateRegistry.address,VoterRegistry.address, config.activeTime, config.claimTime, config.ttl, {from: adminAccount})
+      TRL = await TRLContract.new(FrontierToken.address, CandidateRegistry.address,VoterRegistry.address, config.ttl, config.activeTime, config.claimTime, {from: adminAccount})
 
       const currentPeriodIndex = await TRL.periodIndex.call()
       const currentPeriod = await TRL.periodRegistry.call(currentPeriodIndex)
@@ -70,7 +70,7 @@ contract('TRL<Claiming>', function (accounts) {
       })
       it('Should change state to <Closed> and move to the next period after claimTTL', async () => {
           const initialPeriodIndex = await TRL.periodIndex.call()
-          await increaseTimeTo(startTime + config.ttl)
+          await increaseTimeTo(startTime + config.ttl+1)
 
           await TRL.closePeriod({from:candidateAccounts[0]})
           const closedPeriod = await TRL.periodRegistry.call(initialPeriodIndex)
