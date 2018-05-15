@@ -25,7 +25,7 @@ contract('OwnedRegistry', function (accounts) {
       let initialIndex = await Registry.listingCounter.call()
       await Registry.whiteList(TEST_ACCOUNT, {from: ADMIN_ACCOUNT})
       let updatedNumberOfListings = await Registry.listingCounter.call()
-      assert.equal(initialIndex + 1, updatedNumberOfListings)
+      assert.equal(initialIndex.toNumber() + 1, updatedNumberOfListings.toNumber())
     })
     it('Should increase the listing Counter counter N times before the MAX is reached', async () => {
       let initialNumberOfListings = await Registry.listingCounter.call()
@@ -35,7 +35,7 @@ contract('OwnedRegistry', function (accounts) {
         i++
       }
       let updatedNumberOfListings = await Registry.listingCounter.call()
-      assert.equal(initialNumberOfListings + MAXNUMCANDIDATES, updatedNumberOfListings)
+      assert.equal(initialNumberOfListings.toNumber() + MAXNUMCANDIDATES, updatedNumberOfListings.toNumber())
     })
     it('Should throw if the analyst is added twice', async () => {
       await Registry.whiteList(TEST_ACCOUNT)
@@ -57,7 +57,7 @@ contract('OwnedRegistry', function (accounts) {
       await Registry.whiteList(TEST_ACCOUNT)
       await Registry.remove(TEST_ACCOUNT)
       let updatedNumberOfListings = await Registry.listingCounter.call()
-      assert.equal(initialNumberOfListings, updatedNumberOfListings)
+      assert.equal(initialNumberOfListings.toNumber(), updatedNumberOfListings.toNumber())
     })
   })
 })

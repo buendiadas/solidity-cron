@@ -52,7 +52,7 @@ contract('TRL<Claiming>', function (accounts) {
       const totalVotes = currentPeriod[1].toNumber()
       await TRL.claimBounty({from: candidateAccounts[0]})
       const finalBalance = await FrontierToken.balanceOf(candidateAccounts[0])
-      const calculatedBalance = initialBalance + firstCandidateVotes / totalVotes * periodPool
+      const calculatedBalance = initialBalance.toNumber() + firstCandidateVotes / totalVotes * periodPool
       assert.equal(calculatedBalance, finalBalance)
     })
     it('Should throw when someone tries to stake tokens', async () => {
@@ -69,8 +69,7 @@ contract('TRL<Claiming>', function (accounts) {
       const pastPeriodState = await closedPeriod[2].toNumber()
       assert.strictEqual(3, pastPeriodState)
       const newPeriodIndex = await TRL.periodIndex.call()
-      const expectedPeriod = initialPeriodIndex.toNumber() + 1
-      assert.strictEqual(expectedPeriod, newPeriodIndex.toNumber())
+      assert.strictEqual(initialPeriodIndex.toNumber() + 1, newPeriodIndex.toNumber())
     })
   })
 })
