@@ -17,16 +17,17 @@ contract('TRL<Active>', function (accounts) {
 
   const totalTokens = 1000
 
-  beforeEach(async () => {
+  before('Deploying required contracts', async () => {
     FrontierToken = await Standard20TokenMock.new(voterAccounts, totalTokens, {from: adminAccount})
     CandidateRegistry = await OwnedRegistryContract.new(candidateAccounts, 5, {from: adminAccount})
     VoterRegistry = await OwnedRegistryContract.new(voterAccounts, 5, {from: adminAccount})
+  })
+  beforeEach(async () => {
     TRL = await TRLContract.new(FrontierToken.address, CandidateRegistry.address, VoterRegistry.address, config.ttl, config.activeTime, config.claimTime, {from: adminAccount})
     const currentPeriodIndex = await TRL.periodIndex.call()
     const currentPeriod = await TRL.periodRegistry.call(currentPeriodIndex)
     startTime = await currentPeriod[0].toNumber()
   })
-
   describe('Creating the contract', async () => {
     it('Should have set the correct token as the token voting address', async () => {
       const contractTokenAddress = await TRL.token.call()
