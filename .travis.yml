@@ -2,39 +2,24 @@ language: javascript
 
 
 stages:
-  - Install
   - Test
   - Release
 
 jobs:
   include:
-    - stage: Install
-      language: node_js
-      node_js:
-        - "6"
-        - "7"
-        - "8"
-      before_install:
-        - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
-        - npm install -g ganache-cli
-        - ganache-cli -p 8545 &
-      install:
-        - npm install
-
     - stage: Test
       language: node_js
       node_js:
         - "8"
-      before_install:
+      install:
+        - npm install
+      before_script:
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
         - npm install -g ganache-cli
         - npm run start &
-      install:
-        - npm install
-      build:
+      script:
         - truffle test
 
-  
     - stage: Release
       provider: script
       node_js: "8"
