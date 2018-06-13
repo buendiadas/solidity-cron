@@ -1,12 +1,12 @@
 # Cron
 
-[![Build Status](https://travis-ci.com/Frontier-project/TokenRankedLists.svg?token=DJeMzxJJncp3nRaEUuxH&branch=master)](https://travis-ci.com/Frontier-project/cron)
+[![Build Status](https://travis-ci.com/Frontier-project/cron.svg?token=DJeMzxJJncp3nRaEUuxH&branch=master)](https://travis-ci.com/Frontier-project/cron)
 
 
 
 ## About
 
-This module creates a library to enable schedule periodical states on the Ethereum Blockchain from a Smart Contract , making it possible for external contracts to lazily allow other state changes on a periodic Basis.
+This solidity library enable schedule periodical states on the Ethereum Blockchain from a Smart Contract , making it possible for external contracts to lazily allow other state changes on a periodic Basis.
 
 
 ![stages](https://image.ibb.co/f6cMZd/Periodic_Stages.png)
