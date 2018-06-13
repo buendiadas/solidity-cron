@@ -17,7 +17,7 @@ jobs:
       before_install:
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
         - npm install -g ganache-cli
-        - npm run start &
+        - ganache-cli -p 8545 &
       install:
         - npm install
 
