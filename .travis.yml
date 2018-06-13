@@ -16,6 +16,7 @@ jobs:
         - "8"
       before_install:
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
+        - npm run start &
       install:
         - npm install
 
@@ -25,6 +26,7 @@ jobs:
         - "8"
       before_install:
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
+        - npm run start &
       install:
         - npm install
       build:
