@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "ganache-cli &",
-    "test": "truffle test",
+    "test": "npm run start & truffle test",
     "coverage": "./node_modules/.bin/solidity-coverage"
   },
   "keywords": [
@@ -28,11 +28,18 @@
     "babel-preset-stage-2": "^6.18.0",
     "babel-preset-stage-3": "^6.17.0",
     "babel-register": "^6.23.0",
+    "ganache-cli": "^6.1.2",
     "openzeppelin-solidity": "1.10.0"
   },
   "devDependencies": {
+    "cz-conventional-changelog": "^2.1.0",
     "eth-gas-reporter": "^0.1.7",
     "semantic-release": "^15.5.2",
     "solidity-coverage": "^0.5.4"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
