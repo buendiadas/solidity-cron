@@ -1,4 +1,4 @@
-pragma solidity 0.4.21;
+pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
@@ -48,7 +48,7 @@ contract TRL {
     *
     **/
 
-    function TRL(
+    constructor(
         address _tokenAddress,
         address _candidateRegistryAddress,
         address _voterRegistryAddress,
