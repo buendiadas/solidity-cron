@@ -5,6 +5,7 @@ module.exports = {
     candidateLength: 4,
     voterLength: 4,
     initialBalance: 10000000,
+    ownerAccount: '0x00B8FBD65D61b7DFe34b9A3Bb6C81908d7fFD541',
     voterAccounts:[
         '0x7ea59207d90d6fc10a4eff5a48d6ec89ce455658',
         '0x9b2828ef19b39de73d5f81a688df35939ac5fdc0',

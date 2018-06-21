@@ -32,7 +32,7 @@ jobs:
       script:
         - truffle migrate --reset --network rinkeby_infura
       after_script:
-        - npm run coverage && cat coverage/lcov.info | coveralls
+        - npm run mock
 
     - stage: Release
       provider: script

@@ -10,6 +10,7 @@
   "scripts": {
     "start": "npm run start:testrpc",
     "start:testrpc": "ganache-cli -p 8545 -i 5777",
+    "mock": "truffle exec scripts/fill_registries.js",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
     "test": "truffle test"
@@ -52,6 +53,7 @@
     "dotenv": "^5.0.1",
     "ethereumjs-testrpc-sc": "^6.1.2",
     "ganache-cli": "^6.1.0",
+    "js-sha3": "^0.7.0",
     "openzeppelin-solidity": "1.9.0",
     "run-with-testrpc": "^0.3.0",
     "semantic-release": "^15.4.1",
