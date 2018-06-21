@@ -1,11 +1,9 @@
-let config={}
+module.exports = {
+        ttl: 10000,
+        activeTime: 7000,
+        claimTime: 3000,
+        candidateLength: 4,
+        voterLength: 4,
+        initialBalance: 10000000
+}
 
-config.ttl = 10000
-config.activeTime= 7000
-config.claimTime = 3000
-
-config.candidateLength = 4
-config.voterLength = 4
-config.initialBalance = 10000000
-
-module.exports = config
