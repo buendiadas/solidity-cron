@@ -1,4 +1,4 @@
-pragma solidity 0.4.21;
+pragma solidity 0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
@@ -21,7 +21,7 @@ contract OwnedRegistry is Ownable{
     * @param _maxNumListings size of the Registry
     **/
 
-    function OwnedRegistry(uint256 _maxNumListings) public {
+    constructor(uint256 _maxNumListings) public {
         maxNumListings = _maxNumListings;
     }
 
