@@ -15,7 +15,6 @@ jobs:
       install:
         - npm install
       before_script:
-        - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
         - npm install -g ganache-cli
         - npm run start &
       script:
@@ -32,6 +31,8 @@ jobs:
         - npm install
       script:
         - truffle migrate --reset --network rinkeby_infura
+      after_script:
+        - npm run coverage && cat coverage/lcov.info | coveralls
 
     - stage: Release
       provider: script
