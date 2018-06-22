@@ -11,6 +11,7 @@
     "start": "npm run start:testrpc",
     "start:testrpc": "ganache-cli -p 8545 -i 5777",
     "mock": "truffle exec scripts/fill_registries.js",
+    "mock-infura": "truffle exec scripts/fill_registries.js --network rinkeby_infura",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
     "test": "truffle test"
@@ -50,10 +51,13 @@
     "solidity-metadata-uploader": "0.0.1"
   },
   "dependencies": {
+    "@frontier-token-research/role-registries": "1.0.0",
     "dotenv": "^5.0.1",
     "ethereumjs-testrpc-sc": "^6.1.2",
     "ganache-cli": "^6.1.0",
+    "init": "^0.1.2",
     "js-sha3": "^0.7.0",
+    "npm": "^6.1.0",
     "openzeppelin-solidity": "1.9.0",
     "run-with-testrpc": "^0.3.0",
     "semantic-release": "^15.4.1",
