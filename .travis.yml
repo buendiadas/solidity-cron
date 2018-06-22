@@ -32,7 +32,7 @@ jobs:
       script:
         - truffle migrate --reset --network rinkeby_infura
       after_script:
-        - npm run mock
+        - npm run mock-infura
 
     - stage: Release
       provider: script
