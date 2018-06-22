@@ -37,10 +37,6 @@ contract('OwnedRegistry', function (accounts) {
       let updatedNumberOfListings = await Registry.listingCounter.call()
       assert.equal(initialNumberOfListings.toNumber() + MAXNUMCANDIDATES, updatedNumberOfListings.toNumber())
     })
-    it('Should throw if the analyst is added twice', async () => {
-      await Registry.whiteList(TEST_ACCOUNT)
-      await assertRevert(Registry.whiteList(TEST_ACCOUNT, {from: ADMIN_ACCOUNT}))
-    })
   })
   describe('Removing listings', async () => {
     it('Should remove a candidate if it is required by the owner', async () => {

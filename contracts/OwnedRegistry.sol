@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
@@ -32,8 +32,6 @@ contract OwnedRegistry is Ownable{
 
     function whiteList(address _accountToWhiteList) public{
         require(msg.sender==owner);
-        require(listingCounter <= maxNumListings);
-        require(!isWhitelisted[_accountToWhiteList]);
         isWhitelisted[_accountToWhiteList] = true;
         listingCounter = listingCounter.add(1);
         emit WhiteList(_accountToWhiteList);

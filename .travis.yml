@@ -1,18 +1,44 @@
+language: javascript
 
-dist: trusty
-sudo: required
-group: beta
-language: node_js
-node_js:
-  - "8"
-cache:
-  directories:
-    - node_modules
-env:
-  - SOLIDITY_COVERAGE=true
 
-before_script:
-  - npm run start &
+stages:
+  - Test
+  - Migrate
+  - Release
 
-script:
-  - npm run test
+jobs:
+  include:
+    - stage: Test
+      language: node_js
+      node_js:
+        - "8"
+      install:
+        - npm install
+      before_script:
+        - npm install -g ganache-cli
+        - npm run start &
+      script:
+        - truffle test
+        - truffle migrate --reset
+      after_script:
+        - npm run coverage && cat coverage/lcov.info | coveralls
+  
+    - stage: Migrate
+      language: node_js
+      node_js:
+        - "8"
+      install:
+        - npm install
+      script:
+        - truffle migrate --reset --network rinkeby_infura
+      after_script:
+        - npm run mock-infura
+
+    - stage: Release
+      provider: script
+      node_js: "8"
+      before_install:
+        - npm install -g npx
+        - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
+      script:
+        - npx semantic-release
