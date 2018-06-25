@@ -4,6 +4,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
 import "@frontier-token-research/role-registries/contracts/OwnedRegistryFactory.sol";
+import "@frontier-token-research/cron/contracts/Period.sol";
 
 
 /**
