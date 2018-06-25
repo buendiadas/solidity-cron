@@ -2,7 +2,9 @@ pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
-import "./OwnedRegistry.sol";
+import "@frontier-token-research/role-registries/contracts/Registry.sol";
+import "@frontier-token-research/role-registries/contracts/OwnedRegistryFactory.sol";
+
 
 /**
 * A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates
@@ -12,16 +14,16 @@ contract TRL {
     using SafeMath for uint256;
 
      // Amount that only can be changed in exchange of FTR
-    mapping (uint256 => mapping(address=> uint256)) public votesReceived;
+    mapping (uint256 => mapping(address => uint256)) public votesReceived;
 
     // For each period, maps user's address to voteToken balance
     mapping (uint256 => mapping(address => uint256)) public votesBalance;
 
     // Registry of candidates to be voted
-    OwnedRegistry public candidateRegistry;
+    Registry public candidateRegistry;
 
     // Registry of candidates allowed to vote
-    OwnedRegistry public voterRegistry;
+    Registry public voterRegistry;
 
     // Master Token, used to buy votes
     StandardToken public token;
@@ -57,10 +59,11 @@ contract TRL {
         uint256 _initialClaimTime)
         public
     {
+        require(_candidateRegistryAddress != 0x00 && _voterRegistryAddress != 0x00 && _tokenAddress != 0x00); 
         token = StandardToken(_tokenAddress);
-        candidateRegistry = OwnedRegistry(_candidateRegistryAddress);
-        voterRegistry = OwnedRegistry(_voterRegistryAddress);
-        periodRegistry[periodIndex] = Period(block.timestamp, 0,PeriodState.CREATED, _initialTTL, _initialActiveTime, _initialClaimTime);
+        candidateRegistry = Registry(_candidateRegistryAddress);
+        voterRegistry = Registry(_voterRegistryAddress);
+        periodRegistry[periodIndex] = Period(block.number, 0, PeriodState.CREATED, _initialTTL, _initialActiveTime, _initialClaimTime);
         initPeriod(_initialTTL);
     }
 

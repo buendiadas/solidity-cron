@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
 
-import "../OwnedRegistry.sol";
+import "@frontier-token-research/role-registries/contracts/OwnedRegistry.sol";
+
 
 /**
 * Generic Registry, used for Candidates and Voters
@@ -9,8 +10,8 @@ import "../OwnedRegistry.sol";
 
 contract OwnedRegistryMock is OwnedRegistry{
 
-    constructor(address[] _whiteListedAccounts, uint256 _maxNumListings)
-        OwnedRegistry(_maxNumListings)
+    constructor(address[] _whiteListedAccounts)
+        OwnedRegistry()
         public
     {
         for (uint i = 0; i < _whiteListedAccounts.length; i++){

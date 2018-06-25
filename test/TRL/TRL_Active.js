@@ -1,4 +1,4 @@
-const config = require('../..//config')
+const config = require('../../config')
 const { increaseTimeTo } = require('../helpers/increaseTime')
 const { assertRevert } = require('../helpers/assertRevert')
 const Standard20TokenMock = artifacts.require('Standard20TokenMock')
@@ -19,8 +19,8 @@ contract('TRL<Active>', function (accounts) {
 
   before('Deploying required contracts', async () => {
     FrontierToken = await Standard20TokenMock.new(voterAccounts, totalTokens, {from: adminAccount})
-    CandidateRegistry = await OwnedRegistryContract.new(candidateAccounts, 5, {from: adminAccount})
-    VoterRegistry = await OwnedRegistryContract.new(voterAccounts, 5, {from: adminAccount})
+    CandidateRegistry = await OwnedRegistryContract.new(candidateAccounts, {from: adminAccount})
+    VoterRegistry = await OwnedRegistryContract.new(voterAccounts, {from: adminAccount})
   })
   beforeEach(async () => {
     TRL = await TRLContract.new(FrontierToken.address, CandidateRegistry.address, VoterRegistry.address, config.ttl, config.activeTime, config.claimTime, {from: adminAccount})
