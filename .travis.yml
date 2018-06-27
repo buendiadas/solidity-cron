@@ -14,6 +14,7 @@ jobs:
         - "8"
       before_install:
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
+        - npm i npm@latest -g
       install:
         - npm install
       before_script:
@@ -30,6 +31,7 @@ jobs:
       node_js:
         - "8"
       before_install:
+        - npm i npm@latest -g
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
       install:
         - npm install
