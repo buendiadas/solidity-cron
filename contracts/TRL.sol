@@ -29,12 +29,13 @@ contract TRL {
     // Master Token, used to buy votes
     StandardToken public token;
 
-    // Index, Defines the current period
-    uint256 public periodIndex;
+    // Period contract
+    Period public period; 
+
 
     enum PeriodState {CREATED, ACTIVE, CLAIM, CLOSED}
 
-    struct Period {
+    struct PeriodConfig {
         uint256 startTime;
         uint256 totalVotes;
         PeriodState state;
@@ -43,7 +44,7 @@ contract TRL {
         uint256 claimTime;
     }
 
-    mapping (uint256 => Period) public periodRegistry;
+    mapping (uint256 => PeriodConfig) public periodRegistry;
 
     /**
     * Creates a new Instance of a Voting Lists
@@ -64,7 +65,7 @@ contract TRL {
         token = StandardToken(_tokenAddress);
         candidateRegistry = Registry(_candidateRegistryAddress);
         voterRegistry = Registry(_voterRegistryAddress);
-        periodRegistry[periodIndex] = Period(block.number, 0, PeriodState.CREATED, _initialTTL, _initialActiveTime, _initialClaimTime);
+        periodRegistry[0] = PeriodConfig(block.number, 0, PeriodState.CREATED, _initialTTL, _initialActiveTime, _initialClaimTime);
         initPeriod(_initialTTL);
     }
 
@@ -74,9 +75,10 @@ contract TRL {
     **/
 
     function initPeriod(uint256 _periodTTL) public {
-        require(periodRegistry[periodIndex].state == PeriodState.CREATED);
-        periodRegistry[periodIndex].TTL = _periodTTL;
-        periodRegistry[periodIndex].startTime = now;
+        require(periodRegistry[0].state == PeriodState.CREATED);
+        periodRegistry[0].TTL = _periodTTL;
+        period = new Period(_periodTTL);
+        periodRegistry[currentPeriod()].startTime = now;
         nextState();
     }
 
@@ -88,10 +90,10 @@ contract TRL {
     **/
 
     function buyTokenVotes(uint256 _amount) public {
-        require(periodRegistry[periodIndex].state == PeriodState.ACTIVE);
+        require(periodRegistry[currentPeriod()].state == PeriodState.ACTIVE);
         require(token.transferFrom(msg.sender,this, _amount));
-        votesBalance[periodIndex][msg.sender] = votesBalance[periodIndex][msg.sender].add(_amount);
-        emit VotesBought(msg.sender, _amount, periodIndex);
+        votesBalance[currentPeriod()][msg.sender] = votesBalance[currentPeriod()][msg.sender].add(_amount);
+        emit VotesBought(msg.sender, _amount, currentPeriod());
     }
 
     /**
@@ -101,14 +103,15 @@ contract TRL {
     **/
 
     function vote(address _candidateAddress, uint256 _amount) public {
-        require(periodRegistry[periodIndex].state == PeriodState.ACTIVE);
+        uint256 currentPeriod = period.getPeriodNumber();
+        require(periodRegistry[currentPeriod].state == PeriodState.ACTIVE);
         require(candidateRegistry.isWhitelisted(_candidateAddress));
-        require(votesBalance[periodIndex][msg.sender] >= _amount);
+        require(votesBalance[currentPeriod][msg.sender] >= _amount);
         require(voterRegistry.isWhitelisted(msg.sender));
-        votesReceived[periodIndex][_candidateAddress] = votesReceived[periodIndex][_candidateAddress].add(_amount);
-        votesBalance[periodIndex][msg.sender] -= _amount;
-        periodRegistry[periodIndex].totalVotes = periodRegistry[periodIndex].totalVotes.add(_amount);
-        emit Vote(msg.sender,_candidateAddress, _amount, periodIndex);
+        votesReceived[currentPeriod][_candidateAddress] = votesReceived[currentPeriod][_candidateAddress].add(_amount);
+        votesBalance[currentPeriod][msg.sender] -= _amount;
+        periodRegistry[currentPeriod].totalVotes = periodRegistry[currentPeriod].totalVotes.add(_amount);
+        emit Vote(msg.sender,_candidateAddress, _amount, currentPeriod);
     }
 
     /**
@@ -117,8 +120,8 @@ contract TRL {
     **/
 
     function initClaimingState() public {
-        require(periodRegistry[periodIndex].state == PeriodState.ACTIVE);
-        require ((now - periodRegistry[periodIndex].startTime) >= periodRegistry[periodIndex].activeTime);
+        require(periodRegistry[currentPeriod()].state == PeriodState.ACTIVE);
+        require ((now - periodRegistry[currentPeriod()].startTime) >= periodRegistry[currentPeriod()].activeTime);
         nextState();
     }
 
@@ -129,26 +132,17 @@ contract TRL {
     **/
 
     function claimBounty() public {
-        require(periodRegistry[periodIndex].state == PeriodState.CLAIM);
+        require(periodRegistry[currentPeriod()].state == PeriodState.CLAIM);
         require(candidateRegistry.isWhitelisted(msg.sender) == true);
-        require(periodRegistry[periodIndex].totalVotes>0);
-        uint256 totalAmount = votesReceived[periodIndex][msg.sender] * token.balanceOf(this)/periodRegistry[periodIndex].totalVotes;
+        require(periodRegistry[currentPeriod()].totalVotes>0);
+        uint256 totalAmount = votesReceived[currentPeriod()][msg.sender] * token.balanceOf(this)/periodRegistry[currentPeriod()].totalVotes;
         token.transfer(msg.sender, totalAmount);
-        emit BountyRelased(msg.sender, totalAmount, periodIndex);
+        emit BountyRelased(msg.sender, totalAmount, currentPeriod());
     }
 
-    /**
-    * Closes the current period and sets the current period pointer to the next item, enabling again init.
-    *
-    **/
-
-    function closePeriod() public {
-        require (periodRegistry[periodIndex].state == PeriodState.CLAIM);
-        require (now - periodRegistry[periodIndex].startTime > periodRegistry[periodIndex].TTL);
-        nextState();
-        nextPeriod();
+    function currentPeriod() returns(uint256) { 
+        return period.getPeriodNumber();
     }
-
 
     /**
     * Moves from the current state to the Next State {CREATED, ACTIVE, CLAIM, CLOSED}
@@ -156,18 +150,9 @@ contract TRL {
     **/
 
     function nextState() internal {
-        periodRegistry[periodIndex].state = PeriodState(uint(periodRegistry[periodIndex].state).add(1));
-        emit StateChange(uint(periodRegistry[periodIndex].state)-1 , uint(periodRegistry[periodIndex].state), now);
-    }
-
-    /**
-    * Moves from the current period to the next period
-    **/
-
-    function nextPeriod() internal {
-        periodIndex = periodIndex.add(1);
-        emit PeriodForward(periodIndex-1, periodIndex);
-    }
+        periodRegistry[currentPeriod()].state = PeriodState(uint(periodRegistry[currentPeriod()].state).add(1));
+        emit StateChange(uint(periodRegistry[currentPeriod()].state)-1 , uint(periodRegistry[currentPeriod()].state), now);
+    }   
 
     event ContractCreated (uint256 _time);
     event VotesBought(address indexed _recipient, uint256 _amount, uint256 _period);

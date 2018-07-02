@@ -29,7 +29,7 @@ contract('TRL<Claiming>', function (accounts) {
   beforeEach(async () => {
     TRL = await TRLContract.new(FrontierToken.address, CandidateRegistry.address, VoterRegistry.address, config.ttl, config.activeTime, config.claimTime, {from: adminAccount})
 
-    const currentPeriodIndex = await TRL.periodIndex.call()
+    const currentPeriodIndex = await TRL.currentPeriod.call()
     const currentPeriod = await TRL.periodRegistry.call(currentPeriodIndex)
     startTime = await currentPeriod[0].toNumber()
 
@@ -47,7 +47,7 @@ contract('TRL<Claiming>', function (accounts) {
   describe('State: <Claiming>', async () => {
     it('Should transfer a weighted percentage ot the Bounty Pool when the candidate claims a bounty', async () => {
       const initialBalance = await FrontierToken.balanceOf(candidateAccounts[0])
-      const currentPeriodIndex = await TRL.periodIndex.call()
+      const currentPeriodIndex = await TRL.currentPeriod.call()
       const currentPeriod = await TRL.periodRegistry.call(currentPeriodIndex)
       const listAddress = await TRL.address
       const periodPool = await FrontierToken.balanceOf(listAddress)
@@ -63,14 +63,14 @@ contract('TRL<Claiming>', function (accounts) {
       await assertRevert(TRL.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]}))
     })
     it('Should change state to <Closed> and move to the next period after claimTTL', async () => {
-      const initialPeriodIndex = await TRL.periodIndex.call()
+      const initialPeriodIndex = await TRL.currentPeriod.call()
       await increaseTimeTo(startTime + config.ttl + 1)
 
       await TRL.closePeriod({from: candidateAccounts[0]})
       const closedPeriod = await TRL.periodRegistry.call(initialPeriodIndex)
       const pastPeriodState = await closedPeriod[2].toNumber()
       assert.strictEqual(3, pastPeriodState)
-      const newPeriodIndex = await TRL.periodIndex.call()
+      const newPeriodIndex = await TRL.currentPeriod.call()
       assert.strictEqual(initialPeriodIndex.toNumber() + 1, newPeriodIndex.toNumber())
     })
   })

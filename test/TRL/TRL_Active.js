@@ -3,6 +3,7 @@ const { increaseTimeTo } = require('../helpers/increaseTime')
 const { assertRevert } = require('../helpers/assertRevert')
 const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 const TRLContract = artifacts.require('TRL')
+const PeriodContract = artifacts.require('Period')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
 
 contract('TRL<Active>', function (accounts) {
@@ -24,7 +25,7 @@ contract('TRL<Active>', function (accounts) {
   })
   beforeEach(async () => {
     TRL = await TRLContract.new(FrontierToken.address, CandidateRegistry.address, VoterRegistry.address, config.ttl, config.activeTime, config.claimTime, {from: adminAccount})
-    const currentPeriodIndex = await TRL.periodIndex.call()
+    const currentPeriodIndex = await TRL.currentPeriod.call()
     const currentPeriod = await TRL.periodRegistry.call(currentPeriodIndex)
     startTime = await currentPeriod[0].toNumber()
   })
@@ -44,12 +45,19 @@ contract('TRL<Active>', function (accounts) {
       const voterRegistryAddress = await VoterRegistry.address
       assert.strictEqual(voterRegistryAddress, tokenVoterRegistryAddress)
     })
+    it('Period contract should have been properly set', async () => {
+      const periodAddress = await TRL.period.call()
+      const periodContract = await PeriodContract.at(periodAddress)
+      const T = await periodContract.T.call();
+      assert.equal(config.ttl,T)
+    })
+
     it('Period should have been set to 0', async () => {
-      const currentPeriod = await TRL.periodIndex.call()
+      const currentPeriod = await TRL.currentPeriod.call()
       assert.equal(0, currentPeriod.toNumber())
     })
     it('Initial Period TTL should have been set to initialTTL', async () => {
-      const currentPeriodIndex = await TRL.periodIndex.call()
+      const currentPeriodIndex = await TRL.currentPeriod.call()
       const currentPeriod = await TRL.periodRegistry.call(currentPeriodIndex)
       const currentTTL = await currentPeriod[3].toNumber()
       assert.strictEqual(config.ttl, currentTTL)
@@ -61,7 +69,7 @@ contract('TRL<Active>', function (accounts) {
   })
   describe('State: <Active>', async () => {
     it('First Period should have initially an <Active> state', async () => {
-      const currentPeriodIndex = await TRL.periodIndex.call()
+      const currentPeriodIndex = await TRL.currentPeriod.call()
       const currentPeriod = await TRL.periodRegistry.call(currentPeriodIndex)
       const currentState = await currentPeriod[2].toNumber()
       assert.strictEqual(1, currentState)
@@ -72,13 +80,10 @@ contract('TRL<Active>', function (accounts) {
     it('Should throw when someone tries to move to Claiming state before activeTime', async () => {
       await assertRevert(TRL.initClaimingState({from: candidateAccounts[0]}))
     })
-    it('Should throw when someone tries to close the period', async () => {
-      await assertRevert(TRL.closePeriod({from: adminAccount}))
-    })
     it('Should enable to stake Tokens', async () => {
       const listAddress = await TRL.address
       const totalPreStaked = await FrontierToken.allowance.call(voterAccounts[0], listAddress)
-      const currentPeriodIndex = await TRL.periodIndex.call()
+      const currentPeriodIndex = await TRL.currentPeriod.call()
       await TRL.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]})
       const votingBalance = await TRL.votesBalance.call(currentPeriodIndex, voterAccounts[0])
       assert.equal(totalPreStaked, votingBalance.toNumber())
@@ -86,7 +91,7 @@ contract('TRL<Active>', function (accounts) {
     it('Should increase the number of votes received per analyst in the period after voting', async () => {
       const listAddress = await TRL.address
       const totalPreStaked = await FrontierToken.allowance.call(voterAccounts[0], listAddress)
-      const currentPeriodIndex = await TRL.periodIndex.call()
+      const currentPeriodIndex = await TRL.currentPeriod.call()
       await TRL.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]})
       const votingBalance = await TRL.votesBalance.call(currentPeriodIndex, voterAccounts[0])
       await TRL.vote(candidateAccounts[0], votingBalance, {from: voterAccounts[0]})
@@ -96,7 +101,7 @@ contract('TRL<Active>', function (accounts) {
     it('Should change state to <Claiming> when someone tries to move to Claiming state after activeTime', async () => {
       await increaseTimeTo(startTime + config.activeTime + 1)
       await TRL.initClaimingState({from: candidateAccounts[0]})
-      const currentPeriodIndex = await TRL.periodIndex.call()
+      const currentPeriodIndex = await TRL.currentPeriod.call()
       const currentPeriod = await TRL.periodRegistry.call(currentPeriodIndex)
       const currentState = await currentPeriod[2].toNumber()
       assert.strictEqual(2, currentState)

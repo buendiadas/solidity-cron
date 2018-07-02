@@ -1,5 +1,5 @@
 module.exports = {
-    ttl: 10000,
+    ttl: 3,
     activeTime: 7000,
     claimTime: 3000,
     candidateLength: 4,
