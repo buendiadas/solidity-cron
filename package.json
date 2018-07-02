@@ -8,8 +8,9 @@
   },
   "scripts": {
     "start": "ganache-cli -p 8545",
+    "test": "truffle test",
     "coverage": "./node_modules/.bin/solidity-coverage"
-  }, 
+  },
   "keywords": [
     "Ethereum",
     "Periodic",
@@ -32,6 +33,7 @@
     "truffle": "^4.1.11"
   },
   "devDependencies": {
+    "coveralls": "^3.0.1",
     "cz-conventional-changelog": "^2.1.0",
     "eth-gas-reporter": "^0.1.7",
     "semantic-release": "^15.5.2",
