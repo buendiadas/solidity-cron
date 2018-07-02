@@ -1,7 +1,7 @@
 module.exports = {
     ttl: 3,
-    activeTime: 7000,
-    claimTime: 3000,
+    activeTime: 1,
+    claimTime: 1,
     candidateLength: 4,
     voterLength: 4,
     initialBalance: 10000000,

@@ -15,6 +15,6 @@ module.exports = (deployer) => {
     const candidateRegistryAddress = await RegistryFactory.getRegistry.call(keccak256('voter'))
     const voterRegistryAddress = await RegistryFactory.getRegistry.call(keccak256('candidate'))
     const FrontierToken = await Standard20TokenContract.deployed()
-    await deployer.deploy(TRLContract, FrontierToken.address, candidateRegistryAddress, voterRegistryAddress, config.activeTime, config.claimTime, config.ttl)
+    //await deployer.deploy(TRLContract, FrontierToken.address, candidateRegistryAddress, voterRegistryAddress, config.activeTime, config.claimTime, config.ttl)
   })
 }
