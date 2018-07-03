@@ -1,4 +1,4 @@
-var fs = require('fs');
+var fs = require('fs')
 
 export function updateDeployed () {
   return new Promise((resolve, reject) => {
