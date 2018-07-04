@@ -23,8 +23,9 @@ jobs:
       script:
         - truffle test
         - truffle migrate --reset
+        - npm run coverage
       after_script:
-        - npm run coverage && cat coverage/lcov.info | coveralls
+        - cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
   
     - stage: Migrate
       language: node_js
