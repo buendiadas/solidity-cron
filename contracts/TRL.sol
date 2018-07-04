@@ -5,6 +5,7 @@ import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
 import "@frontier-token-research/role-registries/contracts/OwnedRegistryFactory.sol";
 import "@frontier-token-research/cron/contracts/Period.sol";
+import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 
 
 /**
@@ -14,11 +15,14 @@ import "@frontier-token-research/cron/contracts/Period.sol";
 contract TRL {
     using SafeMath for uint256;
 
-     // Amount that only can be changed in exchange of FTR
+     // Amount that only can be changed in exchange of FTR (period => account => vote_amount)
     mapping (uint256 => mapping(address => uint256)) public votesReceived;
 
-    // For each period, maps user's address to voteToken balance
+    // For each period, maps user's address to voteToken balance (period => account => vote_balance)
     mapping (uint256 => mapping(address => uint256)) public votesBalance;
+
+    // Total amount of votes made on a current period, necessary for future Bounty calculation
+    mapping(uint256 => uint256) totalPeriodVotes;
 
     // Registry of candidates to be voted
     Registry public candidateRegistry;
@@ -29,26 +33,13 @@ contract TRL {
     // Master Token, used to buy votes
     StandardToken public token;
 
-    // Index, Defines the current period
-    uint256 public periodIndex;
+    // Stages that come periodically 
+    PeriodicStages public periodicStages;
 
-    enum PeriodState {CREATED, ACTIVE, CLAIM, CLOSED}
-
-    struct Period {
-        uint256 startTime;
-        uint256 totalVotes;
-        PeriodState state;
-        uint256 TTL;
-        uint256 activeTime;
-        uint256 claimTime;
-    }
-
-    mapping (uint256 => Period) public periodRegistry;
 
     /**
     * Creates a new Instance of a Voting Lists
-    * @param _tokenAddress Address of the token used for
-    *
+    * @param _tokenAddress Address of the token used as an incentive for the pool
     **/
 
     constructor(
@@ -60,12 +51,13 @@ contract TRL {
         uint256 _initialClaimTime)
         public
     {
-        require(_candidateRegistryAddress != 0x00 && _voterRegistryAddress != 0x00 && _tokenAddress != 0x00); 
+        require(
+            _candidateRegistryAddress != 0x00 && _voterRegistryAddress != 0x00 && _tokenAddress != 0x00
+        ); 
         token = StandardToken(_tokenAddress);
         candidateRegistry = Registry(_candidateRegistryAddress);
         voterRegistry = Registry(_voterRegistryAddress);
-        periodRegistry[periodIndex] = Period(block.number, 0, PeriodState.CREATED, _initialTTL, _initialActiveTime, _initialClaimTime);
-        initPeriod(_initialTTL);
+        initPeriod(_initialTTL, _initialActiveTime, _initialClaimTime);
     }
 
     /**
@@ -73,106 +65,120 @@ contract TRL {
     * Requires that the current period is Preparing (0)
     **/
 
-    function initPeriod(uint256 _periodTTL) public {
-        require(periodRegistry[periodIndex].state == PeriodState.CREATED);
-        periodRegistry[periodIndex].TTL = _periodTTL;
-        periodRegistry[periodIndex].startTime = now;
-        nextState();
+    function initPeriod(uint256 _periodTTL, uint256 _activeTime, uint256 _claimTime) public {
+        periodicStages = new PeriodicStages(_periodTTL);
+        periodicStages.pushStage(_activeTime);
+        periodicStages.pushStage(_claimTime);
+        emit PeriodInit(_periodTTL, _activeTime, _claimTime);
     }
 
     /**
-    * Exchanges the main token for an amount of votes
-    * Requires previous allowance of expenditure of at least the amount required
-    * Currently 1:1 exchange used, but this rate could be changed
+    * @dev Exchanges the main token for an amount of votes
+    * @dev Requires previous allowance of expenditure of at least the amount required
+    * @dev Currently 1:1 exchange used, but this rate could be changed
     * @param _amount Amount of votes that the voter wants to buy
     **/
 
     function buyTokenVotes(uint256 _amount) public {
-        require(periodRegistry[periodIndex].state == PeriodState.ACTIVE);
+        require(currentStage() == 0);
         require(token.transferFrom(msg.sender,this, _amount));
-        votesBalance[periodIndex][msg.sender] = votesBalance[periodIndex][msg.sender].add(_amount);
-        emit VotesBought(msg.sender, _amount, periodIndex);
+        votesBalance[currentPeriod()][msg.sender] = votesBalance[currentPeriod()][msg.sender].add(_amount);
+        emit VotesBought(msg.sender, _amount, currentPeriod());
     }
 
+
     /**
-    * Adds a new vote for a candidate. It fails if the candidate hasn't approved before the specified amount
+    * @dev Adds a new vote for a candidate. It fails if the candidate hasn't approved before the specified amount
     * @param _candidateAddress address of the candidate selected
     * @param _amount of votes used
     **/
 
     function vote(address _candidateAddress, uint256 _amount) public {
-        require(periodRegistry[periodIndex].state == PeriodState.ACTIVE);
-        require(candidateRegistry.isWhitelisted(_candidateAddress));
-        require(votesBalance[periodIndex][msg.sender] >= _amount);
-        require(voterRegistry.isWhitelisted(msg.sender));
-        votesReceived[periodIndex][_candidateAddress] = votesReceived[periodIndex][_candidateAddress].add(_amount);
-        votesBalance[periodIndex][msg.sender] -= _amount;
-        periodRegistry[periodIndex].totalVotes = periodRegistry[periodIndex].totalVotes.add(_amount);
-        emit Vote(msg.sender,_candidateAddress, _amount, periodIndex);
+        require(currentStage() == 0);
+        require(canVote(msg.sender, _candidateAddress));
+        require(votesBalance[currentPeriod()][msg.sender] >= _amount);
+        votesReceived[currentPeriod()][_candidateAddress] = votesReceived[currentPeriod()][_candidateAddress].add(_amount);
+        votesBalance[currentPeriod()][msg.sender] -= _amount;
+        emit Vote(msg.sender,_candidateAddress, _amount, currentPeriod());
     }
 
+    
     /**
-    * Moves the period from active to Claiming.
-    *
-    **/
-
-    function initClaimingState() public {
-        require(periodRegistry[periodIndex].state == PeriodState.ACTIVE);
-        require ((now - periodRegistry[periodIndex].startTime) >= periodRegistry[periodIndex].activeTime);
-        nextState();
-    }
-
-    /**
-    * Enables an analyst to claim a bounty in the claim period
-    *
-    *
+    * @dev Claims the correspondant Bounty from the Pool on the current periodIndex
     **/
 
     function claimBounty() public {
-        require(periodRegistry[periodIndex].state == PeriodState.CLAIM);
+        require(currentStage() == 1);
         require(candidateRegistry.isWhitelisted(msg.sender) == true);
-        require(periodRegistry[periodIndex].totalVotes>0);
-        uint256 totalAmount = votesReceived[periodIndex][msg.sender] * token.balanceOf(this)/periodRegistry[periodIndex].totalVotes;
+        require(totalPeriodVotes[currentPeriod()]>0);
+        uint256 totalAmount = calculateReward(
+            token.balanceOf(this),
+            votesReceived[currentPeriod()][msg.sender],
+            totalPeriodVotes[currentPeriod()]
+        );
         token.transfer(msg.sender, totalAmount);
-        emit BountyRelased(msg.sender, totalAmount, periodIndex);
+        emit BountyRelased(msg.sender, totalAmount, currentPeriod());
     }
 
     /**
-    * Closes the current period and sets the current period pointer to the next item, enabling again init.
-    *
+    * @dev Returns the current period number
     **/
 
-    function closePeriod() public {
-        require (periodRegistry[periodIndex].state == PeriodState.CLAIM);
-        require (now - periodRegistry[periodIndex].startTime > periodRegistry[periodIndex].TTL);
-        nextState();
-        nextPeriod();
+    function currentPeriod() public view returns(uint256) { 
+        address periodAddress = periodicStages.period();
+        Period period = Period(periodAddress);
+        return period.getPeriodNumber();
     }
+    
+    /**
+    * @dev Returns the current stage number
+    **/
 
+    function currentStage() public view returns(uint256){
+        return periodicStages.currentStage();
+    } 
+    
+    
+    /**
+    * @dev Returns the current period number
+    * @param _sender Account of the voter that is checked
+    * @param _receiver Account of the candidate to be voted
+    * @return true if the user can vote and the receiver is a candidate
+    **/
+
+    function canVote(
+        address _sender, 
+        address _receiver) 
+        internal view returns (bool) 
+    { 
+        return voterRegistry.isWhitelisted(_sender) &&
+        candidateRegistry.isWhitelisted(_receiver);
+    }
 
     /**
-    * Moves from the current state to the Next State {CREATED, ACTIVE, CLAIM, CLOSED}
-    *
-    **/
-
-    function nextState() internal {
-        periodRegistry[periodIndex].state = PeriodState(uint(periodRegistry[periodIndex].state).add(1));
-        emit StateChange(uint(periodRegistry[periodIndex].state)-1 , uint(periodRegistry[periodIndex].state), now);
+    * @dev Function that determines the current reward for each sender
+    * @param _poolAmount Total amount that is going to be shared among participants
+    * @param _claimerVotes Amount of votes of the candidate that is going to claim for the reward
+    * @param _totalVotes Total Amount of votes on a certain period
+    */
+    function calculateReward(
+        uint256 _poolAmount,
+        uint256 _claimerVotes,
+        uint256 _totalVotes)
+        pure public returns (uint256)
+    {
+        require(_totalVotes != 0);
+        uint256 auxDecimalVotes = _claimerVotes * 100;
+        uint256 auxPercentageVotes = auxDecimalVotes / _totalVotes;
+        uint256 totalAmount = _poolAmount * auxPercentageVotes / 100;
+        return totalAmount;
     }
 
-    /**
-    * Moves from the current period to the next period
-    **/
 
-    function nextPeriod() internal {
-        periodIndex = periodIndex.add(1);
-        emit PeriodForward(periodIndex-1, periodIndex);
-    }
 
     event ContractCreated (uint256 _time);
+    event PeriodInit(uint256 _T, uint256 _active, uint256 _claim);
     event VotesBought(address indexed _recipient, uint256 _amount, uint256 _period);
     event BountyRelased(address indexed _recipient, uint256 _amount, uint256 _period);
-    event StateChange(uint256 indexed _stateFrom, uint256 _stateTo, uint256 _time);
-    event PeriodForward(uint256 indexed _periodFrom, uint256 _periodTo);
     event Vote(address indexed _voterAddress, address indexed _candidateAddress, uint256 _amount, uint256 _periodIndex);
 }

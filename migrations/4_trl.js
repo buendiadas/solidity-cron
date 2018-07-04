@@ -6,7 +6,6 @@ const Standard20TokenContract = artifacts.require('Standard20TokenMock')
 const options = {from: config.ownerAccount}
 const TRLContract = artifacts.require('TRL')
 
-
 module.exports = (deployer) => {
   deployer.then(async () => {
     const RegistryFactory = await OwnedRegistryFactory.deployed()
@@ -15,6 +14,6 @@ module.exports = (deployer) => {
     const candidateRegistryAddress = await RegistryFactory.getRegistry.call(keccak256('voter'))
     const voterRegistryAddress = await RegistryFactory.getRegistry.call(keccak256('candidate'))
     const FrontierToken = await Standard20TokenContract.deployed()
-    await deployer.deploy(TRLContract, FrontierToken.address, candidateRegistryAddress, voterRegistryAddress, config.activeTime, config.claimTime, config.ttl)
+    await deployer.deploy(TRLContract, FrontierToken.address, candidateRegistryAddress, voterRegistryAddress, config.ttl, config.activeTime, config.claimTime)
   })
 }
