@@ -17,6 +17,7 @@ jobs:
         - npm i npm@latest -g
       install:
         - npm install
+        - npm install -g codecov
       before_script:
         - npm install -g ganache-cli
         - npm run start &
@@ -25,7 +26,7 @@ jobs:
         - truffle migrate --reset
         - npm run coverage
       after_script:
-        - cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
+        - codecov
   
     - stage: Migrate
       language: node_js
