@@ -13,14 +13,17 @@ jobs:
         - "8"
       install:
         - npm install
+        - npm install -E openzeppelin-solidity
       before_script:
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
         - npm install -g ganache-cli
         - npm run start &
+        - npm install -g codecov
       script:
         - truffle test
+        - npm run coverage
       after_script:
-        - npm run coverage && cat coverage/lcov.info | coveralls
+        - codecov
 
     - stage: Release
       provider: script
