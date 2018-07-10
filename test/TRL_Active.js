@@ -160,4 +160,15 @@ contract('TRL<Active>', function (accounts) {
       await assertRevert(TRLInstance.vote(candidateAccounts[0], totalPreStaked, {from: voterAccounts[0]}))
     })
   })
+  describe('Claiming', async () => {
+    it('Should Throw when someone tries to claim', async () => {
+      const listAddress = await TRLInstance.address
+      const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
+      const currentPeriod = await TRLInstance.currentPeriod.call()
+      await TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]})
+      const votingBalance = await TRLInstance.votesBalance.call(currentPeriod, voterAccounts[0])
+      await TRLInstance.vote(candidateAccounts[0], votingBalance, {from: voterAccounts[0]})
+      await assertRevert(TRLInstance.claimBounty(), {from: voterAccounts[0]})
+    })
+  })
 })
