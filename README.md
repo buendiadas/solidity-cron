@@ -1,7 +1,7 @@
 # Cron
 
 [![Build Status](https://travis-ci.com/Frontier-project/cron.svg?token=DJeMzxJJncp3nRaEUuxH&branch=master)](https://travis-ci.com/Frontier-project/cron)
-[![Coverage Status](https://coveralls.io/repos/github/Frontier-project/cron/badge.svg?branch=coverage&t=LpwDpF)](https://coveralls.io/github/Frontier-project/cron?branch=coverage)
+[![codecov](https://codecov.io/gh/Frontier-project/cron/branch/master/graph/badge.svg?token=BGbU5Q6IRV)](https://codecov.io/gh/Frontier-project/cron)
 
 
 
