@@ -94,6 +94,18 @@ contract('TRL<Active>', function (accounts) {
       const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
       assert.equal(stakedTokens, totalPreStaked.toNumber())
     })
+    it('Should edit the maximum staked amount', async () => {
+      const definedMinimumStake = 10;
+      await TRLInstance.setMinimumStake(definedMinimumStake)
+      const storedMinimumStake = await TRLInstance.minimumStakeAmount.call();
+      assert.equal(definedMinimumStake, storedMinimumStake.toNumber())
+    })
+     it('Should throw if someone tries to stake less than the minimum amount', async () => {
+      const definedMinimumStake = 10;
+      await TRLInstance.setMinimumStake(definedMinimumStake)
+      await FrontierTokenInstance.approve(TRLInstance.address, definedMinimumStake -1 , {from: voterAccounts[0]})
+      await assertRevert(TRLInstance.buyTokenVotes(definedMinimumStake -1, {from: voterAccounts[0]}))
+    })
     it('Should record the number of votes bought in period 0 on the first period', async () => {
       const listAddress = await TRLInstance.address
       const stakedTokens = 10

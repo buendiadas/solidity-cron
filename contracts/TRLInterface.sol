@@ -9,6 +9,7 @@ contract TRLInterface {
     event PeriodInit(uint256 _T, uint256 _active, uint256 _claim);
     event VotesBought(address indexed _recipient, uint256 _amount, uint256 _period);
     event BountyRelased(address indexed _recipient, uint256 _amount, uint256 _period);
+    event MinimumStakeSet(uint256 _amount);
     event Vote(address indexed _voterAddress, address indexed _candidateAddress, uint256 _amount, uint256 _periodIndex);
 
 
