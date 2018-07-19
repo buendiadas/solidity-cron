@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "./TRLInterface.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
@@ -12,17 +13,8 @@ import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 * A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates
 *
 **/
-contract TRL {
+contract TRL is TRLInterface {
     using SafeMath for uint256;
-
-     // Amount that only can be changed in exchange of FTR (period => account => vote_amount)
-    mapping (uint256 => mapping(address => uint256)) public votesReceived;
-
-    // For each period, maps user's address to voteToken balance (period => account => vote_balance)
-    mapping (uint256 => mapping(address => uint256)) public votesBalance;
-
-    // Total amount of votes made on a current period, necessary for future Bounty calculation
-    mapping(uint256 => uint256) totalPeriodVotes;
 
     // Registry of candidates to be voted
     Registry public candidateRegistry;
@@ -173,12 +165,4 @@ contract TRL {
         uint256 totalAmount = _poolAmount * auxPercentageVotes / 100;
         return totalAmount;
     }
-
-
-
-    event ContractCreated (uint256 _time);
-    event PeriodInit(uint256 _T, uint256 _active, uint256 _claim);
-    event VotesBought(address indexed _recipient, uint256 _amount, uint256 _period);
-    event BountyRelased(address indexed _recipient, uint256 _amount, uint256 _period);
-    event Vote(address indexed _voterAddress, address indexed _candidateAddress, uint256 _amount, uint256 _periodIndex);
 }
