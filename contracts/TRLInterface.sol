@@ -14,7 +14,7 @@ contract TRLInterface {
 
     mapping (uint256 => mapping(address => uint256)) public votesReceived;
     mapping (uint256 => mapping(address => uint256)) public votesBalance;
-    mapping(uint256 => uint256) totalPeriodVotes;
+    mapping (uint256 => uint256) totalPeriodVotes;
 
     function vote(address _candidateAddress, uint256 _amount) public;
     function calculateReward( uint256 _poolAmount, uint256 _claimerVotes, uint256 _totalVotes) pure public returns (uint256);
