@@ -28,6 +28,10 @@ contract TRL is TRLInterface {
     // Stages that come periodically 
     PeriodicStages public periodicStages;
 
+    // Minimum stake to participate in the period, 0 by default
+    
+    uint256 public minimumStakeAmount;
+
 
     /**
     * Creates a new Instance of a Voting Lists
@@ -73,6 +77,7 @@ contract TRL is TRLInterface {
 
     function buyTokenVotes(uint256 _amount) public {
         require(currentStage() == 0);
+        require(canStake(msg.sender, _amount));
         require(token.transferFrom(msg.sender,this, _amount));
         votesBalance[currentPeriod()][msg.sender] = votesBalance[currentPeriod()][msg.sender].add(_amount);
         emit VotesBought(msg.sender, _amount, currentPeriod());
@@ -92,6 +97,14 @@ contract TRL is TRLInterface {
         votesReceived[currentPeriod()][_candidateAddress] = votesReceived[currentPeriod()][_candidateAddress].add(_amount);
         votesBalance[currentPeriod()][msg.sender] -= _amount;
         emit Vote(msg.sender,_candidateAddress, _amount, currentPeriod());
+    }
+    /*
+    * @dev Sets the minimum stake to participate in a period 
+    * @param _minimumStakeAmount minimum stake to be added
+    **/
+
+    function setMinimumStake(uint256 _minimumStakeAmount) public {
+        minimumStakeAmount = _minimumStakeAmount;
     }
 
     
@@ -132,7 +145,7 @@ contract TRL is TRLInterface {
     
     
     /**
-    * @dev Returns the current period number
+    * @dev Returns true if the given _sender can vote for a given _receiver
     * @param _sender Account of the voter that is checked
     * @param _receiver Account of the candidate to be voted
     * @return true if the user can vote and the receiver is a candidate
@@ -145,6 +158,22 @@ contract TRL is TRLInterface {
     { 
         return voterRegistry.isWhitelisted(_sender) &&
         candidateRegistry.isWhitelisted(_receiver);
+    }
+
+    /**
+    * @dev Returns true if the given _sender stake an amount of tokens
+    * @param _sender Account of the voter that is checked
+    * @param _amount Amount that is attempted to stake
+    * @return true if the user can vote and the receiver is a candidate
+    **/
+
+    function canStake(
+        address _sender, 
+        uint256 _amount) 
+        internal view returns (bool) 
+    {
+        return (_amount + votesBalance[currentPeriod()][_sender]) >= minimumStakeAmount;
+
     }
 
     /**
