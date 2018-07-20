@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.com/Frontier-project/TRL.svg?token=DJeMzxJJncp3nRaEUuxH&branch=master)](https://travis-ci.com/Frontier-project/TRL)
+[![codecov](https://codecov.io/gh/Frontier-project/TRL/branch/master/graph/badge.svg?token=JweR4vLsQh)](https://codecov.io/gh/Frontier-project/TRL)
 
 
 ## About
