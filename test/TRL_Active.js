@@ -97,10 +97,10 @@ contract('TRL<Active>', function (accounts) {
     it('Should edit the maximum staked amount', async () => {
       const definedMinimumStake = 10;
       await TRLInstance.setMinimumStake(definedMinimumStake)
-      const storedMinimumStake = await TRLInstance.minimumStakeAmount.call();
+      const storedMinimumStake = await TRLInstance.minimumStakeAmount.call()
       assert.equal(definedMinimumStake, storedMinimumStake.toNumber())
     })
-     it('Should throw if someone tries to stake less than the minimum amount', async () => {
+    it('Should throw if someone tries to stake less than the minimum amount', async () => {
       const definedMinimumStake = 10;
       await TRLInstance.setMinimumStake(definedMinimumStake)
       await FrontierTokenInstance.approve(TRLInstance.address, definedMinimumStake -1 , {from: voterAccounts[0]})
@@ -140,6 +140,12 @@ contract('TRL<Active>', function (accounts) {
       const votesReceived = await TRLInstance.votesReceived.call(currentPeriod, candidateAccounts[0])
       assert.equal(votingBalance.toNumber(), votesReceived.toNumber())
     })
+    it('Should edit the maximum number of votes when admin requires for it', async () => {
+      const requiredVotingLimitAmount = 10;
+      await TRLInstance.setVotingLimit(requiredVotingLimitAmount, {from:adminAccount})
+      const savedVotingLimitAmount = await TRLInstance.maximumVoteAmount.call()
+      assert.equal(requiredVotingLimitAmount, savedVotingLimitAmount.toNumber())
+    })
     it('Should increase the number of votes received per analyst in the period after voting on a future period', async () => {
       const listAddress = await TRLInstance.address
       const stakedTokens = 10
@@ -170,6 +176,14 @@ contract('TRL<Active>', function (accounts) {
       const blocksToAdvance = T - indexInsideStage + neededIndexInStage
       await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAdvance)
       await assertRevert(TRLInstance.vote(candidateAccounts[0], totalPreStaked, {from: voterAccounts[0]}))
+    })
+    it('Should revert when someone tries to vote tokens over the votingLimitAmount', async () => {
+      const requiredVotingLimitAmount = 10;
+      const votingAmount = requiredVotingLimitAmount + 1;
+      await TRLInstance.setVotingLimit(requiredVotingLimitAmount, {from:adminAccount})
+      await FrontierTokenInstance.approve(TRLInstance.address, votingAmount, {from: voterAccounts[0]})
+      await TRLInstance.buyTokenVotes(votingAmount, {from: voterAccounts[0]})
+      await assertRevert(TRLInstance.vote(candidateAccounts[0], votingAmount, {from: voterAccounts[0]}))
     })
   })
   describe('Claiming', async () => {
