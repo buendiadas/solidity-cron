@@ -13,7 +13,7 @@ import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 * A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates
 *
 **/
-contract TRL is TRLInterface {
+contract TRL is TRLInterface, Ownable {
     using SafeMath for uint256;
 
     // Registry of candidates to be voted
@@ -29,8 +29,10 @@ contract TRL is TRLInterface {
     PeriodicStages public periodicStages;
 
     // Minimum stake to participate in the period, 0 by default
-    
     uint256 public minimumStakeAmount;
+
+    // Sets the maximum number of votes to allocate per period
+    uint256 public maximumVoteAmount = 2^256 -1;
 
 
     /**
@@ -48,7 +50,9 @@ contract TRL is TRLInterface {
         public
     {
         require(
-            _candidateRegistryAddress != 0x00 && _voterRegistryAddress != 0x00 && _tokenAddress != 0x00
+            _candidateRegistryAddress != address(0) && 
+            _voterRegistryAddress != address(0) && 
+            _tokenAddress != address(0)
         ); 
         token = StandardToken(_tokenAddress);
         candidateRegistry = Registry(_candidateRegistryAddress);
@@ -92,7 +96,7 @@ contract TRL is TRLInterface {
 
     function vote(address _candidateAddress, uint256 _amount) public {
         require(currentStage() == 0);
-        require(canVote(msg.sender, _candidateAddress));
+        require(canVote(msg.sender, _candidateAddress, _amount));
         require(votesBalance[currentPeriod()][msg.sender] >= _amount);
         votesReceived[currentPeriod()][_candidateAddress] = votesReceived[currentPeriod()][_candidateAddress].add(_amount);
         votesBalance[currentPeriod()][msg.sender] -= _amount;
@@ -104,7 +108,18 @@ contract TRL is TRLInterface {
     **/
 
     function setMinimumStake(uint256 _minimumStakeAmount) public {
+        require(msg.sender == owner);
         minimumStakeAmount = _minimumStakeAmount;
+    }
+
+    /*
+    * @dev Sets a voting limit to allocate to one candidate
+    * @param _minimumStakeAmount minimum stake to be added
+    **/
+
+    function setVotingLimit(uint256 _maximumVoteAmount) public {
+        require(msg.sender == owner);
+        maximumVoteAmount = _maximumVoteAmount;
     }
 
     
@@ -153,11 +168,13 @@ contract TRL is TRLInterface {
 
     function canVote(
         address _sender, 
-        address _receiver) 
+        address _receiver,
+        uint256 _amount) 
         internal view returns (bool) 
     { 
         return voterRegistry.isWhitelisted(_sender) &&
-        candidateRegistry.isWhitelisted(_receiver);
+        candidateRegistry.isWhitelisted(_receiver) && 
+        _amount <= maximumVoteAmount;
     }
 
     /**
@@ -182,6 +199,7 @@ contract TRL is TRLInterface {
     * @param _claimerVotes Amount of votes of the candidate that is going to claim for the reward
     * @param _totalVotes Total Amount of votes on a certain period
     */
+
     function calculateReward(
         uint256 _poolAmount,
         uint256 _claimerVotes,
