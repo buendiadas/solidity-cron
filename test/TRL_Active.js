@@ -1,5 +1,5 @@
 const config = require('../config')
-var advanceToBlock = require('./helpers/advanceToBlock')
+const advanceToBlock = require('./helpers/advanceToBlock')
 const { assertRevert } = require('./helpers/assertRevert')
 const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 const TRLContract = artifacts.require('TRL')
@@ -94,11 +94,17 @@ contract('TRL<Active>', function (accounts) {
       const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
       assert.equal(stakedTokens, totalPreStaked.toNumber())
     })
-    it('Should edit the maximum staked amount', async () => {
+    it('Should edit the minimum stake amount', async () => {
       const definedMinimumStake = 10;
       await TRLInstance.setMinimumStake(definedMinimumStake)
-      const storedMinimumStake = await TRLInstance.minimumStakeAmount.call()
+      const storedMinimumStake = await TRLInstance.stakingConstraints.call(0)
       assert.equal(definedMinimumStake, storedMinimumStake.toNumber())
+    })
+    it('Should edit the maximum stake amount', async () => {
+      const definedMaximumStake = 10;
+      await TRLInstance.setMaximumStake(definedMaximumStake)
+      const storedMaximumStake = await TRLInstance.stakingConstraints.call(1)
+      assert.equal(definedMaximumStake, storedMaximumStake.toNumber())
     })
     it('Should throw if someone tries to stake less than the minimum amount', async () => {
       const definedMinimumStake = 10;
@@ -142,8 +148,14 @@ contract('TRL<Active>', function (accounts) {
     })
     it('Should edit the maximum number of votes when admin requires for it', async () => {
       const requiredVotingLimitAmount = 10;
-      await TRLInstance.setVotingLimit(requiredVotingLimitAmount, {from:adminAccount})
-      const savedVotingLimitAmount = await TRLInstance.maximumVoteAmount.call()
+      await TRLInstance.setMaxVotingLimit(requiredVotingLimitAmount, {from:adminAccount})
+      const savedVotingLimitAmount = await TRLInstance.votingConstraints.call(1)
+      assert.equal(requiredVotingLimitAmount, savedVotingLimitAmount.toNumber())
+    })
+    it('Should edit the minimum number of votes when admin requires for it', async () => {
+      const requiredVotingLimitAmount = 10;
+      await TRLInstance.setMinVotingLimit(requiredVotingLimitAmount, {from:adminAccount})
+      const savedVotingLimitAmount = await TRLInstance.votingConstraints.call(0)
       assert.equal(requiredVotingLimitAmount, savedVotingLimitAmount.toNumber())
     })
     it('Should increase the number of votes received per analyst in the period after voting on a future period', async () => {
@@ -177,10 +189,18 @@ contract('TRL<Active>', function (accounts) {
       await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAdvance)
       await assertRevert(TRLInstance.vote(candidateAccounts[0], totalPreStaked, {from: voterAccounts[0]}))
     })
-    it('Should revert when someone tries to vote tokens over the votingLimitAmount', async () => {
+    it('Should revert when someone tries to vote tokens over the MaxVotingLimitAmount', async () => {
       const requiredVotingLimitAmount = 10;
       const votingAmount = requiredVotingLimitAmount + 1;
-      await TRLInstance.setVotingLimit(requiredVotingLimitAmount, {from:adminAccount})
+      await TRLInstance.setMaxVotingLimit(requiredVotingLimitAmount, {from:adminAccount})
+      await FrontierTokenInstance.approve(TRLInstance.address, votingAmount, {from: voterAccounts[0]})
+      await TRLInstance.buyTokenVotes(votingAmount, {from: voterAccounts[0]})
+      await assertRevert(TRLInstance.vote(candidateAccounts[0], votingAmount, {from: voterAccounts[0]}))
+    })
+    it('Should revert when someone tries to vote tokens below the minVotingLimitAmount', async () => {
+      const requiredVotingLimitAmount = 10;
+      const votingAmount = requiredVotingLimitAmount - 1;
+      await TRLInstance.setMinVotingLimit(requiredVotingLimitAmount, {from:adminAccount})
       await FrontierTokenInstance.approve(TRLInstance.address, votingAmount, {from: voterAccounts[0]})
       await TRLInstance.buyTokenVotes(votingAmount, {from: voterAccounts[0]})
       await assertRevert(TRLInstance.vote(candidateAccounts[0], votingAmount, {from: voterAccounts[0]}))

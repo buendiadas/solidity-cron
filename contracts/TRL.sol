@@ -11,8 +11,8 @@ import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 
 /**
 * A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates
-*
 **/
+
 contract TRL is TRLInterface, Ownable {
     using SafeMath for uint256;
 
@@ -29,10 +29,10 @@ contract TRL is TRLInterface, Ownable {
     PeriodicStages public periodicStages;
 
     // Minimum stake to participate in the period, 0 by default
-    uint256 public minimumStakeAmount;
+    uint256[2] public stakingConstraints = [0, 2^256 -1];
 
-    // Sets the maximum number of votes to allocate per period
-    uint256 public maximumVoteAmount = 2^256 -1;
+    // Array setting up the limits when voting [min_amount, Max_amount]
+    uint256[2] public votingConstraints = [0, 2^256 -1];
 
 
     /**
@@ -87,7 +87,6 @@ contract TRL is TRLInterface, Ownable {
         emit VotesBought(msg.sender, _amount, currentPeriod());
     }
 
-
     /**
     * @dev Adds a new vote for a candidate. It fails if the candidate hasn't approved before the specified amount
     * @param _candidateAddress address of the candidate selected
@@ -102,27 +101,7 @@ contract TRL is TRLInterface, Ownable {
         votesBalance[currentPeriod()][msg.sender] -= _amount;
         emit Vote(msg.sender,_candidateAddress, _amount, currentPeriod());
     }
-    /*
-    * @dev Sets the minimum stake to participate in a period 
-    * @param _minimumStakeAmount minimum stake to be added
-    **/
 
-    function setMinimumStake(uint256 _minimumStakeAmount) public {
-        require(msg.sender == owner);
-        minimumStakeAmount = _minimumStakeAmount;
-    }
-
-    /*
-    * @dev Sets a voting limit to allocate to one candidate
-    * @param _minimumStakeAmount minimum stake to be added
-    **/
-
-    function setVotingLimit(uint256 _maximumVoteAmount) public {
-        require(msg.sender == owner);
-        maximumVoteAmount = _maximumVoteAmount;
-    }
-
-    
     /**
     * @dev Claims the correspondant Bounty from the Pool on the current periodIndex
     **/
@@ -130,7 +109,7 @@ contract TRL is TRLInterface, Ownable {
     function claimBounty() public {
         require(currentStage() == 1);
         require(candidateRegistry.isWhitelisted(msg.sender) == true);
-        require(totalPeriodVotes[currentPeriod()]>0);
+        require(totalPeriodVotes[currentPeriod()] > 0);
         uint256 totalAmount = calculateReward(
             token.balanceOf(this),
             votesReceived[currentPeriod()][msg.sender],
@@ -138,6 +117,46 @@ contract TRL is TRLInterface, Ownable {
         );
         token.transfer(msg.sender, totalAmount);
         emit BountyRelased(msg.sender, totalAmount, currentPeriod());
+    }
+
+    /*
+    * @dev Sets the minimum stake to participate in a period 
+    * @param _minimumStakeAmount minimum stake to be added
+    **/
+
+    function setMinimumStake(uint256 _minimumStakeAmount) public {
+        require(msg.sender == owner);
+        stakingConstraints[0] = _minimumStakeAmount;
+    }
+
+    /*
+    * @dev Sets the minimum stake to participate in a period 
+    * @param _minimumStakeAmount minimum stake to be added
+    **/
+
+    function setMaximumStake(uint256 _maximumStakeAmount) public {
+        require(msg.sender == owner);
+        stakingConstraints[1] = _maximumStakeAmount;
+    }
+
+    /*
+    * @dev Sets a voting limit to allocate to one candidate
+    * @param _minimumStakeAmount minimum stake to be added
+    **/
+
+    function setMinVotingLimit(uint256 _minVoteAmount) public {
+        require(msg.sender == owner);
+        votingConstraints[0] = _minVoteAmount; 
+    }
+
+    /*
+    * @dev Sets a voting limit to allocate to one candidate
+    * @param _minimumStakeAmount minimum stake to be added
+    **/
+
+    function setMaxVotingLimit(uint256 _maxVoteAmount) public {
+        require(msg.sender == owner);
+        votingConstraints[1] = _maxVoteAmount; 
     }
 
     /**
@@ -156,9 +175,9 @@ contract TRL is TRLInterface, Ownable {
 
     function currentStage() public view returns(uint256){
         return periodicStages.currentStage();
-    } 
-    
-    
+    }
+
+         
     /**
     * @dev Returns true if the given _sender can vote for a given _receiver
     * @param _sender Account of the voter that is checked
@@ -174,7 +193,7 @@ contract TRL is TRLInterface, Ownable {
     { 
         return voterRegistry.isWhitelisted(_sender) &&
         candidateRegistry.isWhitelisted(_receiver) && 
-        _amount <= maximumVoteAmount;
+        voteInsideConstraints(_amount);
     }
 
     /**
@@ -189,8 +208,36 @@ contract TRL is TRLInterface, Ownable {
         uint256 _amount) 
         internal view returns (bool) 
     {
-        return (_amount + votesBalance[currentPeriod()][_sender]) >= minimumStakeAmount;
+        return (stakeInsideConstraints(_amount + votesBalance[currentPeriod()][_sender]));
 
+    } 
+
+    /**
+    * @dev Returns true if the given _amount is insidse the TRL constraints
+    * @param _amount Account of the voter that is checked
+    * @return true if the amount of votes is inside the constraints set
+    **/
+
+    function stakeInsideConstraints(
+        uint256 _amount) 
+        internal view returns (bool) 
+    { 
+        return _amount >= stakingConstraints[0] &&
+        _amount <= stakingConstraints[1];
+    }
+
+    /**
+    * @dev Returns true if the given _amount is insidse the TRL constraints
+    * @param _amount Account of the voter that is checked
+    * @return true if the amount of votes is inside the constraints set
+    **/
+
+    function voteInsideConstraints(
+        uint256 _amount) 
+        internal view returns (bool) 
+    { 
+        return _amount >= votingConstraints[0] &&
+        _amount <= votingConstraints[1];
     }
 
     /**
