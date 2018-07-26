@@ -2,13 +2,15 @@ language: javascript
 
 
 stages:
-  - Test
-  - Migrate
-  - Release
+  - name: test
+  - name: migrate
+    if: branch = master
+  - name: release
+    if: branch = master
 
 jobs:
   include:
-    - stage: Test
+    - stage: test
       language: node_js
       node_js:
         - "8"
@@ -28,7 +30,8 @@ jobs:
       after_script:
         - codecov
   
-    - stage: Migrate
+    - stage: migrate
+      if: branch = master
       language: node_js
       node_js:
         - "8"
@@ -42,7 +45,7 @@ jobs:
       after_script:
         - npm run mock-infura
 
-    - stage: Release
+    - stage: release
       provider: script
       node_js: "8"
       before_install:
