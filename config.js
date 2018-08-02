@@ -1,5 +1,6 @@
 module.exports = {
-  ttl: 10,
+  // ttl: 10,
+  ttl: 1,
   activeTime: 7,
   claimTime: 3,
   candidateLength: 4,

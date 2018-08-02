@@ -1,3 +1,7 @@
+const EthJs = require('ethjs')
+const truffleConfig = require('../../truffle.js')
+const eth = new EthJs(truffleConfig.networks.development2.provider())
+
 module.exports = {
   advanceBlock: function () {
     return new Promise((resolve, reject) => {
@@ -14,11 +18,11 @@ module.exports = {
   // Advances the block number so that the last mined block is `number`.
   advanceToBlock: async function (number) {
     let advanceBlock = this.advanceBlock
-    if (web3.eth.blockNumber > number) {
-      throw Error(`block number ${number} is in the past (current is ${web3.eth.blockNumber})`)
+    if (eth.blockNumber > number) {
+      throw Error(`block number ${number} is in the past (current is ${eth.blockNumber})`)
     }
 
-    while (web3.eth.blockNumber < number) {
+    while (eth.blockNumber < number) {
       await advanceBlock()
     }
   }
