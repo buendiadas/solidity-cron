@@ -15,7 +15,7 @@ module.exports = {
     },
     development2: {
       provider: function () {
-        return new HDWalletProvider(mnemonic, 'http://localhost:8546', 0)
+        return new HDWalletProvider(mnemonic, 'http://localhost:8546', 0, 1, 2, 3)
       },
       network_id: '*',
       gas: 4612388
