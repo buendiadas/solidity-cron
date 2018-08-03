@@ -18,12 +18,14 @@ module.exports = {
   // Advances the block number so that the last mined block is `number`.
   advanceToBlock: async function (number) {
     let advanceBlock = this.advanceBlock
-    if (eth.blockNumber > number) {
+    if (await eth.blockNumber() > number) {
       throw Error(`block number ${number} is in the past (current is ${eth.blockNumber})`)
     }
 
-    while (eth.blockNumber < number) {
+    let currBlock = await eth.blockNumber()
+    while (currBlock < number) {
       await advanceBlock()
+      currBlock = await eth.blockNumber()
     }
   }
 }
