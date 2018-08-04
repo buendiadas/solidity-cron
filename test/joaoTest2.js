@@ -43,6 +43,10 @@ contract('TRL22222', function (accounts) {
     FrontierTokenInstance = await Standard20TokenMock.deployed()
     TRLInstance = await TRLContract.deployed()
 
+    console.log('OwnedRegistryFactoryInstance Address:' + OwnedRegistryFactoryInstance.address)
+    console.log('FrontierTokenInstance Address:' + FrontierTokenInstance.address)
+    console.log('TRL Address:' + TRLInstance.address)
+
     periodicStagesAddress = await TRLInstance.periodicStages.call()
     PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
     periodAddress = await PeriodicStagesInstance.period.call()
@@ -85,10 +89,10 @@ contract('TRL22222', function (accounts) {
 
   const runTests = {
     creatingTheContract: true,
-    movingPeriods: true,
-    staking: true,
-    voting: true,
-    claiming: true
+    movingPeriods: false,
+    staking: false,
+    voting: false,
+    claiming: false
   }
 
   if (runTests.creatingTheContract) {
@@ -114,9 +118,14 @@ contract('TRL22222', function (accounts) {
         const T = await PeriodInstance.T.call()
         assert.equal(config.ttl, T)
       })
-      it('Period number should have been set to 0', async () => {
+
+      // Changed. Adapted to calculate the proper block instead of it being zero.
+      it('Current Period number should be correct', async () => {
         const currentPeriod = await TRLInstance.currentPeriod.call()
-        assert.equal(0, currentPeriod.toNumber())
+        const currentBlock = web3.eth.getBlock('latest').number
+        const initOffset = await PeriodInstance.initOffset.call()
+        const expectedCurrentPeriod = Math.floor((currentBlock - initOffset) / config.ttl)
+        assert.equal(expectedCurrentPeriod, currentPeriod)
       })
       it('Balance of Voter should be set to totalTokens', async () => {
         const balance = await FrontierTokenInstance.balanceOf.call(voterAccounts[0])
@@ -125,15 +134,6 @@ contract('TRL22222', function (accounts) {
       })
     })
   }
-
-  const promisify = (inner) =>
-  new Promise((resolve, reject) =>
-    inner((err, res) => {
-      if (err) { reject(err) }
-
-      resolve(res)
-    })
-  )
 
   if (runTests.movingPeriods) {
     describe('Moving periods', async () => {
