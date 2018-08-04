@@ -129,8 +129,7 @@ contract('TRL22222', function (accounts) {
       })
       it('Balance of Voter should be set to totalTokens', async () => {
         const balance = await FrontierTokenInstance.balanceOf.call(voterAccounts[0])
-        console.log('Balance: ' + balance)
-        assert.equal(config.totalTokens, balance.toNumber())
+        assert.equal(config.initialBalance, balance.toNumber())
       })
     })
   }
