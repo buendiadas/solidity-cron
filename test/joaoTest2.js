@@ -52,17 +52,6 @@ contract('TRL22222', function (accounts) {
     periodAddress = await PeriodicStagesInstance.period.call()
     PeriodInstance = await PeriodContract.at(periodAddress)
 
-    console.log('1')
-    console.log('At:' + TRLInstance.address)
-
-    // periodicStagesAddress = await TRLInstance.periodicStages.call()
-
-    // candidateRegistryAddress = await OwnedRegistryFactoryInstance.getRegistry.call(keccak256('voter'))
-    console.log('2')
-    // voterRegistryAddress = await OwnedRegistryFactoryInstance.getRegistry.call(keccak256('candidate'))
-
-    console.log('REgist:' + candidateRegistryAddress)
-
     /*
  Network: rinkeby_frontier (id: 4)
   Migrations: 0xa440e4ccade65e3720180afeb9e47096e435f6fb
@@ -88,9 +77,9 @@ contract('TRL22222', function (accounts) {
   })
 
   const runTests = {
-    creatingTheContract: true,
+    creatingTheContract: false,
     movingPeriods: false,
-    staking: false,
+    staking: true,
     voting: false,
     claiming: false
   }
@@ -211,9 +200,7 @@ contract('TRL22222', function (accounts) {
         await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0]})
         const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
         const periodsToAdvance = 5
-        const blockNumber = web3.eth.blockNumber
-        await advanceToBlock.advanceToBlock(blockNumber + periodsToAdvance * config.ttl)
-      // await advanceToBlock.advanceToBlock(web3.eth.blockNumber + periodsToAdvance * config.ttl)
+        await advanceToBlock.advanceToBlock(web3.eth.blockNumber + periodsToAdvance * config.ttl)
         const currentPeriod = await TRLInstance.currentPeriod.call()
         await TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]})
         const votingBalance = await TRLInstance.votesBalance.call(currentPeriod, voterAccounts[0])
