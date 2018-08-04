@@ -20,6 +20,12 @@ module.exports = {
       network_id: '*',
       gas: 4612388
     },
+    development3: {
+      host: 'localhost',
+      port: 8546,
+      network_id: '1212',
+      gas: 4600000
+    },
     rinkeby: {
       host: 'localhost',
       port: 8545,

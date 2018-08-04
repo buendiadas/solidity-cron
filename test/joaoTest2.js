@@ -8,9 +8,9 @@ const PeriodContract = artifacts.require('Period')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
 const OwnedRegistryFactory = artifacts.require('OwnedRegistryFactory')
 const keccak256 = require('js-sha3').keccak256
-const EthJs = require('ethjs')
+// const EthJs = require('ethjs')
 const truffleConfig = require('../truffle.js')
-const eth = new EthJs(truffleConfig.networks.development2.provider())
+// const eth = new EthJs(truffleConfig.networks.development2.provider())
 
 let OwnedRegistryFactoryInstance
 let FrontierTokenInstance
@@ -22,13 +22,9 @@ let PeriodInstance
 let PeriodicStagesInstance
 let periodAddress
 
-let adminAccount
-let voterAccounts
-let candidateAccounts
-
-var colors = require('mocha/lib/reporters/base').colors
-colors['diff added'] = '30;42'
-colors['diff removed'] = '30;41'
+let adminAccount = web3.eth.accounts[0]
+let voterAccounts = web3.eth.accounts.slice(1, 4)
+let candidateAccounts = web3.eth.accounts.slice(5, 8)
 
 // console.log('Provider:' + truffleConfig.networks.rinkeby_infura.provider())
 
@@ -36,12 +32,12 @@ contract('TRL22222', function (accounts) {
   // const rinkebyDeployedAddress = TRLContract.networks['4'].address
 
   before('Deploying required contracts', async () => {
-    let accountssss = await eth.accounts()
-    console.log(accountssss[1])
-    // adminAccount = await eth.accounts()[0]
-    // voterAccounts = await eth.accounts().slice(1, 4)
-    // candidateAccounts = await eth.accounts().slice(5, 8)
-    voterAccounts = await eth.accounts() // hack
+    // let accountssss = web3.eth.accounts
+
+    // adminAccount = web3.eth.accounts[0]
+    // voterAccounts = web3.eth.accounts.slice(1, 4)
+    // candidateAccounts = web3.eth.accounts.slice(5, 8)
+    // voterAccounts = web3.eth.accounts // hack
 
     OwnedRegistryFactoryInstance = await OwnedRegistryFactory.deployed()
     FrontierTokenInstance = await Standard20TokenMock.deployed()
@@ -88,11 +84,11 @@ contract('TRL22222', function (accounts) {
   })
 
   const runTests = {
-    creatingTheContract: false,
+    creatingTheContract: true,
     movingPeriods: true,
-    staking: false,
-    voting: false,
-    claiming: false
+    staking: true,
+    voting: true,
+    claiming: true
   }
 
   if (runTests.creatingTheContract) {
@@ -145,8 +141,7 @@ contract('TRL22222', function (accounts) {
         const initialPeriod = await TRLInstance.currentPeriod.call()
         console.log('initial: ' + initialPeriod)
         const periodsToAdvance = 1
-        let currBlockNumber = await promisify(web3.eth.blockNumber)
-        await advanceToBlock.advanceToBlock(currBlockNumber + 1 * config.ttl)
+        await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
         const currentPeriod = await TRLInstance.currentPeriod.call()
         assert.strictEqual(initialPeriod.toNumber() + periodsToAdvance, currentPeriod.toNumber())
       })
@@ -154,7 +149,7 @@ contract('TRL22222', function (accounts) {
       it('Should increase the period N times after advancing N periods in blocks', async () => {
         const initialPeriod = await TRLInstance.currentPeriod.call()
         const periodsToAdvance = 5
-        let currBlockNumber = await eth.blockNumber()
+        let currBlockNumber = web3.eth.blockNumber
         await advanceToBlock.advanceToBlock(currBlockNumber + periodsToAdvance * config.ttl)
         const currentPeriod = await TRLInstance.currentPeriod.call()
         assert.strictEqual(initialPeriod.toNumber() + periodsToAdvance, currentPeriod.toNumber())
@@ -165,7 +160,7 @@ contract('TRL22222', function (accounts) {
         const indexInsideStage = await PeriodInstance.getRelativeIndex()
         const neededIndexInStage = config.activeTime + 1
         const blocksToAdvance = T - indexInsideStage + neededIndexInStage
-        let currBlockNumber = await eth.blockNumber()
+        let currBlockNumber = web3.eth.blockNumber
         await advanceToBlock.advanceToBlock(currBlockNumber + blocksToAdvance)
         const newIndexInsideStage = await PeriodInstance.getRelativeIndex()
         const currentStage = await PeriodicStagesInstance.currentStage.call()
@@ -217,7 +212,7 @@ contract('TRL22222', function (accounts) {
         await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0]})
         const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
         const periodsToAdvance = 5
-        const blockNumber = await eth.blockNumber()
+        const blockNumber = web3.eth.blockNumber
         await advanceToBlock.advanceToBlock(blockNumber + periodsToAdvance * config.ttl)
       // await advanceToBlock.advanceToBlock(web3.eth.blockNumber + periodsToAdvance * config.ttl)
         const currentPeriod = await TRLInstance.currentPeriod.call()
