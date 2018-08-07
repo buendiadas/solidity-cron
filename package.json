@@ -9,12 +9,17 @@
   },
   "scripts": {
     "start": "npm run start:testrpc",
+    "start-integration": "npm run start:testrpc-integration",
     "start:testrpc": "ganache-cli -p 8545 -i 5777",
+    "start:testrpc-integration": "ganache-cli -m 'brand insane federal bargain nice pilot recall zero disagree action arrive hint' -p 8546",
     "mock": "truffle exec scripts/fill_registries.js",
     "mock-infura": "truffle exec scripts/fill_registries.js --network rinkeby_infura",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
+    "migrate-integration":"truffle migrate --reset --compile-all --network development3",
     "test": "truffle test",
+    "test-integration": "truffle test integration_tests/integrationTest.js --network development3",
+    "sleep": "./sleep.sh",
     "coverage": "./node_modules/.bin/solidity-coverage"
   },
   "repository": {
