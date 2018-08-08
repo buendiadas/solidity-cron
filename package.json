@@ -16,9 +16,10 @@
     "mock-infura": "truffle exec scripts/fill_registries.js --network rinkeby_infura",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
-    "migrate-integration":"truffle migrate --reset --compile-all --network development3",
+    "test-integration-all": "npm run migrate-integration && npm run test-integration",
+    "migrate-integration": "truffle migrate --reset --compile-all --network development_migration_test",
     "test": "truffle test",
-    "test-integration": "truffle test integration_tests/integrationTest.js --network development3",
+    "test-integration": "truffle test integration_tests/integrationTest.js --network development_migration_test",
     "sleep": "./sleep.sh",
     "coverage": "./node_modules/.bin/solidity-coverage"
   },

@@ -192,12 +192,9 @@ contract TRL is TRLInterface, Ownable {
         uint256 _amount) 
         internal view returns (bool) 
     { 
-        /*return voterRegistry.isWhitelisted(_sender) &&
-        candidateRegistry.isWhitelisted(_receiver) && 
-        voteInsideConstraints(_amount);*/
         return voterRegistry.isWhitelisted(_sender) &&
         candidateRegistry.isWhitelisted(_receiver) && 
-        voteInsideConstraints(_amount); // good!
+        voteInsideConstraints(_amount); 
     }
 
     /**

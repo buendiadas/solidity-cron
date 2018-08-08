@@ -13,14 +13,7 @@ module.exports = {
       gas: 4600000
 
     },
-    development2: {
-      provider: function () {
-        return new HDWalletProvider(mnemonic, 'http://localhost:8546', 0, 1, 2, 3)
-      },
-      network_id: '*',
-      gas: 4612388
-    },
-    development3: {
+    development_migration_test: {
       host: 'localhost',
       port: 8546,
       network_id: '1212',

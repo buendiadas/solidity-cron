@@ -6,8 +6,6 @@ const Standard20TokenContract = artifacts.require('Standard20TokenMock')
 const options = {from: config.ownerAccount}
 const TRLContract = artifacts.require('TRL')
 
-// 0x7e5584d9b29f5e9a0c9cef80ded84cbac5b66bd6
-
 module.exports = (deployer) => {
   deployer.then(async () => {
     const RegistryFactory = await OwnedRegistryFactory.deployed()

@@ -5,20 +5,14 @@ const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 const TRLContract = artifacts.require('TRL')
 const PeriodicStageContract = artifacts.require('PeriodicStages')
 const PeriodContract = artifacts.require('Period')
-// const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
 const OwnedRegistryContract = artifacts.require('OwnedRegistry')
 const OwnedRegistryFactory = artifacts.require('OwnedRegistryFactory')
 const keccak256 = require('js-sha3').keccak256
-// const EthJs = require('ethjs')
-const truffleConfig = require('../truffle.js')
-// const eth = new EthJs(truffleConfig.networks.development2.provider())
 
 let OwnedRegistryFactoryInstance
 let FrontierTokenInstance
 let TRLInstance
 let periodicStagesAddress
-let candidateRegistryAddress
-let voterRegistryAddress
 let PeriodInstance
 let PeriodicStagesInstance
 let periodAddress
@@ -27,7 +21,7 @@ let adminAccount = web3.eth.accounts[0]
 let voterAccounts = web3.eth.accounts.slice(1, 4)
 let candidateAccounts = web3.eth.accounts.slice(5, 8)
 
-contract('TRL22222', function (accounts) {
+contract('TRL<Migrations>', function (accounts) {
   before('Deploying required contracts', async () => {
     // set up
     OwnedRegistryFactoryInstance = await OwnedRegistryFactory.deployed()
@@ -42,17 +36,11 @@ contract('TRL22222', function (accounts) {
     // whitelisting candidates
     for (let i = 0; i < candidateAccounts.length; i++) {
       await CandidateRegistryInstance.whiteList(candidateAccounts[i], {from: adminAccount})
-      /// / console.log('WL_C: ' + await CandidateRegistryInstance.isWhitelisted.call(candidateAccounts[i]))
     }
     // whitelisting voters
     for (let i = 0; i < voterAccounts.length; i++) {
       await VoterRegistryInstance.whiteList(voterAccounts[i], {from: adminAccount})
-      // console.log('WL_V: ' + await VoterRegistryInstance.isWhitelisted.call(voterAccounts[i]))
     }
-
-    // console.log('OwnedRegistryFactoryInstance Address:' + OwnedRegistryFactoryInstance.address)
-    // console.log('FrontierTokenInstance Address:' + FrontierTokenInstance.address)
-    // console.log('TRL Address:' + TRLInstance.address)
 
     periodicStagesAddress = await TRLInstance.periodicStages.call()
     PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
@@ -112,7 +100,6 @@ contract('TRL22222', function (accounts) {
     describe('Moving periods', async () => {
       it('Should increase the period after advancing one period in blocks', async () => {
         const initialPeriod = await TRLInstance.currentPeriod.call()
-        // console.log('initial: ' + initialPeriod)
         const periodsToAdvance = 1
         await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
         const currentPeriod = await TRLInstance.currentPeriod.call()
@@ -199,13 +186,9 @@ contract('TRL22222', function (accounts) {
         const listAddress = await TRLInstance.address
         const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
         const currentPeriod = await TRLInstance.currentPeriod.call()
-        // console.log('-> 1')
         await TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]})
-        // console.log('-> 2')
         const votingBalance = await TRLInstance.votesBalance.call(currentPeriod, voterAccounts[0])
-        // console.log('-> 3')
         await TRLInstance.vote(candidateAccounts[0], votingBalance, {from: voterAccounts[0]})
-        // console.log('-> 4')
         const votesReceived = await TRLInstance.votesReceived.call(currentPeriod, candidateAccounts[0])
         assert.equal(votingBalance.toNumber(), votesReceived.toNumber())
       })
@@ -222,73 +205,6 @@ contract('TRL22222', function (accounts) {
         const savedVotingLimitAmount = await TRLInstance.votingConstraints.call(0)
         assert.equal(requiredVotingLimitAmount, savedVotingLimitAmount.toNumber())
       })
-      // The rest of the tests under voting, are failing. Needs to be reviewed.
-      // The config.js had to be changed.
-      /*
-      it('Should increase the number of votes received per analyst in the period after voting on a future period', async () => {
-        const listAddress = await TRLInstance.address
-        const stakedTokens = 10
-        await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0]})
-        const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
-        assert.equal(stakedTokens, totalPreStaked.toNumber())
-        const initialPeriod = await TRLInstance.currentPeriod.call()
-        const periodsToAdvance = 5
-        await advanceToBlock.advanceToBlock(web3.eth.blockNumber + periodsToAdvance * config.ttl)
-        const currentPeriod = await TRLInstance.currentPeriod.call()
-        assert.equal(currentPeriod, periodsToAdvance)
-        await TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]})
-        const votingBalance = await TRLInstance.votesBalance.call(currentPeriod, voterAccounts[0])
-        await TRLInstance.vote(candidateAccounts[0], votingBalance, {from: voterAccounts[0]})
-        const votesReceived = await TRLInstance.votesReceived.call(currentPeriod, candidateAccounts[0])
-        assert.equal(votingBalance.toNumber(), votesReceived.toNumber())
-      })
-      it('Should revert when someone tries to vote tokens if it is on a different stage than 0', async () => {
-        const listAddress = await TRLInstance.address
-        const stakedTokens = 10
-        await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0]})
-        const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
-        assert.equal(stakedTokens, totalPreStaked.toNumber())
-        await TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]})
-        const neededIndexInStage = config.activeTime + 1
-        const T = config.ttl
-        const indexInsideStage = await PeriodInstance.getRelativeIndex()
-        const blocksToAdvance = T - indexInsideStage + neededIndexInStage
-        await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAdvance)
-        await assertRevert(TRLInstance.vote(candidateAccounts[0], totalPreStaked, {from: voterAccounts[0]}))
-      })
-
-      it('Should revert when someone tries to vote tokens over the MaxVotingLimitAmount', async () => {
-        const requiredVotingLimitAmount = 10
-        const votingAmount = requiredVotingLimitAmount + 1
-        await TRLInstance.setMaxVotingLimit(requiredVotingLimitAmount, {from: adminAccount})
-        await FrontierTokenInstance.approve(TRLInstance.address, votingAmount, {from: voterAccounts[0]})
-        await TRLInstance.buyTokenVotes(votingAmount, {from: voterAccounts[0]})
-        await assertRevert(TRLInstance.vote(candidateAccounts[0], votingAmount, {from: voterAccounts[0]}))
-      })
-      it('Should revert when someone tries to vote tokens below the minVotingLimitAmount', async () => {
-        const requiredVotingLimitAmount = 10
-        const votingAmount = requiredVotingLimitAmount - 1
-        await TRLInstance.setMinVotingLimit(requiredVotingLimitAmount, {from: adminAccount})
-        await FrontierTokenInstance.approve(TRLInstance.address, votingAmount, {from: voterAccounts[0]})
-        await TRLInstance.buyTokenVotes(votingAmount, {from: voterAccounts[0]})
-        await assertRevert(TRLInstance.vote(candidateAccounts[0], votingAmount, {from: voterAccounts[0]}))
-      }) */
-    })
-  }
-  if (runTests.claiming) {
-    describe('Claiming', async () => {
-      // This test is failing. Needs to be reviewed.
-      /*
-      it('Should Throw when someone tries to claim', async () => {
-        const listAddress = await TRLInstance.address
-        const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
-        const currentPeriod = await TRLInstance.currentPeriod.call()
-        await TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]})
-        const votingBalance = await TRLInstance.votesBalance.call(currentPeriod, voterAccounts[0])
-        await TRLInstance.vote(candidateAccounts[0], votingBalance, {from: voterAccounts[0]})
-        await assertRevert(TRLInstance.claimBounty(), {from: voterAccounts[0]})
-      })
-      */
     })
   }
 })
