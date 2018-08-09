@@ -9,12 +9,18 @@
   },
   "scripts": {
     "start": "npm run start:testrpc",
+    "start-integration": "npm run start:testrpc-integration",
     "start:testrpc": "ganache-cli -p 8545 -i 5777",
+    "start:testrpc-integration": "ganache-cli -m 'brand insane federal bargain nice pilot recall zero disagree action arrive hint' -p 8546",
     "mock": "truffle exec scripts/fill_registries.js",
     "mock-infura": "truffle exec scripts/fill_registries.js --network rinkeby_infura",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
+    "test-integration-all": "npm run migrate-integration && npm run test-integration",
+    "migrate-integration": "truffle migrate --reset --compile-all --network development_migration_test",
     "test": "truffle test",
+    "test-integration": "truffle test integration_tests/integrationTest.js --network development_migration_test",
+    "sleep": "./sleep.sh",
     "coverage": "./node_modules/.bin/solidity-coverage"
   },
   "repository": {
@@ -56,6 +62,7 @@
     "@frontier-token-research/role-registries": "^1.2.0",
     "dotenv": "^5.0.1",
     "ethereumjs-testrpc-sc": "^6.1.2",
+    "ethjs": "^0.4.0",
     "ganache-cli": "^6.1.0",
     "init": "^0.1.2",
     "js-sha3": "^0.7.0",

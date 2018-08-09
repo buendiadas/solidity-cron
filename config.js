@@ -1,7 +1,10 @@
+// ttl, active time and claimtime were increased in order to pass integration tests.
+
 module.exports = {
-  ttl: 10,
-  activeTime: 7,
-  claimTime: 3,
+  // ttl: 10,
+  ttl: 20,
+  activeTime: 14,
+  claimTime: 6,
   candidateLength: 4,
   voterLength: 4,
   initialBalance: 10000000,

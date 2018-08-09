@@ -9,7 +9,14 @@ module.exports = {
     development: {
       host: 'localhost',
       port: 8545,
-      network_id: '*',
+      network_id: '1212',
+      gas: 4600000
+
+    },
+    development_migration_test: {
+      host: 'localhost',
+      port: 8546,
+      network_id: '1212',
       gas: 4600000
     },
     rinkeby: {
@@ -22,6 +29,12 @@ module.exports = {
     rinkeby_infura: {
       provider: function () {
         return new HDWalletProvider(mnemonic, 'https://rinkeby.infura.io/xzValG5J1iIcK29rdTFK')
+      },
+      network_id: 4
+    },
+    rinkeby_frontier: {
+      provider: function () {
+        return new HDWalletProvider(mnemonic, 'http://18.188.91.154:8545')
       },
       network_id: 4
     }

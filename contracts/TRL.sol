@@ -18,7 +18,7 @@ contract TRL is TRLInterface, Ownable {
 
     // Registry of candidates to be voted
     Registry public candidateRegistry;
-
+ 
     // Registry of candidates allowed to vote
     Registry public voterRegistry;
 
@@ -70,6 +70,7 @@ contract TRL is TRLInterface, Ownable {
         periodicStages.pushStage(_activeTime);
         periodicStages.pushStage(_claimTime);
         emit PeriodInit(_periodTTL, _activeTime, _claimTime);
+        
     }
 
     /**
@@ -193,7 +194,7 @@ contract TRL is TRLInterface, Ownable {
     { 
         return voterRegistry.isWhitelisted(_sender) &&
         candidateRegistry.isWhitelisted(_receiver) && 
-        voteInsideConstraints(_amount);
+        voteInsideConstraints(_amount); 
     }
 
     /**
