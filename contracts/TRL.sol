@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "./TRLInterface.sol";
+import "./TRLStorage.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
@@ -13,27 +14,8 @@ import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 * A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates
 **/
 
-contract TRL is TRLInterface, Ownable {
+contract TRL is TRLInterface, Ownable, TRLStorage {
     using SafeMath for uint256;
-
-    // Registry of candidates to be voted
-    Registry public candidateRegistry;
- 
-    // Registry of candidates allowed to vote
-    Registry public voterRegistry;
-
-    // Master Token, used to buy votes
-    StandardToken public token;
-
-    // Stages that come periodically 
-    PeriodicStages public periodicStages;
-
-    // Minimum stake to participate in the period, 0 by default
-    uint256[2] public stakingConstraints = [0, 2^256 -1];
-
-    // Array setting up the limits when voting [min_amount, Max_amount]
-    uint256[2] public votingConstraints = [0, 2^256 -1];
-
 
     /**
     * Creates a new Instance of a Voting Lists
@@ -70,7 +52,6 @@ contract TRL is TRLInterface, Ownable {
         periodicStages.pushStage(_activeTime);
         periodicStages.pushStage(_claimTime);
         emit PeriodInit(_periodTTL, _activeTime, _claimTime);
-        
     }
 
     /**
@@ -177,7 +158,6 @@ contract TRL is TRLInterface, Ownable {
     function currentStage() public view returns(uint256){
         return periodicStages.currentStage();
     }
-
          
     /**
     * @dev Returns true if the given _sender can vote for a given _receiver
