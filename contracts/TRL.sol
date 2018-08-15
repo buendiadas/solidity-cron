@@ -19,26 +19,14 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
 
     /**
     * Creates a new Instance of a Voting Lists
-    * @param _tokenAddress Address of the token used as an incentive for the pool
     **/
 
     constructor(
-        address _tokenAddress,
-        address _candidateRegistryAddress,
-        address _voterRegistryAddress,
         uint256 _initialTTL,
         uint256 _initialActiveTime,
         uint256 _initialClaimTime)
         public
     {
-        require(
-            _candidateRegistryAddress != address(0) && 
-            _voterRegistryAddress != address(0) && 
-            _tokenAddress != address(0)
-        ); 
-        token = StandardToken(_tokenAddress);
-        candidateRegistry = Registry(_candidateRegistryAddress);
-        voterRegistry = Registry(_voterRegistryAddress);
         initPeriod(_initialTTL, _initialActiveTime, _initialClaimTime);
     }
 
@@ -81,7 +69,7 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
         require(votesBalance[currentPeriod()][msg.sender] >= _amount);
         votesReceived[currentPeriod()][_candidateAddress] = votesReceived[currentPeriod()][_candidateAddress].add(_amount);
         votesBalance[currentPeriod()][msg.sender] -= _amount;
-        emit Vote(msg.sender,_candidateAddress, _amount, currentPeriod());
+        emit Vote(msg.sender, _candidateAddress, _amount, currentPeriod());
     }
 
     /**
@@ -101,46 +89,6 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
         emit BountyRelased(msg.sender, totalAmount, currentPeriod());
     }
 
-    /*
-    * @dev Sets the minimum stake to participate in a period 
-    * @param _minimumStakeAmount minimum stake to be added
-    **/
-
-    function setMinimumStake(uint256 _minimumStakeAmount) public {
-        require(msg.sender == owner);
-        stakingConstraints[0] = _minimumStakeAmount;
-    }
-
-    /*
-    * @dev Sets the minimum stake to participate in a period 
-    * @param _minimumStakeAmount minimum stake to be added
-    **/
-
-    function setMaximumStake(uint256 _maximumStakeAmount) public {
-        require(msg.sender == owner);
-        stakingConstraints[1] = _maximumStakeAmount;
-    }
-
-    /*
-    * @dev Sets a voting limit to allocate to one candidate
-    * @param _minimumStakeAmount minimum stake to be added
-    **/
-
-    function setMinVotingLimit(uint256 _minVoteAmount) public {
-        require(msg.sender == owner);
-        votingConstraints[0] = _minVoteAmount; 
-    }
-
-    /*
-    * @dev Sets a voting limit to allocate to one candidate
-    * @param _minimumStakeAmount minimum stake to be added
-    **/
-
-    function setMaxVotingLimit(uint256 _maxVoteAmount) public {
-        require(msg.sender == owner);
-        votingConstraints[1] = _maxVoteAmount; 
-    }
-
     /**
     * @dev Returns the current period number
     **/
@@ -155,7 +103,7 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
     * @dev Returns the current stage number
     **/
 
-    function currentStage() public view returns(uint256){
+    function currentStage() public view returns(uint256) {
         return periodicStages.currentStage();
     }
          

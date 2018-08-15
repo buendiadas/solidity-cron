@@ -6,8 +6,10 @@ const TRLContract = artifacts.require('TRL')
 const PeriodicStageContract = artifacts.require('PeriodicStages')
 const PeriodContract = artifacts.require('Period')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
+const Proxy = artifacts.require('TRLProxy');
 
 contract('TRL<Active>', function (accounts) {
+  let ProxyInstance;
   let TRLInstance
   let FrontierTokenInstance
   let CandidateRegistryInstance
@@ -25,7 +27,10 @@ contract('TRL<Active>', function (accounts) {
     VoterRegistryInstance = await OwnedRegistryContract.new(voterAccounts, {from: adminAccount})
   })
   beforeEach(async () => {
-    TRLInstance = await TRLContract.new(FrontierTokenInstance.address, CandidateRegistryInstance.address, VoterRegistryInstance.address, config.ttl, config.activeTime, config.claimTime, {from: adminAccount})
+    TRLInstance = await TRLContract.new(config.ttl, config.activeTime, config.claimTime, {from: adminAccount})
+    TRLInstance.setToken(FrontierTokenInstance.address);
+    TRLInstance.setCandidateRegistry(CandidateRegistryInstance.address);
+    TRLInstance.setVoterRegistry(VoterRegistryInstance.address)
     let periodicStagesAddress = await TRLInstance.periodicStages.call()
     PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
     let periodAddress = await PeriodicStagesInstance.period.call()

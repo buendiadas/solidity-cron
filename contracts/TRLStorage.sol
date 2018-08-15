@@ -24,9 +24,66 @@ contract TRLStorage {
     PeriodicStages public periodicStages;
 
     // Minimum stake to participate in the period, 0 by default
-    uint256[2] public stakingConstraints = [0, 2^256 -1];
+    uint256[2] public stakingConstraints = [0, 2^256 - 1];
 
     // Array setting up the limits when voting [min_amount, Max_amount]
-    uint256[2] public votingConstraints = [0, 2^256 -1];
-    
+    uint256[2] public votingConstraints = [0, 2^256 - 1];
+
+    /** Setters **/
+
+    function setCandidateRegistry(address _contractAddress) {
+        candidateRegistry = Registry(_contractAddress);
+    }
+
+    function setVoterRegistry(address _contractAddress) {
+        voterRegistry = Registry(_contractAddress);
+    }
+
+    function setToken(address _contractAddress) {
+        token = StandardToken(_contractAddress);
+    }
+
+    function setPeriodicStages(address _contractAddress) {
+        periodicStages = PeriodicStages(_contractAddress);
+    }
+
+    /*
+    * @dev Sets the minimum stake to participate in a period 
+    * @param _minimumStakeAmount minimum stake to be added
+    **/
+
+    function setMinimumStake(uint256 _minimumStakeAmount) public {
+        //require(msg.sender == owner);
+        stakingConstraints[0] = _minimumStakeAmount;
+    }
+
+    /*
+    * @dev Sets the minimum stake to participate in a period 
+    * @param _minimumStakeAmount minimum stake to be added
+    **/
+
+    function setMaximumStake(uint256 _maximumStakeAmount) public {
+        //require(msg.sender == owner);
+        stakingConstraints[1] = _maximumStakeAmount;
+    }
+
+    /*
+    * @dev Sets a voting limit to allocate to one candidate
+    * @param _minimumStakeAmount minimum stake to be added
+    **/
+
+    function setMinVotingLimit(uint256 _minVoteAmount) public {
+        //require(msg.sender == owner);
+        votingConstraints[0] = _minVoteAmount; 
+    }
+
+    /*
+    * @dev Sets a voting limit to allocate to one candidate
+    * @param _minimumStakeAmount minimum stake to be added
+    **/
+
+    function setMaxVotingLimit(uint256 _maxVoteAmount) public {
+        //require(msg.sender == owner);
+        votingConstraints[1] = _maxVoteAmount; 
+    }
 }
