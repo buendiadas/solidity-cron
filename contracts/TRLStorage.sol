@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
 import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
-
+import "./scoring/ScoringInterface.sol";
 
 contract TRLStorage {
 
@@ -23,6 +23,9 @@ contract TRLStorage {
     // Stages that come periodically 
     PeriodicStages public periodicStages;
 
+    // Scoring Function
+    ScoringInterface public scoring;
+
     // Minimum stake to participate in the period, 0 by default
     uint256[2] public stakingConstraints = [0, 2^256 - 1];
 
@@ -31,20 +34,24 @@ contract TRLStorage {
 
     /** Setters **/
 
-    function setCandidateRegistry(address _contractAddress) {
+    function setCandidateRegistry(address _contractAddress) public {
         candidateRegistry = Registry(_contractAddress);
     }
 
-    function setVoterRegistry(address _contractAddress) {
+    function setVoterRegistry(address _contractAddress) public {
         voterRegistry = Registry(_contractAddress);
     }
 
-    function setToken(address _contractAddress) {
+    function setToken(address _contractAddress) public {
         token = StandardToken(_contractAddress);
     }
 
-    function setPeriodicStages(address _contractAddress) {
+    function setPeriodicStages(address _contractAddress) public {
         periodicStages = PeriodicStages(_contractAddress);
+    }
+
+    function setScoring(address _contractAddress) public {
+        scoring = ScoringInterface(_contractAddress);
     }
 
     /*

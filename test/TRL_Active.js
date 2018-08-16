@@ -5,8 +5,8 @@ const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 const TRLContract = artifacts.require('TRL')
 const PeriodicStageContract = artifacts.require('PeriodicStages')
 const PeriodContract = artifacts.require('Period')
+const Scoring = artifacts.require('Scoring')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
-const Proxy = artifacts.require('TRLProxy');
 
 contract('TRL<Active>', function (accounts) {
   let ProxyInstance;
@@ -15,6 +15,7 @@ contract('TRL<Active>', function (accounts) {
   let CandidateRegistryInstance
   let VoterRegistryInstance
   let PeriodicStagesInstance
+  let ScoringInstance;
   let PeriodInstance
   let startTime
   let adminAccount = web3.eth.accounts[0]
@@ -25,12 +26,14 @@ contract('TRL<Active>', function (accounts) {
     FrontierTokenInstance = await Standard20TokenMock.new(voterAccounts, config.totalTokens, {from: adminAccount})
     CandidateRegistryInstance = await OwnedRegistryContract.new(candidateAccounts, {from: adminAccount})
     VoterRegistryInstance = await OwnedRegistryContract.new(voterAccounts, {from: adminAccount})
+    ScoringInstance = await Scoring.new()
   })
   beforeEach(async () => {
     TRLInstance = await TRLContract.new(config.ttl, config.activeTime, config.claimTime, {from: adminAccount})
     TRLInstance.setToken(FrontierTokenInstance.address);
     TRLInstance.setCandidateRegistry(CandidateRegistryInstance.address);
     TRLInstance.setVoterRegistry(VoterRegistryInstance.address)
+    TRLInstance.setScoring(ScoringInstance.address)
     let periodicStagesAddress = await TRLInstance.periodicStages.call()
     PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
     let periodAddress = await PeriodicStagesInstance.period.call()
@@ -195,20 +198,34 @@ contract('TRL<Active>', function (accounts) {
       await assertRevert(TRLInstance.vote(candidateAccounts[0], totalPreStaked, {from: voterAccounts[0]}))
     })
     it('Should revert when someone tries to vote tokens over the MaxVotingLimitAmount', async () => {
-      const requiredVotingLimitAmount = 10;
-      const votingAmount = requiredVotingLimitAmount + 1;
+      const requiredVotingLimitAmount = 10
+      const votingAmount = requiredVotingLimitAmount + 1
       await TRLInstance.setMaxVotingLimit(requiredVotingLimitAmount, {from:adminAccount})
       await FrontierTokenInstance.approve(TRLInstance.address, votingAmount, {from: voterAccounts[0]})
       await TRLInstance.buyTokenVotes(votingAmount, {from: voterAccounts[0]})
       await assertRevert(TRLInstance.vote(candidateAccounts[0], votingAmount, {from: voterAccounts[0]}))
     })
     it('Should revert when someone tries to vote tokens below the minVotingLimitAmount', async () => {
-      const requiredVotingLimitAmount = 10;
-      const votingAmount = requiredVotingLimitAmount - 1;
+      const requiredVotingLimitAmount = 10
+      const votingAmount = requiredVotingLimitAmount - 1
       await TRLInstance.setMinVotingLimit(requiredVotingLimitAmount, {from:adminAccount})
       await FrontierTokenInstance.approve(TRLInstance.address, votingAmount, {from: voterAccounts[0]})
       await TRLInstance.buyTokenVotes(votingAmount, {from: voterAccounts[0]})
       await assertRevert(TRLInstance.vote(candidateAccounts[0], votingAmount, {from: voterAccounts[0]}))
+    })
+  })
+  describe('Scoring', async () => {
+    it('Should return the same value as the set scoring algorithm', async () => {
+      const stakedTokens = 10
+      await FrontierTokenInstance.approve(TRLInstance.address, stakedTokens, {from: voterAccounts[0]})
+      await TRLInstance.buyTokenVotes(stakedTokens, {from: voterAccounts[0]})
+      const epoch = await TRLInstance.currentPeriod.call()
+      const votingBalance = await TRLInstance.votesBalance.call(epoch, voterAccounts[0])
+      await TRLInstance.vote(candidateAccounts[0], votingBalance, {from: voterAccounts[0]})
+      const calculatedScoring = await ScoringInstance.score.call(epoch, voterAccounts[0])
+      console.log(calculatedScoring.toNumber)
+      const TRLScoring = await TRLInstance.calculateScoring.call(voterAccounts[0]);
+      assert.strictEqual(calculatedScoring.toNumber, TRLScoring.toNumber);
     })
   })
   describe('Claiming', async () => {

@@ -18,7 +18,7 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
     using SafeMath for uint256;
 
     /**
-    * Creates a new Instance of a Voting Lists
+    * Constructor: creates a new Instance of a Voting Lists
     **/
 
     constructor(
@@ -89,6 +89,12 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
         emit BountyRelased(msg.sender, totalAmount, currentPeriod());
     }
 
+
+    function calculateScoring(address _account){
+        address scoringAddress = address(scoring);
+        scoringAddress.delegatecall(bytes4(keccak256("score(uint256,address)")), currentPeriod(), _account);        
+    } 
+
     /**
     * @dev Returns the current period number
     **/
@@ -139,7 +145,7 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
     {
         return (stakeInsideConstraints(_amount + votesBalance[currentPeriod()][_sender]));
 
-    } 
+    }
 
     /**
     * @dev Returns true if the given _amount is insidse the TRL constraints
