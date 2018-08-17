@@ -101,4 +101,14 @@ contract('Stack', function (accounts) {
       await assertRevert(Stack.push(slotSize))
     })
   })
+  describe('Emptying the stack', async () => {
+    it('Should return 0 as a height after emptying the stack', async () => {
+      const slotSize = 3
+      await Stack.push(slotSize)
+      await Stack.push(1)
+      await Stack.empty()
+      const finalHeight = await Stack.height.call()
+      assert.strictEqual(0,finalHeight.toNumber())
+    })
+  })
 })
