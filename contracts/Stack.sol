@@ -77,6 +77,7 @@ contract Stack {
         for (uint i = 0; i < l; i++){
             pop();
         }
+        assert(strg.length == 0);
     }
 
     /**
@@ -93,7 +94,6 @@ contract Stack {
         else{
             return (position >= strg[slotIndex-1] && position <= strg[slotIndex]);
         }
-        assert(strg.length == 0);
     }
 
 }
