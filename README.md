@@ -17,7 +17,7 @@ In order to install the library, just run the following commands on your root so
 
 ```bash
 npm init -y
-npm i -E @frontiertokenresearch/cron
+npm i -E @frontier-token-research/cron
 ```
 ## How to use
 
@@ -31,7 +31,7 @@ A periodic Ethereum DApp that needs to handle the current period index.
 #### Importing
 Just import the Periodic contract into your Smart Contract, and initialize it.
 ```javascript
-import "@frontiertokenresearch/contracts/Period.sol";
+import "@frontier-token-research/contracts/Period.sol";
 ```
 #### Initializing
 After that you can define your own period in Blocks, just doing
@@ -56,7 +56,7 @@ Your DApp might have **different stages that are repeated over the previously de
 
 #### Importing
 ```javascript
-import "@frontiertokenresearch/contracts/Period.sol";
+import "@frontier-token-research/contracts/Period.sol";
 
 PeriodicStages MyDAppStages = new PeriodicStages(T)
 ```
