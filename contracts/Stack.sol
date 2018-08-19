@@ -58,6 +58,7 @@ contract Stack {
         require(strg.length > 0, 'EMPTY STORAGE');
         uint256 slotSizeToEmpty = strg[strg.length-1];
         delete strg[strg.length-1];
+        strg.length --;
         if (strg.length == 0) {
             height = 0;
             stackPointer = 0;
@@ -72,7 +73,8 @@ contract Stack {
      * Removes every single value from the Stack
      */
     function empty() public {
-        for (uint i = 0; i <= strg.length; i++){
+        uint256 l = strg.length;
+        for (uint i = 0; i < l; i++){
             pop();
         }
         assert(strg.length == 0);
