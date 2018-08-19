@@ -25,26 +25,31 @@ contract('TRL<Claiming>', function (accounts) {
     VoterRegistryInstance = await OwnedRegistryContract.new(voterAccounts, {from: adminAccount})
   })
   beforeEach(async () => {
-    TRLInstance = await TRLContract.new(config.ttl, config.activeTime, config.claimTime, {from: adminAccount})
-    TRLInstance.setToken(FrontierTokenInstance.address);
-    TRLInstance.setCandidateRegistry(CandidateRegistryInstance.address);
-    TRLInstance.setVoterRegistry(VoterRegistryInstance.address)
-    PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
-    let periodicStagesAddress = await TRL.periodicStages.call()
+    TRLInstance = await TRLContract.new({from: adminAccount})
+    await TRLInstance.setToken(FrontierTokenInstance.address)
+    await TRLInstance.setCandidateRegistry(CandidateRegistryInstance.address)
+    await TRLInstance.setVoterRegistry(VoterRegistryInstance.address)
+    await TRLInstance.initPeriod(config.ttl)
+    await TRLInstance.initStages(config.activeTime, config.claimTime)
+    const psAddress = await TRLInstance.periodicStages.call()
+    PeriodicStagesInstance = PeriodicStageContract.at(psAddress)
     let periodAddress = await PeriodicStagesInstance.period.call()
     PeriodInstance = await PeriodContract.at(periodAddress)
     const indexInsideStage = await PeriodInstance.getRelativeIndex()
     const neededIndexInStage = config.activeTime + 1
-    const blocksToAdvance = config.ttl - indexInsideStage + neededIndexInStage
+    const blocksToAdvance = config.ttl - indexInsideStage + neededIndexInStage 
     await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAdvance)
   })
   describe('Calling active functions', async () => {
-    it('Should revert when someone tries to staked tokens', async () => {
+    it('Should revert when someone tries to stake tokens', async () => {
       const listAddress = await TRLInstance.address
       const stakedTokens = 10
       await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0]})
       const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
       const currentPeriod = await TRLInstance.currentPeriod.call()
+      const currentStage = await TRLInstance.currentStage.call()
+      const currentIndex = await PeriodInstance.getRelativeIndex()
+      const currentStage2 = await PeriodicStagesInstance.currentStage.call();
       await assertRevert(TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]}))
     })
   })

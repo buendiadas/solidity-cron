@@ -18,41 +18,37 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
     using SafeMath for uint256;
 
     /**
-    * Constructor: creates a new Instance of a Voting Lists
-    **/
-
-    constructor(
-        uint256 _initialTTL,
-        uint256 _initialActiveTime,
-        uint256 _initialClaimTime)
-        public
-    {
-        initPeriod(_initialTTL, _initialActiveTime, _initialClaimTime);
-    }
-
-    /**
     * Initializes a new period, taking as the TTL value the current from storage, and setting the state to 1
     * Requires that the current period is Preparing (0)
     **/
 
-    function initPeriod(uint256 _periodTTL, uint256 _activeTime, uint256 _claimTime) public {
-        periodicStages = new PeriodicStages(_periodTTL);
+    function initPeriod(uint256 _T) public {
+        periodicStages = new PeriodicStages(_T);
+        emit PeriodicStagesCreated(periodicStages);
+    }
+
+    /**
+    * @dev Initializes a new period, taking as the TTL value the current from storage, and setting the state to 1
+    * Requires that the current period is Preparing (0)
+    **/
+
+    function initStages(uint256 _activeTime, uint256 _claimTime) public {  
         periodicStages.pushStage(_activeTime);
         periodicStages.pushStage(_claimTime);
-        emit PeriodInit(_periodTTL, _activeTime, _claimTime);
+        emit PeriodInit(20, _activeTime, _claimTime);
     }
 
     /**
     * @dev Exchanges the main token for an amount of votes
-    * @dev Requires previous allowance of expenditure of at least the amount required
-    * @dev Currently 1:1 exchange used, but this rate could be changed
+    * Requires previous allowance of expenditure of at least the amount required
+    * Currently 1:1 exchange used, but this rate could be changed
     * @param _amount Amount of votes that the voter wants to buy
     **/
 
     function buyTokenVotes(uint256 _amount) public {
         require(currentStage() == 0);
         require(canStake(msg.sender, _amount));
-        require(token.transferFrom(msg.sender,this, _amount));
+        require(token.transferFrom(msg.sender, this, _amount));
         votesBalance[currentPeriod()][msg.sender] = votesBalance[currentPeriod()][msg.sender].add(_amount);
         emit VotesBought(msg.sender, _amount, currentPeriod());
     }
@@ -89,14 +85,58 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
         emit BountyRelased(msg.sender, totalAmount, currentPeriod());
     }
 
+      /*
+    * @dev Sets the minimum stake to participate in a period 
+    * @param _minimumStakeAmount minimum stake to be added
+    **/
 
-    function calculateScoring(address _account){
-        address scoringAddress = address(scoring);
-        scoringAddress.delegatecall(bytes4(keccak256("score(uint256,address)")), currentPeriod(), _account);        
+    function setMinimumStake(uint256 _minimumStakeAmount) public {
+        //require(msg.sender == owner);
+        stakingConstraints[0] = _minimumStakeAmount;
+    }
+
+    /*
+    * @dev Sets the minimum stake to participate in a period 
+    * @param _minimumStakeAmount minimum stake to be added
+    **/
+
+    function setMaximumStake(uint256 _maximumStakeAmount) public {
+        //require(msg.sender == owner);
+        stakingConstraints[1] = _maximumStakeAmount;
+    }
+
+    /*
+    * @dev Sets a voting limit to allocate to one candidate
+    * @param _minimumStakeAmount minimum stake to be added
+    **/
+
+    function setMinVotingLimit(uint256 _minVoteAmount) public {
+        //require(msg.sender == owner);
+        votingConstraints[0] = _minVoteAmount; 
+    }
+
+    /*
+    * @dev Sets a voting limit to allocate to one candidate
+    * @param _minimumStakeAmount minimum stake to be added
+    **/
+
+    function setMaxVotingLimit(uint256 _maxVoteAmount) public {
+        //require(msg.sender == owner);
+        votingConstraints[1] = _maxVoteAmount; 
+    }
+
+    /**
+    * @dev Calculates the Scoring given an address in the current epoch
+    * Delegate the calls to the score (function score(uint256,address)) to enable usage of the TRL Storage
+    * @param _account Account that is required to get the scoring
+    **/
+
+    function calculateScoring(address _account) public view returns (uint256) {
+        return scoring.score(currentPeriod(), _account);       
     } 
 
     /**
-    * @dev Returns the current period number
+    * @dev Returns the current period number, by calling the period Lib
     **/
 
     function currentPeriod() public view returns(uint256) { 
@@ -106,7 +146,7 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
     }
     
     /**
-    * @dev Returns the current stage number
+    * @dev Returns the current stage number, by calling the PeriodicStages lib
     **/
 
     function currentStage() public view returns(uint256) {

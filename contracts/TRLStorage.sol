@@ -34,63 +34,90 @@ contract TRLStorage {
 
     /** Setters **/
 
+    /**
+    * @dev Sets a new candidate registry address
+    * @param _contractAddress new contract address to be set
+    */
+
     function setCandidateRegistry(address _contractAddress) public {
         candidateRegistry = Registry(_contractAddress);
     }
+
+    /**
+    * @dev Sets a new voter registry address
+    * @param _contractAddress new contract address to be set
+    */
 
     function setVoterRegistry(address _contractAddress) public {
         voterRegistry = Registry(_contractAddress);
     }
 
+    /**
+    * @dev Sets a new token address
+    * @param _contractAddress new contract address to be set
+    */
+
     function setToken(address _contractAddress) public {
         token = StandardToken(_contractAddress);
     }
+
+    /**
+    * @dev Sets a new periodic stages address
+    * @param _contractAddress new contract address to be set
+    */
 
     function setPeriodicStages(address _contractAddress) public {
         periodicStages = PeriodicStages(_contractAddress);
     }
 
+    /**
+    * @dev Sets a new periodic stages address
+
+    */
+
     function setScoring(address _contractAddress) public {
         scoring = ScoringInterface(_contractAddress);
     }
 
-    /*
-    * @dev Sets the minimum stake to participate in a period 
-    * @param _minimumStakeAmount minimum stake to be added
-    **/
+    /**
+    * @dev Sets a new candidate registry address
+    */
 
-    function setMinimumStake(uint256 _minimumStakeAmount) public {
-        //require(msg.sender == owner);
-        stakingConstraints[0] = _minimumStakeAmount;
+    /** Getters */
+
+    function getCandidateRegistry() public view returns (address) {
+        return address(candidateRegistry);
     }
 
-    /*
-    * @dev Sets the minimum stake to participate in a period 
-    * @param _minimumStakeAmount minimum stake to be added
-    **/
+    /**
+    * @dev Sets a new voter registry address
+    */
 
-    function setMaximumStake(uint256 _maximumStakeAmount) public {
-        //require(msg.sender == owner);
-        stakingConstraints[1] = _maximumStakeAmount;
+    function getVoterRegistry() public view returns (address) {
+        return address(voterRegistry);
     }
 
-    /*
-    * @dev Sets a voting limit to allocate to one candidate
-    * @param _minimumStakeAmount minimum stake to be added
-    **/
+    /**
+    * @dev Sets a new token address
+    */
 
-    function setMinVotingLimit(uint256 _minVoteAmount) public {
-        //require(msg.sender == owner);
-        votingConstraints[0] = _minVoteAmount; 
+    function getToken() public view returns (address) {
+        return address(token);
     }
 
-    /*
-    * @dev Sets a voting limit to allocate to one candidate
-    * @param _minimumStakeAmount minimum stake to be added
-    **/
+    /**
+    * @dev Sets a new periodic stages address
+    */
 
-    function setMaxVotingLimit(uint256 _maxVoteAmount) public {
-        //require(msg.sender == owner);
-        votingConstraints[1] = _maxVoteAmount; 
+    function getPeriodicStages() public view returns (address) {
+         return address(periodicStages);
+    }
+
+    /**
+    * @dev Sets a new periodic stages address
+    */
+
+    function getScoring() public view returns (address) {
+        return address(scoring);
     }
 }
