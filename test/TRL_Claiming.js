@@ -31,13 +31,13 @@ contract('TRL<Claiming>', function (accounts) {
     await TRLInstance.setVoterRegistry(VoterRegistryInstance.address)
     await TRLInstance.initPeriod(config.ttl)
     await TRLInstance.initStages(config.activeTime, config.claimTime)
-    const psAddress = await TRLInstance.periodicStages.call()
-    PeriodicStagesInstance = PeriodicStageContract.at(psAddress)
+    let periodicStagesAddress = await TRLInstance.periodicStages.call()
+    PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
     let periodAddress = await PeriodicStagesInstance.period.call()
     PeriodInstance = await PeriodContract.at(periodAddress)
     const indexInsideStage = await PeriodInstance.getRelativeIndex()
     const neededIndexInStage = config.activeTime + 1
-    const blocksToAdvance = config.ttl - indexInsideStage + neededIndexInStage 
+    const blocksToAdvance = config.ttl - indexInsideStage + neededIndexInStage + 2
     await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAdvance)
   })
   describe('Calling active functions', async () => {

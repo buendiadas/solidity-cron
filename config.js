@@ -4,8 +4,8 @@ module.exports = {
   // ttl: 10,
   proxyMigration: true,
   ttl: 20, // Aproximately 1 Week
-  activeTime: 8,
-  claimTime: 2,
+  activeTime: 15,
+  claimTime: 5,
   candidateLength: 4,
   voterLength: 4,
   initialBalance: 10000000,

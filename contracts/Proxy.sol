@@ -3,6 +3,10 @@ pragma solidity ^0.4.24;
 import "./TRLStorage.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
+/**
+ * A proxy Smart Contract following ERC897. Delegate calls to a target contract accessible via implementation() 
+ */
+
 contract Proxy is TRLStorage, Ownable {
 
     address public logicContract;
@@ -39,7 +43,7 @@ contract Proxy is TRLStorage, Ownable {
     */
 
     function () payable public {
-        address target = logicContract;
+        address target = implementation();
         assembly {
             let ptr := mload(0x40)
             calldatacopy(ptr, 0, calldatasize)

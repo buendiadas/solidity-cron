@@ -13,6 +13,7 @@ contract TRLInterface {
     event Vote(address indexed _voterAddress, address indexed _candidateAddress, uint256 _amount, uint256 _periodIndex);
     event PeriodicStagesCreated(address _a);
 
+
     function vote(address _candidateAddress, uint256 _amount) public;
     function calculateReward(uint256 _poolAmount, uint256 _claimerVotes, uint256 _totalVotes) pure public returns (uint256);
     function currentPeriod() public view returns(uint256);

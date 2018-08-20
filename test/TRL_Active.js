@@ -34,7 +34,7 @@ contract('TRL<Active>', function (accounts) {
     await TRLInstance.setVoterRegistry(VoterRegistryInstance.address)
     await TRLInstance.initPeriod(config.ttl)
     await TRLInstance.initStages(config.activeTime, config.claimTime)
-    let periodicStagesAddress = await TRLInstance.periodicStages.call();
+    let periodicStagesAddress = await TRLInstance.periodicStages.call()
     PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
     let periodAddress = await PeriodicStagesInstance.period.call()
     PeriodInstance = await PeriodContract.at(periodAddress)

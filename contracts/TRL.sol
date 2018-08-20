@@ -14,8 +14,9 @@ import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 * A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates
 **/
 
-contract TRL is TRLInterface, Ownable, TRLStorage {
+contract TRL is TRLInterface, TRLStorage, Ownable {
     using SafeMath for uint256;
+
 
     /**
     * Initializes a new period, taking as the TTL value the current from storage, and setting the state to 1
@@ -91,7 +92,7 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
     **/
 
     function setMinimumStake(uint256 _minimumStakeAmount) public {
-        //require(msg.sender == owner);
+        require(msg.sender == owner);
         stakingConstraints[0] = _minimumStakeAmount;
     }
 
@@ -101,7 +102,7 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
     **/
 
     function setMaximumStake(uint256 _maximumStakeAmount) public {
-        //require(msg.sender == owner);
+        require(msg.sender == owner);
         stakingConstraints[1] = _maximumStakeAmount;
     }
 
@@ -111,7 +112,7 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
     **/
 
     function setMinVotingLimit(uint256 _minVoteAmount) public {
-        //require(msg.sender == owner);
+        require(msg.sender == owner);
         votingConstraints[0] = _minVoteAmount; 
     }
 
@@ -121,7 +122,7 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
     **/
 
     function setMaxVotingLimit(uint256 _maxVoteAmount) public {
-        //require(msg.sender == owner);
+        require(msg.sender == owner);
         votingConstraints[1] = _maxVoteAmount; 
     }
 
