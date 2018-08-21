@@ -8,7 +8,7 @@ const PeriodContract = artifacts.require('Period')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
 
 contract('TRL<Claiming>', function (accounts) {
-  let TRL
+  let TRLInstance
   let FrontierTokenInstance
   let CandidateRegistryInstance
   let PeriodicStagesInstance
@@ -25,24 +25,32 @@ contract('TRL<Claiming>', function (accounts) {
     VoterRegistryInstance = await OwnedRegistryContract.new(voterAccounts, {from: adminAccount})
   })
   beforeEach(async () => {
-    TRL = await TRLContract.new(FrontierTokenInstance.address, CandidateRegistryInstance.address, VoterRegistryInstance.address, config.ttl, config.activeTime, config.claimTime, {from: adminAccount})
-    let periodicStagesAddress = await TRL.periodicStages.call()
+    TRLInstance = await TRLContract.new({from: adminAccount})
+    await TRLInstance.setToken(FrontierTokenInstance.address)
+    await TRLInstance.setCandidateRegistry(CandidateRegistryInstance.address)
+    await TRLInstance.setVoterRegistry(VoterRegistryInstance.address)
+    await TRLInstance.initPeriod(config.ttl)
+    await TRLInstance.initStages(config.activeTime, config.claimTime)
+    let periodicStagesAddress = await TRLInstance.periodicStages.call()
     PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
     let periodAddress = await PeriodicStagesInstance.period.call()
     PeriodInstance = await PeriodContract.at(periodAddress)
     const indexInsideStage = await PeriodInstance.getRelativeIndex()
     const neededIndexInStage = config.activeTime + 1
-    const blocksToAdvance = config.ttl - indexInsideStage + neededIndexInStage
+    const blocksToAdvance = config.ttl - indexInsideStage + neededIndexInStage + 2
     await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAdvance)
   })
   describe('Calling active functions', async () => {
-    it('Should revert when someone tries to staked tokens', async () => {
-      const listAddress = await TRL.address
+    it('Should revert when someone tries to stake tokens', async () => {
+      const listAddress = await TRLInstance.address
       const stakedTokens = 10
       await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0]})
       const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
-      const currentPeriod = await TRL.currentPeriod.call()
-      await assertRevert(TRL.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]}))
+      const currentPeriod = await TRLInstance.currentPeriod.call()
+      const currentStage = await TRLInstance.currentStage.call()
+      const currentIndex = await PeriodInstance.getRelativeIndex()
+      const currentStage2 = await PeriodicStagesInstance.currentStage.call();
+      await assertRevert(TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]}))
     })
   })
   describe('Calculating reward', async () => {
@@ -52,7 +60,7 @@ contract('TRL<Claiming>', function (accounts) {
       const totalVotes = 50
       const stakedTokens = 10
       const estimatedReward = totalPool * claimerVotes / totalVotes
-      const actualReward = await TRL.calculateReward.call(totalPool, claimerVotes, totalVotes)
+      const actualReward = await TRLInstance.calculateReward.call(totalPool, claimerVotes, totalVotes)
       assert.strictEqual(estimatedReward, actualReward.toNumber())
     })
     it('Calculate rewards as expected with not integer divisions', async () => {
@@ -61,7 +69,7 @@ contract('TRL<Claiming>', function (accounts) {
       const totalVotes = 50
       const stakedTokens = 10
       const estimatedReward = Math.floor(totalPool * claimerVotes / totalVotes)
-      const actualReward = await TRL.calculateReward.call(totalPool, claimerVotes, totalVotes)
+      const actualReward = await TRLInstance.calculateReward.call(totalPool, claimerVotes, totalVotes)
       assert.strictEqual(estimatedReward, actualReward.toNumber())
     })
   })
