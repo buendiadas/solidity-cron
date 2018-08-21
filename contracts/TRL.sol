@@ -11,16 +11,16 @@ import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 
 
 /**
-* A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates
+* A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates, and sets the compensation of the candidates based on previous interactions 
 **/
 
-contract TRL is TRLInterface, TRLStorage, Ownable {
+contract TRL is TRLStorage, Ownable, TRLInterface {
     using SafeMath for uint256;
 
-
     /**
-    * Initializes a new period, taking as the TTL value the current from storage, and setting the state to 1
-    * Requires that the current period is Preparing (0)
+    * @dev Initializes a new period, by creating a new instance of Periodic Stages contract (https://github.com/Frontier-project/cron) 
+    * If not set, the TRL will not be periodic. When set, different states will be stored indexed by periods.
+    * @param _T Period that is about to be set
     **/
 
     function initPeriod(uint256 _T) public {
@@ -29,21 +29,29 @@ contract TRL is TRLInterface, TRLStorage, Ownable {
     }
 
     /**
-    * @dev Initializes a new period, taking as the TTL value the current from storage, and setting the state to 1
-    * Requires that the current period is Preparing (0)
+    * @dev Initializes a set of states inside a period, that will repeat periodically.
+    * Requires that (_activeTime + _claimTime) < _T
+    * By default, no stage will be defined, and the Smart Contract will stay on stage 0.
+    * @param _activeTime  Temporal epoch when the Smart Contract is set as "Active", most of the interactions inside the period will come here
+    * @param _claimTime  Temporal epoch where participants can claim their compensation based on the interactions mader on activeTime
+    * TODO: Generalize to a general number of periods.
     **/
 
     function initStages(uint256 _activeTime, uint256 _claimTime) public {  
         periodicStages.pushStage(_activeTime);
         periodicStages.pushStage(_claimTime);
-        emit PeriodInit(20, _activeTime, _claimTime);
+        address periodAddress = periodicStages.period();
+        Period period = Period(periodAddress);
+        uint256 T = period.T(); // Avoids Breaking changes on period Handlers, should be deprecated
+        emit PeriodInit(T, _activeTime, _claimTime);
     }
 
     /**
     * @dev Exchanges the main token for an amount of votes
     * Requires previous allowance of expenditure of at least the amount required
-    * Currently 1:1 exchange used, but this rate could be changed
+    * Right now 1:1 exchange used
     * @param _amount Amount of votes that the voter wants to buy
+    * TODO: Generalize to different ratios 
     **/
 
     function buyTokenVotes(uint256 _amount) public {
@@ -55,7 +63,7 @@ contract TRL is TRLInterface, TRLStorage, Ownable {
     }
 
     /**
-    * @dev Adds a new vote for a candidate. It fails if the candidate hasn't approved before the specified amount
+    * @dev Adds a new vote for a candidate
     * @param _candidateAddress address of the candidate selected
     * @param _amount of votes used
     **/
@@ -70,7 +78,7 @@ contract TRL is TRLInterface, TRLStorage, Ownable {
     }
 
     /**
-    * @dev Claims the correspondant Bounty from the Pool on the current periodIndex
+    * @dev Claims the correspondant Bounty from the Pool on the current periodIndex. 
     **/
 
     function claimBounty() public {
@@ -86,7 +94,7 @@ contract TRL is TRLInterface, TRLStorage, Ownable {
         emit BountyRelased(msg.sender, totalAmount, currentPeriod());
     }
 
-      /*
+    /*
     * @dev Sets the minimum stake to participate in a period 
     * @param _minimumStakeAmount minimum stake to be added
     **/
@@ -128,13 +136,14 @@ contract TRL is TRLInterface, TRLStorage, Ownable {
 
     /**
     * @dev Calculates the Scoring given an address in the current epoch
-    * Delegate the calls to the score (function score(uint256,address)) to enable usage of the TRL Storage
+    * @param _epoch Epoch where the query is made
     * @param _account Account that is required to get the scoring
     **/
 
-    function calculateScoring(address _account) public view returns (uint256) {
-        return scoring.score(currentPeriod(), _account);       
+    function scoring(uint256 _epoch, address _account) public view returns (uint256) {
+        return votesReceived[_epoch][_account];
     } 
+
 
     /**
     * @dev Returns the current period number, by calling the period Lib

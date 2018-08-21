@@ -5,7 +5,6 @@ const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 const TRLContract = artifacts.require('TRL')
 const PeriodicStageContract = artifacts.require('PeriodicStages')
 const PeriodContract = artifacts.require('Period')
-const Scoring = artifacts.require('Scoring')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
 
 contract('TRL<Active>', function (accounts) {
@@ -216,19 +215,17 @@ contract('TRL<Active>', function (accounts) {
   })
   describe('Scoring', async () => {
     it('Should return the same value as the set scoring algorithm', async () => {
-      ScoringInstance = await Scoring.new()
-      await TRLInstance.setScoring(ScoringInstance.address)
       const stakedTokens = 10
       await FrontierTokenInstance.approve(TRLInstance.address, stakedTokens, {from: voterAccounts[0]})
       await TRLInstance.buyTokenVotes(stakedTokens, {from: voterAccounts[0]})
       const epoch = await TRLInstance.currentPeriod.call()
       const votingBalance = await TRLInstance.votesBalance.call(epoch, voterAccounts[0])
       await TRLInstance.vote(candidateAccounts[0], votingBalance, {from: voterAccounts[0]})
-      const calculatedScoring = await ScoringInstance.score.call(epoch, voterAccounts[0])
-      const TRLScoring = await TRLInstance.calculateScoring.call(voterAccounts[0])
-      assert.strictEqual(calculatedScoring.toNumber(), TRLScoring.toNumber())
+      const TRLScoring = await TRLInstance.scoring.call(epoch, candidateAccounts[0])
+      assert.strictEqual(stakedTokens, TRLScoring.toNumber())
     })
   })
+
   describe('Claiming', async () => {
     it('Should Throw when someone tries to claim', async () => {
       const listAddress = await TRLInstance.address

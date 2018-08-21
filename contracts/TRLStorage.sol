@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
 import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
-import "./scoring/ScoringInterface.sol";
 
 contract TRLStorage {
     
@@ -19,9 +18,6 @@ contract TRLStorage {
 
     // Master Token, used to buy votes
     StandardToken public token;
-
-    // Scoring Function
-    ScoringInterface public scoring;
 
     // Stages that come periodically 
     PeriodicStages public periodicStages;
@@ -70,12 +66,4 @@ contract TRLStorage {
         periodicStages = PeriodicStages(_contractAddress);
     }
 
-    /**
-    * @dev Sets a new periodic stages address
-
-    */
-
-    function setScoring(address _contractAddress) public {
-        scoring = ScoringInterface(_contractAddress);
-    }
 }

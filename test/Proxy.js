@@ -22,6 +22,12 @@ contract('Proxy', function (accounts) {
       assert.strictEqual(logicContractAddress, TRLInstance.address)
     })
   })
+  describe('ERC897 compliance', async () => {
+    it('Should be identified as a upgradeable contract ', async () => {
+      const proxyType = await ProxyInstance.proxyType.call()
+      assert.strictEqual(2, proxyType.toNumber())
+    })
+  })
   describe('Delegating calls', async () => {
     it('Should be able to call a target function', async () => {
       const ProxyTRLInstance = TRLContract.at(ProxyInstance.address)
