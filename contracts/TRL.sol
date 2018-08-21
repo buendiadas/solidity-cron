@@ -11,66 +11,59 @@ import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 
 
 /**
-* A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates
+* A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates, and sets the compensation of the candidates based on previous interactions 
 **/
 
-contract TRL is TRLInterface, Ownable, TRLStorage {
+contract TRL is TRLStorage, Ownable, TRLInterface {
     using SafeMath for uint256;
 
     /**
-    * Creates a new Instance of a Voting Lists
-    * @param _tokenAddress Address of the token used as an incentive for the pool
+    * @dev Initializes a new period, by creating a new instance of Periodic Stages contract (https://github.com/Frontier-project/cron) 
+    * If not set, the TRL will not be periodic. When set, different states will be stored indexed by periods.
+    * @param _T Period that is about to be set
     **/
 
-    constructor(
-        address _tokenAddress,
-        address _candidateRegistryAddress,
-        address _voterRegistryAddress,
-        uint256 _initialTTL,
-        uint256 _initialActiveTime,
-        uint256 _initialClaimTime)
-        public
-    {
-        require(
-            _candidateRegistryAddress != address(0) && 
-            _voterRegistryAddress != address(0) && 
-            _tokenAddress != address(0)
-        ); 
-        token = StandardToken(_tokenAddress);
-        candidateRegistry = Registry(_candidateRegistryAddress);
-        voterRegistry = Registry(_voterRegistryAddress);
-        initPeriod(_initialTTL, _initialActiveTime, _initialClaimTime);
+    function initPeriod(uint256 _T) public {
+        periodicStages = new PeriodicStages(_T);
+        emit PeriodicStagesCreated(periodicStages);
     }
 
     /**
-    * Initializes a new period, taking as the TTL value the current from storage, and setting the state to 1
-    * Requires that the current period is Preparing (0)
+    * @dev Initializes a set of states inside a period, that will repeat periodically.
+    * Requires that (_activeTime + _claimTime) < _T
+    * By default, no stage will be defined, and the Smart Contract will stay on stage 0.
+    * @param _activeTime  Temporal epoch when the Smart Contract is set as "Active", most of the interactions inside the period will come here
+    * @param _claimTime  Temporal epoch where participants can claim their compensation based on the interactions mader on activeTime
+    * TODO: Generalize to a general number of periods.
     **/
 
-    function initPeriod(uint256 _periodTTL, uint256 _activeTime, uint256 _claimTime) public {
-        periodicStages = new PeriodicStages(_periodTTL);
+    function initStages(uint256 _activeTime, uint256 _claimTime) public {  
         periodicStages.pushStage(_activeTime);
         periodicStages.pushStage(_claimTime);
-        emit PeriodInit(_periodTTL, _activeTime, _claimTime);
+        address periodAddress = periodicStages.period();
+        Period period = Period(periodAddress);
+        uint256 T = period.T(); // Avoids Breaking changes on period Handlers, should be deprecated
+        emit PeriodInit(T, _activeTime, _claimTime);
     }
 
     /**
     * @dev Exchanges the main token for an amount of votes
-    * @dev Requires previous allowance of expenditure of at least the amount required
-    * @dev Currently 1:1 exchange used, but this rate could be changed
+    * Requires previous allowance of expenditure of at least the amount required
+    * Right now 1:1 exchange used
     * @param _amount Amount of votes that the voter wants to buy
+    * TODO: Generalize to different ratios 
     **/
 
     function buyTokenVotes(uint256 _amount) public {
         require(currentStage() == 0);
         require(canStake(msg.sender, _amount));
-        require(token.transferFrom(msg.sender,this, _amount));
+        require(token.transferFrom(msg.sender, this, _amount));
         votesBalance[currentPeriod()][msg.sender] = votesBalance[currentPeriod()][msg.sender].add(_amount);
         emit VotesBought(msg.sender, _amount, currentPeriod());
     }
 
     /**
-    * @dev Adds a new vote for a candidate. It fails if the candidate hasn't approved before the specified amount
+    * @dev Adds a new vote for a candidate
     * @param _candidateAddress address of the candidate selected
     * @param _amount of votes used
     **/
@@ -81,11 +74,11 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
         require(votesBalance[currentPeriod()][msg.sender] >= _amount);
         votesReceived[currentPeriod()][_candidateAddress] = votesReceived[currentPeriod()][_candidateAddress].add(_amount);
         votesBalance[currentPeriod()][msg.sender] -= _amount;
-        emit Vote(msg.sender,_candidateAddress, _amount, currentPeriod());
+        emit Vote(msg.sender, _candidateAddress, _amount, currentPeriod());
     }
 
     /**
-    * @dev Claims the correspondant Bounty from the Pool on the current periodIndex
+    * @dev Claims the correspondant Bounty from the Pool on the current periodIndex. 
     **/
 
     function claimBounty() public {
@@ -142,7 +135,18 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
     }
 
     /**
-    * @dev Returns the current period number
+    * @dev Calculates the Scoring given an address in the current epoch
+    * @param _epoch Epoch where the query is made
+    * @param _account Account that is required to get the scoring
+    **/
+
+    function scoring(uint256 _epoch, address _account) public view returns (uint256) {
+        return votesReceived[_epoch][_account];
+    } 
+
+
+    /**
+    * @dev Returns the current period number, by calling the period Lib
     **/
 
     function currentPeriod() public view returns(uint256) { 
@@ -152,10 +156,10 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
     }
     
     /**
-    * @dev Returns the current stage number
+    * @dev Returns the current stage number, by calling the PeriodicStages lib
     **/
 
-    function currentStage() public view returns(uint256){
+    function currentStage() public view returns(uint256) {
         return periodicStages.currentStage();
     }
          
@@ -191,7 +195,7 @@ contract TRL is TRLInterface, Ownable, TRLStorage {
     {
         return (stakeInsideConstraints(_amount + votesBalance[currentPeriod()][_sender]));
 
-    } 
+    }
 
     /**
     * @dev Returns true if the given _amount is insidse the TRL constraints

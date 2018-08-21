@@ -3,6 +3,7 @@ const advanceToBlock = require('../test/helpers/advanceToBlock')
 const { assertRevert } = require('../test/helpers/assertRevert')
 const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 const TRLContract = artifacts.require('TRL')
+const Proxy = artifacts.require('Proxy')
 const PeriodicStageContract = artifacts.require('PeriodicStages')
 const PeriodContract = artifacts.require('Period')
 const OwnedRegistryContract = artifacts.require('OwnedRegistry')
@@ -12,6 +13,7 @@ const keccak256 = require('js-sha3').keccak256
 let OwnedRegistryFactoryInstance
 let FrontierTokenInstance
 let TRLInstance
+let ProxyInstance
 let periodicStagesAddress
 let PeriodInstance
 let PeriodicStagesInstance
@@ -26,10 +28,10 @@ contract('TRL<Migrations>', function (accounts) {
     // set up
     OwnedRegistryFactoryInstance = await OwnedRegistryFactory.deployed()
     FrontierTokenInstance = await Standard20TokenMock.deployed()
-    TRLInstance = await TRLContract.deployed()
-    let candidateRegistryAddress = await OwnedRegistryFactoryInstance.getRegistry.call(keccak256('candidate'))
-    let voterRegistryAddress = await OwnedRegistryFactoryInstance.getRegistry.call(keccak256('voter'))
-
+    ProxyInstance = await Proxy.deployed()
+    TRLInstance = await TRLContract.at(ProxyInstance.address)
+    let candidateRegistryAddress = await TRLInstance.candidateRegistry.call();
+    let voterRegistryAddress = await TRLInstance.voterRegistry.call();
     let CandidateRegistryInstance = await OwnedRegistryContract.at(candidateRegistryAddress)
     let VoterRegistryInstance = await OwnedRegistryContract.at(voterRegistryAddress)
 
@@ -41,7 +43,6 @@ contract('TRL<Migrations>', function (accounts) {
     for (let i = 0; i < voterAccounts.length; i++) {
       await VoterRegistryInstance.whiteList(voterAccounts[i], {from: adminAccount})
     }
-
     periodicStagesAddress = await TRLInstance.periodicStages.call()
     PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
     periodAddress = await PeriodicStagesInstance.period.call()
@@ -119,7 +120,7 @@ contract('TRL<Migrations>', function (accounts) {
         const T = config.ttl
         const indexInsideStage = await PeriodInstance.getRelativeIndex()
         const neededIndexInStage = config.activeTime + 1
-        const blocksToAdvance = T - indexInsideStage + neededIndexInStage
+        const blocksToAdvance = T - indexInsideStage.toNumber() + neededIndexInStage 
         let currBlockNumber = web3.eth.blockNumber
         await advanceToBlock.advanceToBlock(currBlockNumber + blocksToAdvance)
         const newIndexInsideStage = await PeriodInstance.getRelativeIndex()
@@ -138,6 +139,7 @@ contract('TRL<Migrations>', function (accounts) {
         assert.equal(stakedTokens, totalPreStaked.toNumber())
       })
       it('Should edit the minimum stake amount', async () => {
+        TRLInstance = await TRLContract.at(ProxyInstance.address)
         const definedMinimumStake = 10
         await TRLInstance.setMinimumStake(definedMinimumStake)
         const storedMinimumStake = await TRLInstance.stakingConstraints.call(0)
