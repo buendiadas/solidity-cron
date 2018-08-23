@@ -30,8 +30,8 @@ contract('TRL<Migrations>', function (accounts) {
     FrontierTokenInstance = await Standard20TokenMock.deployed()
     ProxyInstance = await Proxy.deployed()
     TRLInstance = await TRLContract.at(ProxyInstance.address)
-    let candidateRegistryAddress = await TRLInstance.candidateRegistry.call();
-    let voterRegistryAddress = await TRLInstance.voterRegistry.call();
+    let candidateRegistryAddress = await TRLInstance.candidateRegistry.call()
+    let voterRegistryAddress = await TRLInstance.voterRegistry.call()
     let CandidateRegistryInstance = await OwnedRegistryContract.at(candidateRegistryAddress)
     let VoterRegistryInstance = await OwnedRegistryContract.at(voterRegistryAddress)
 
@@ -55,7 +55,8 @@ contract('TRL<Migrations>', function (accounts) {
     movingPeriods: true,
     staking: true,
     voting: true,
-    claiming: true
+    claiming: true,
+    scoring: true
   }
 
   if (runTests.creatingTheContract) {
@@ -120,7 +121,7 @@ contract('TRL<Migrations>', function (accounts) {
         const T = config.ttl
         const indexInsideStage = await PeriodInstance.getRelativeIndex()
         const neededIndexInStage = config.activeTime + 1
-        const blocksToAdvance = T - indexInsideStage.toNumber() + neededIndexInStage 
+        const blocksToAdvance = T - indexInsideStage.toNumber() + neededIndexInStage
         let currBlockNumber = web3.eth.blockNumber
         await advanceToBlock.advanceToBlock(currBlockNumber + blocksToAdvance)
         const newIndexInsideStage = await PeriodInstance.getRelativeIndex()
@@ -206,6 +207,93 @@ contract('TRL<Migrations>', function (accounts) {
         await TRLInstance.setMinVotingLimit(requiredVotingLimitAmount, {from: adminAccount})
         const savedVotingLimitAmount = await TRLInstance.votingConstraints.call(0)
         assert.equal(requiredVotingLimitAmount, savedVotingLimitAmount.toNumber())
+      })
+    })
+  }
+
+  if (runTests.scoring) {
+    describe('Weighted Scoring', async () => {
+      const absLinWeights = [0.39999999999999997, 0.3, 0.19999999999999998, 0.10000000000000002, 0.0]
+      const absRatWeights = [0.4461021786749173, 0.21733183063649814, 0.14366002364107508, 0.10729039740282821, 0.0856155696446811]
+      const absExpWeights = [0.6399171800385933, 0.23304644109045747, 0.08487136366873695, 0.03090863922781419, 0.011256375974398092]
+
+      const MUL_CONSTANT = 1000000000
+      const linWeights = absLinWeights.map(currWeight => parseInt(currWeight * MUL_CONSTANT))
+      const ratWeights = absRatWeights.map(currWeight => parseInt(currWeight * MUL_CONSTANT))
+      const expWeights = absExpWeights.map(currWeight => parseInt(currWeight * MUL_CONSTANT))
+
+      const analyst1Scores = [628, 644, 489, 463, 409, 593, 585, 616, 412, 556]
+      const analyst2Scores = [477, 481, 631, 346, 409, 527, 585, 479, 301, 496]
+
+      const expectedAnalyst1LastPeriodScoreLin = 527.7000
+      const expectedAnalyst1LastPeriodScoreRat = 539.6030
+      const expectedAnalyst1LastPeriodScoreExp = 528.8464
+
+      const expectedAnalyst2LastPeriodScoreLin = 443.000
+      const expectedAnalyst2LastPeriodScoreRat = 463.3810
+      const expectedAnalyst2LastPeriodScoreExp = 452.2129
+
+      const expectedAnalyst1FirstPeriodScoreLin = 446.0000
+      const expectedAnalyst1FirstPeriodScoreRat = 423.7742
+      const expectedAnalyst1FirstPeriodScoreExp = 558.4598
+
+      const expectedAnalyst2FirstPeriodScoreLin = 335.5000
+      const expectedAnalyst2FirstPeriodScoreRat = 318.2424
+      const expectedAnalyst2FirstPeriodScoreExp = 418.9633
+
+      it('The WeightedScore pure function should yeld the same values as the Python algorithm', async () => {
+        const score = await TRLInstance.scoring(0, adminAccount)
+
+        let actualAnalyst1LastPeriodScoreLin = await TRLInstance.weightedScore(linWeights, analyst1Scores)
+        actualAnalyst1LastPeriodScoreLin = Number((actualAnalyst1LastPeriodScoreLin / MUL_CONSTANT).toFixed(4))
+        assert.equal(expectedAnalyst1LastPeriodScoreLin, actualAnalyst1LastPeriodScoreLin)
+
+        let actualAnalyst1LastPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, analyst1Scores)
+        actualAnalyst1LastPeriodScoreRat = Number((actualAnalyst1LastPeriodScoreRat / MUL_CONSTANT).toFixed(4))
+        assert.equal(expectedAnalyst1LastPeriodScoreRat, actualAnalyst1LastPeriodScoreRat)
+
+        let actualAnalyst1LastPeriodScoreExp = await TRLInstance.weightedScore(expWeights, analyst1Scores)
+        actualAnalyst1LastPeriodScoreExp = Number((actualAnalyst1LastPeriodScoreExp / MUL_CONSTANT).toFixed(4))
+        assert.equal(expectedAnalyst1LastPeriodScoreExp, actualAnalyst1LastPeriodScoreExp)
+
+        let actualAnalyst2LastPeriodScoreLin = await TRLInstance.weightedScore(linWeights, analyst2Scores)
+        actualAnalyst2LastPeriodScoreLin = Number((actualAnalyst2LastPeriodScoreLin / MUL_CONSTANT).toFixed(4))
+        assert.equal(expectedAnalyst2LastPeriodScoreLin, actualAnalyst2LastPeriodScoreLin)
+
+        let actualAnalyst2LastPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, analyst2Scores)
+        actualAnalyst2LastPeriodScoreRat = Number((actualAnalyst2LastPeriodScoreRat / MUL_CONSTANT).toFixed(4))
+        assert.equal(expectedAnalyst2LastPeriodScoreRat, actualAnalyst2LastPeriodScoreRat)
+
+        let actualAnalyst2LastPeriodScoreExp = await TRLInstance.weightedScore(expWeights, analyst2Scores)
+        actualAnalyst2LastPeriodScoreExp = Number((actualAnalyst2LastPeriodScoreExp / MUL_CONSTANT).toFixed(4))
+        assert.equal(expectedAnalyst2LastPeriodScoreExp, actualAnalyst2LastPeriodScoreExp)
+        // assert.equal(0, score)
+      })
+
+      it('The WeightedScore pure function should yeld correct values when the window size is smaller', async () => {
+        let actualAnalyst1FirstPeriodScoreLin = await TRLInstance.weightedScore(linWeights, [analyst1Scores[0], analyst1Scores[1]])
+        actualAnalyst1FirstPeriodScoreLin = Number((actualAnalyst1FirstPeriodScoreLin / MUL_CONSTANT).toFixed(4))
+        assert.equal(expectedAnalyst1FirstPeriodScoreLin, actualAnalyst1FirstPeriodScoreLin)
+
+        let actualAnalyst1FirstPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, [analyst1Scores[0], analyst1Scores[1]])
+        actualAnalyst1FirstPeriodScoreRat = Number((actualAnalyst1FirstPeriodScoreRat / MUL_CONSTANT).toFixed(4))
+        assert.equal(expectedAnalyst1FirstPeriodScoreRat, actualAnalyst1FirstPeriodScoreRat)
+
+        let actualAnalyst1FirstPeriodScoreExp = await TRLInstance.weightedScore(expWeights, [analyst1Scores[0], analyst1Scores[1]])
+        actualAnalyst1FirstPeriodScoreExp = Number((actualAnalyst1FirstPeriodScoreExp / MUL_CONSTANT).toFixed(4))
+        assert.equal(expectedAnalyst1FirstPeriodScoreExp, actualAnalyst1FirstPeriodScoreExp)
+
+        let actualAnalyst2FirstPeriodScoreLin = await TRLInstance.weightedScore(linWeights, [analyst2Scores[0], analyst2Scores[1]])
+        actualAnalyst2FirstPeriodScoreLin = Number((actualAnalyst2FirstPeriodScoreLin / MUL_CONSTANT).toFixed(4))
+        assert.equal(expectedAnalyst2FirstPeriodScoreLin, actualAnalyst2FirstPeriodScoreLin)
+
+        let actualAnalyst2FirstPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, [analyst2Scores[0], analyst2Scores[1]])
+        actualAnalyst2FirstPeriodScoreRat = Number((actualAnalyst2FirstPeriodScoreRat / MUL_CONSTANT).toFixed(4))
+        assert.equal(expectedAnalyst2FirstPeriodScoreRat, actualAnalyst2FirstPeriodScoreRat)
+
+        let actualAnalyst2FirstPeriodScoreExp = await TRLInstance.weightedScore(expWeights, [analyst2Scores[0], analyst2Scores[1]])
+        actualAnalyst2FirstPeriodScoreExp = Number((actualAnalyst2FirstPeriodScoreExp / MUL_CONSTANT).toFixed(4))
+        assert.equal(expectedAnalyst2FirstPeriodScoreExp, actualAnalyst2FirstPeriodScoreExp)
       })
     })
   }
