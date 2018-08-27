@@ -211,6 +211,7 @@ contract('TRL<Migrations>', function (accounts) {
     })
   }
 
+/*
   if (runTests.scoring) {
     describe('Weighted Scoring', async () => {
       const absLinWeights = [0.39999999999999997, 0.3, 0.19999999999999998, 0.10000000000000002, 0.0]
@@ -296,5 +297,5 @@ contract('TRL<Migrations>', function (accounts) {
         assert.equal(expectedAnalyst2FirstPeriodScoreExp, actualAnalyst2FirstPeriodScoreExp)
       })
     })
-  }
+  } */
 })
