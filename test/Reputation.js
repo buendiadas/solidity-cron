@@ -3,17 +3,55 @@ const { assertRevert } = require('./helpers/assertRevert')
 const TRLContract = artifacts.require('TRL')
 const ProxyContract = artifacts.require('Proxy')
 
+/// /
+
+const advanceToBlock = require('./helpers/advanceToBlock')
+const Standard20TokenMock = artifacts.require('Standard20TokenMock')
+const PeriodicStageContract = artifacts.require('PeriodicStages')
+const PeriodContract = artifacts.require('Period')
+const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
+///
+
 contract('Reputation', function (accounts) {
   let TRLInstance
   let ProxyInstance
-  let adminAccount = web3.eth.accounts[0]
   let ProxyTRLInstance
 
+  let ScoringInstance
+  let PeriodInstance
+  let startTime
+  let adminAccount = web3.eth.accounts[0]
+  let voterAccounts = web3.eth.accounts.slice(1, 4)
+  let candidateAccounts = web3.eth.accounts.slice(5, 8)
+
+  let FrontierTokenInstance
+  let CandidateRegistryInstance
+  let VoterRegistryInstance
+  let PeriodicStagesInstance
+
   before('Deploying required contracts', async () => {
+    FrontierTokenInstance = await Standard20TokenMock.new(voterAccounts, config.totalTokens, {from: adminAccount})
+    // FrontierTokenInstance = await Standard20TokenMock.new(voterAccounts, 40000000, {from: adminAccount})
+    CandidateRegistryInstance = await OwnedRegistryContract.new(candidateAccounts, {from: adminAccount})
+    VoterRegistryInstance = await OwnedRegistryContract.new(voterAccounts, {from: adminAccount})
+
     ProxyInstance = await ProxyContract.new()
     TRLInstance = await TRLContract.new({from: adminAccount})
     ProxyTRLInstance = await TRLContract.at(ProxyInstance.address)
     await ProxyInstance.setContractLogic(TRLInstance.address)
+  })
+
+  beforeEach(async () => {
+    TRLInstance = await TRLContract.new({from: adminAccount})
+    await TRLInstance.setToken(FrontierTokenInstance.address)
+    await TRLInstance.setCandidateRegistry(CandidateRegistryInstance.address)
+    await TRLInstance.setVoterRegistry(VoterRegistryInstance.address)
+    await TRLInstance.initPeriod(config.ttl)
+    await TRLInstance.initStages(config.activeTime, config.claimTime)
+    let periodicStagesAddress = await TRLInstance.periodicStages.call()
+    PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
+    let periodAddress = await PeriodicStagesInstance.period.call()
+    PeriodInstance = await PeriodContract.at(periodAddress)
   })
 
   const absLinWeights = [0.39999999999999997, 0.3, 0.19999999999999998, 0.10000000000000002, 0.0]
@@ -155,6 +193,32 @@ contract('Reputation', function (accounts) {
       let actualAnalyst2FirstPeriodScoreExp = await TRLInstance.weightedScore(expWeights, [analyst2Scores[0], analyst2Scores[1]])
       actualAnalyst2FirstPeriodScoreExp = Number((actualAnalyst2FirstPeriodScoreExp / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2FirstPeriodScoreExp, actualAnalyst2FirstPeriodScoreExp)
+    })
+  })
+  describe('Reputation Function should work', async () => {
+    it('Should work', async () => {
+      // let periodsToAdvance = 1
+      let epoch
+      const stakedTokens = 999
+      let TRLScoring
+      await FrontierTokenInstance.approve(TRLInstance.address, stakedTokens, {from: voterAccounts[0]})
+      // await TRLInstance.buyTokenVotes(10, {from: voterAccounts[0]})
+      // let blockOffset = web3.eth.blockNumber
+
+      const votesRecord = [60, 59, 61, 41, 56]
+      const expectedResult = 52800000000
+
+      // Buying votes and voting for the user
+      for (let i = 0; i < 5; i++) {
+        await TRLInstance.buyTokenVotes(votesRecord[i], {from: voterAccounts[0]})
+        await TRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
+        epoch = await TRLInstance.currentPeriod.call()
+        TRLScoring = await TRLInstance.scoring.call(epoch, candidateAccounts[0])
+        await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
+      }
+
+      let res = await TRLInstance.reputation(epoch, candidateAccounts[0])
+      assert.equal(expectedResult, res)
     })
   })
 })

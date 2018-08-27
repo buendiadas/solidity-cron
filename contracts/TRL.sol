@@ -17,6 +17,13 @@ import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 contract TRL is TRLStorage, Ownable, TRLInterface {
     using SafeMath for uint256;
 
+    uint256 reputationWindowSize = 5;
+    
+    
+
+    
+
+
     /**
     * @dev Initializes a new period, by creating a new instance of Periodic Stages contract (https://github.com/Frontier-project/cron) 
     * If not set, the TRL will not be periodic. When set, different states will be stored indexed by periods.
@@ -143,6 +150,39 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     function scoring(uint256 _epoch, address _account) public view returns (uint256) {
         return votesReceived[_epoch][_account];
     } 
+
+    
+    /**
+    * @dev Calculates the Reputation given an address in the current epoch
+    * @param _epoch Epoch where the query is made
+    * @param _account Account that is required to get the reputation
+    **/
+
+    function reputation(uint256 _epoch, address _account) public view returns (uint256) {
+        uint256 epochCounter;
+        uint256[] memory votes = new uint256[](5);
+
+        // hardcoded weights from linear function
+        uint256[] memory linWeights = new uint256[](5);
+        linWeights[0] = 400000000;
+        linWeights[1] = 300000000;
+        linWeights[2] = 200000000;
+        linWeights[3] = 100000000;
+        linWeights[4] = 0;
+
+        require(linWeights.length == reputationWindowSize);
+        require(votes.length == reputationWindowSize);
+
+        for(uint i = 0; i< 5; i++){
+            if(_epoch<i){
+                votes[i] = 0;
+            }
+
+             votes[i]=  votesReceived[i][_account];
+        }
+
+        return weightedScore(linWeights,votes);
+    }
 
     
     /**
