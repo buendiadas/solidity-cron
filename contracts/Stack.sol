@@ -1,13 +1,14 @@
 pragma solidity 0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 /**
  * A simple FIFO blockstack. 
  * Enables to manage tasks inside a certain capacity 
  */
 
-contract Stack { 
+contract Stack is Ownable { 
     
     // Each Value represents the final position of a slot
     uint256[] public strg; 
@@ -34,7 +35,7 @@ contract Stack {
      * @return height uint representing the amount of slots already reserved in the stack
      */
 
-    function height() public view returns (uint256){
+    function height() public view returns (uint256) {
         return height;
     }
 
