@@ -197,16 +197,17 @@ contract('Reputation', function (accounts) {
   })
   describe('Reputation Function should work', async () => {
     it('Should work', async () => {
-      // let periodsToAdvance = 1
       let epoch
       const stakedTokens = 999
       let TRLScoring
       await FrontierTokenInstance.approve(TRLInstance.address, stakedTokens, {from: voterAccounts[0]})
-      // await TRLInstance.buyTokenVotes(10, {from: voterAccounts[0]})
-      // let blockOffset = web3.eth.blockNumber
 
       const votesRecord = [60, 59, 61, 41, 56]
       const expectedResult = 52800000000
+
+      let linWeights = [400000000, 300000000, 200000000, 100000000, 0]
+
+      await TRLInstance.setReputationLinWeights(linWeights)
 
       // Buying votes and voting for the user
       for (let i = 0; i < 5; i++) {
@@ -219,6 +220,51 @@ contract('Reputation', function (accounts) {
 
       let res = await TRLInstance.reputation(epoch, candidateAccounts[0])
       assert.equal(expectedResult, res)
+    })
+    it('Should revert when weights are not set', async() => {
+      let epoch
+      const stakedTokens = 999
+      let TRLScoring
+      await FrontierTokenInstance.approve(TRLInstance.address, stakedTokens, {from: voterAccounts[0]})
+
+      const votesRecord = [60, 59, 61, 41, 56]
+      const expectedResult = 52800000000
+
+      // Buying votes and voting for the user
+      for (let i = 0; i < 5; i++) {
+        await TRLInstance.buyTokenVotes(votesRecord[i], {from: voterAccounts[0]})
+        await TRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
+        epoch = await TRLInstance.currentPeriod.call()
+        TRLScoring = await TRLInstance.scoring.call(epoch, candidateAccounts[0])
+        await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
+      }
+      await assertRevert(TRLInstance.reputation(epoch, candidateAccounts[0]))
+    })
+
+    it('Should revert when non-owner tries to set reputation weights', async() => {
+      let epoch
+      const stakedTokens = 999
+      let TRLScoring
+      await FrontierTokenInstance.approve(TRLInstance.address, stakedTokens, {from: voterAccounts[0]})
+
+      const votesRecord = [60, 59, 61, 41, 56]
+      const expectedResult = 52800000000
+      let linWeights = [400000000, 300000000, 200000000, 100000000, 0]
+      await assertRevert(TRLInstance.setReputationLinWeights(linWeights, {from: voterAccounts[1]}))
+    })
+
+    it('Should revert when reputation weights size is different than window size', async() => {
+      let epoch
+      const stakedTokens = 999
+      let TRLScoring
+      await FrontierTokenInstance.approve(TRLInstance.address, stakedTokens, {from: voterAccounts[0]})
+
+      const votesRecord = [60, 59, 61, 41, 56]
+      const expectedResult = 52800000000
+
+      // set the wrong number of weights, 4 instead of 5
+      let linWeights = [400000000, 300000000, 200000000, 100000000]
+      await assertRevert(TRLInstance.setReputationLinWeights(linWeights))
     })
   })
 })
