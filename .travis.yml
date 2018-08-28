@@ -29,9 +29,9 @@ jobs:
         - npm run migrate-integration
         - npm run test-integration
         - truffle migrate --reset
-        - npm run coverage
+        - travis_wait npm run coverage
       after_script:
-        - codecov
+        - travis_wait codecov
   
     - stage: migrate
       if: branch = master
