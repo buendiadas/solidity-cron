@@ -19,7 +19,7 @@ contract('PeriodicStages', function (accounts) {
     let periodAddress = await PeriodicStagesInstance.period.call()
     PeriodInstance = await PeriodContract.at(periodAddress)
     let stackAddress = await PeriodicStagesInstance.stack.call()
-    Stack = StackContract.at(stackAddress)
+    Stack = await StackContract.at(stackAddress)
   })
   describe('Calculating stages', async () => {
     it('Should start at stage 0', async () => {
@@ -29,7 +29,7 @@ contract('PeriodicStages', function (accounts) {
     it('Should create a new Stage', async () => {
       const bounds = [T / 5]
       const totalCapacity = Stack.totalCapacity.call()
-      stagesFromBounds.stagesFromBounds(Stack, bounds)
+      stagesFromBounds.stagesFromBounds(PeriodicStagesInstance, bounds)
       assert.strictEqual(0, 0)
     })
     it('Should modify the Period Lentgth', async () => {
@@ -37,10 +37,17 @@ contract('PeriodicStages', function (accounts) {
       const periodLength = await PeriodInstance.T.call()
       assert.strictEqual(T - 1, periodLength.toNumber())
     })
+    it('Should be able to push a new stage', async () => {
+      await PeriodicStagesInstance.setPeriodLength(T - 1)
+      const newStageLength = 1;
+      await PeriodicStagesInstance.pushStage(newStageLength);
+      const newHeight = await Stack.height.call();
+      assert.strictEqual(1, newHeight.toNumber());
+    })
     it('Should return 0 if the current block is inside of the first pushed stage', async () => {
       const bounds = [T / 5]
       const totalCapacity = await Stack.totalCapacity.call()
-      await stagesFromBounds.stagesFromBounds(Stack, bounds)
+      await stagesFromBounds.stagesFromBounds(PeriodicStagesInstance, bounds)
       const indexInsideStage = await PeriodInstance.getRelativeIndex()
       const neededIndexInStage = 1
       const blocksToAdvance = T - indexInsideStage + neededIndexInStage
@@ -51,7 +58,7 @@ contract('PeriodicStages', function (accounts) {
     })
     it('Should return 1 if the current block is inside of the second pushed stage', async () => {
       const bounds = [T / 5, 2 * T / 5]
-      await stagesFromBounds.stagesFromBounds(Stack, bounds)
+      await stagesFromBounds.stagesFromBounds(PeriodicStagesInstance, bounds)
       const indexInsideStage = await PeriodInstance.getRelativeIndex()
       const neededIndexInStage = T / 5 + 1
       const blocksToAdvance = T - indexInsideStage + neededIndexInStage
