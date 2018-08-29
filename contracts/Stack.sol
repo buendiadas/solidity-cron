@@ -99,9 +99,4 @@ contract Stack is Ownable {
             return (position >= strg[slotIndex-1] && position <= strg[slotIndex]);
         }
     }
-
-    function getOwner() public view returns (address){
-        return owner;
-    }
-
 }
