@@ -24,6 +24,9 @@ contract('Reputation', function (accounts) {
   let voterAccounts = web3.eth.accounts.slice(1, 4)
   let candidateAccounts = web3.eth.accounts.slice(5, 8)
 
+  const WINDOW_SIZE = config.reputationWindowSize
+  const linWeightsSmaller = config.reputationWeights
+
   let FrontierTokenInstance
   let CandidateRegistryInstance
   let VoterRegistryInstance
@@ -31,24 +34,25 @@ contract('Reputation', function (accounts) {
 
   before('Deploying required contracts', async () => {
     FrontierTokenInstance = await Standard20TokenMock.new(voterAccounts, config.totalTokens, {from: adminAccount})
-    // FrontierTokenInstance = await Standard20TokenMock.new(voterAccounts, 40000000, {from: adminAccount})
     CandidateRegistryInstance = await OwnedRegistryContract.new(candidateAccounts, {from: adminAccount})
     VoterRegistryInstance = await OwnedRegistryContract.new(voterAccounts, {from: adminAccount})
+  })
 
+  beforeEach(async () => {
     ProxyInstance = await ProxyContract.new()
     TRLInstance = await TRLContract.new({from: adminAccount})
     ProxyTRLInstance = await TRLContract.at(ProxyInstance.address)
     await ProxyInstance.setContractLogic(TRLInstance.address)
-  })
 
-  beforeEach(async () => {
-    TRLInstance = await TRLContract.new({from: adminAccount})
-    await TRLInstance.setToken(FrontierTokenInstance.address)
-    await TRLInstance.setCandidateRegistry(CandidateRegistryInstance.address)
-    await TRLInstance.setVoterRegistry(VoterRegistryInstance.address)
-    await TRLInstance.initPeriod(config.ttl)
-    await TRLInstance.initStages(config.activeTime, config.claimTime)
-    let periodicStagesAddress = await TRLInstance.periodicStages.call()
+    // TRLInstance = await TRLContract.new({from: adminAccount})
+
+    await ProxyTRLInstance.setToken(FrontierTokenInstance.address)
+    await ProxyTRLInstance.setCandidateRegistry(CandidateRegistryInstance.address)
+    await ProxyTRLInstance.setVoterRegistry(VoterRegistryInstance.address)
+    await ProxyTRLInstance.initPeriod(config.ttl)
+    await ProxyTRLInstance.initStages(config.activeTime, config.claimTime)
+
+    let periodicStagesAddress = await ProxyTRLInstance.periodicStages.call()
     PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
     let periodAddress = await PeriodicStagesInstance.period.call()
     PeriodInstance = await PeriodContract.at(periodAddress)
@@ -82,58 +86,63 @@ contract('Reputation', function (accounts) {
   const expectedAnalyst2FirstPeriodScoreRat = 318.2424
   const expectedAnalyst2FirstPeriodScoreExp = 418.9633
 
+  const votesRecord = [60, 59, 61, 41, 56]
+  const stakedTokens = 999
+
+  let epoch
+  let TRLScoring
+
   describe('Weighted Scoring Pure Function Test With ProxyTRLInstance', async () => {
     it('Should yeld the same values as the Python algorithm', async () => {
       const score = await TRLInstance.scoring(0, adminAccount)
 
-      let actualAnalyst1LastPeriodScoreLin = await ProxyTRLInstance.weightedScore(linWeights, analyst1Scores)
+      let actualAnalyst1LastPeriodScoreLin = await ProxyTRLInstance.weightedScore(linWeights, analyst1Scores, WINDOW_SIZE)
       actualAnalyst1LastPeriodScoreLin = Number((actualAnalyst1LastPeriodScoreLin / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst1LastPeriodScoreLin, actualAnalyst1LastPeriodScoreLin)
 
-      let actualAnalyst1LastPeriodScoreRat = await ProxyTRLInstance.weightedScore(ratWeights, analyst1Scores)
+      let actualAnalyst1LastPeriodScoreRat = await ProxyTRLInstance.weightedScore(ratWeights, analyst1Scores, WINDOW_SIZE)
       actualAnalyst1LastPeriodScoreRat = Number((actualAnalyst1LastPeriodScoreRat / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst1LastPeriodScoreRat, actualAnalyst1LastPeriodScoreRat)
 
-      let actualAnalyst1LastPeriodScoreExp = await ProxyTRLInstance.weightedScore(expWeights, analyst1Scores)
+      let actualAnalyst1LastPeriodScoreExp = await ProxyTRLInstance.weightedScore(expWeights, analyst1Scores, WINDOW_SIZE)
       actualAnalyst1LastPeriodScoreExp = Number((actualAnalyst1LastPeriodScoreExp / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst1LastPeriodScoreExp, actualAnalyst1LastPeriodScoreExp)
 
-      let actualAnalyst2LastPeriodScoreLin = await ProxyTRLInstance.weightedScore(linWeights, analyst2Scores)
+      let actualAnalyst2LastPeriodScoreLin = await ProxyTRLInstance.weightedScore(linWeights, analyst2Scores, WINDOW_SIZE)
       actualAnalyst2LastPeriodScoreLin = Number((actualAnalyst2LastPeriodScoreLin / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2LastPeriodScoreLin, actualAnalyst2LastPeriodScoreLin)
 
-      let actualAnalyst2LastPeriodScoreRat = await ProxyTRLInstance.weightedScore(ratWeights, analyst2Scores)
+      let actualAnalyst2LastPeriodScoreRat = await ProxyTRLInstance.weightedScore(ratWeights, analyst2Scores, WINDOW_SIZE)
       actualAnalyst2LastPeriodScoreRat = Number((actualAnalyst2LastPeriodScoreRat / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2LastPeriodScoreRat, actualAnalyst2LastPeriodScoreRat)
 
-      let actualAnalyst2LastPeriodScoreExp = await ProxyTRLInstance.weightedScore(expWeights, analyst2Scores)
+      let actualAnalyst2LastPeriodScoreExp = await ProxyTRLInstance.weightedScore(expWeights, analyst2Scores, WINDOW_SIZE)
       actualAnalyst2LastPeriodScoreExp = Number((actualAnalyst2LastPeriodScoreExp / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2LastPeriodScoreExp, actualAnalyst2LastPeriodScoreExp)
-        // assert.equal(0, score)
     })
 
     it('Should yeld correct values when the window size is smaller than the sample', async () => {
-      let actualAnalyst1FirstPeriodScoreLin = await ProxyTRLInstance.weightedScore(linWeights, [analyst1Scores[0], analyst1Scores[1]])
+      let actualAnalyst1FirstPeriodScoreLin = await ProxyTRLInstance.weightedScore(linWeights, [analyst1Scores[0], analyst1Scores[1]], WINDOW_SIZE)
       actualAnalyst1FirstPeriodScoreLin = Number((actualAnalyst1FirstPeriodScoreLin / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst1FirstPeriodScoreLin, actualAnalyst1FirstPeriodScoreLin)
 
-      let actualAnalyst1FirstPeriodScoreRat = await ProxyTRLInstance.weightedScore(ratWeights, [analyst1Scores[0], analyst1Scores[1]])
+      let actualAnalyst1FirstPeriodScoreRat = await ProxyTRLInstance.weightedScore(ratWeights, [analyst1Scores[0], analyst1Scores[1]], WINDOW_SIZE)
       actualAnalyst1FirstPeriodScoreRat = Number((actualAnalyst1FirstPeriodScoreRat / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst1FirstPeriodScoreRat, actualAnalyst1FirstPeriodScoreRat)
 
-      let actualAnalyst1FirstPeriodScoreExp = await ProxyTRLInstance.weightedScore(expWeights, [analyst1Scores[0], analyst1Scores[1]])
+      let actualAnalyst1FirstPeriodScoreExp = await ProxyTRLInstance.weightedScore(expWeights, [analyst1Scores[0], analyst1Scores[1]], WINDOW_SIZE)
       actualAnalyst1FirstPeriodScoreExp = Number((actualAnalyst1FirstPeriodScoreExp / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst1FirstPeriodScoreExp, actualAnalyst1FirstPeriodScoreExp)
 
-      let actualAnalyst2FirstPeriodScoreLin = await ProxyTRLInstance.weightedScore(linWeights, [analyst2Scores[0], analyst2Scores[1]])
+      let actualAnalyst2FirstPeriodScoreLin = await ProxyTRLInstance.weightedScore(linWeights, [analyst2Scores[0], analyst2Scores[1]], WINDOW_SIZE)
       actualAnalyst2FirstPeriodScoreLin = Number((actualAnalyst2FirstPeriodScoreLin / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2FirstPeriodScoreLin, actualAnalyst2FirstPeriodScoreLin)
 
-      let actualAnalyst2FirstPeriodScoreRat = await ProxyTRLInstance.weightedScore(ratWeights, [analyst2Scores[0], analyst2Scores[1]])
+      let actualAnalyst2FirstPeriodScoreRat = await ProxyTRLInstance.weightedScore(ratWeights, [analyst2Scores[0], analyst2Scores[1]], WINDOW_SIZE)
       actualAnalyst2FirstPeriodScoreRat = Number((actualAnalyst2FirstPeriodScoreRat / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2FirstPeriodScoreRat, actualAnalyst2FirstPeriodScoreRat)
 
-      let actualAnalyst2FirstPeriodScoreExp = await ProxyTRLInstance.weightedScore(expWeights, [analyst2Scores[0], analyst2Scores[1]])
+      let actualAnalyst2FirstPeriodScoreExp = await ProxyTRLInstance.weightedScore(expWeights, [analyst2Scores[0], analyst2Scores[1]], WINDOW_SIZE)
       actualAnalyst2FirstPeriodScoreExp = Number((actualAnalyst2FirstPeriodScoreExp / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2FirstPeriodScoreExp, actualAnalyst2FirstPeriodScoreExp)
     })
@@ -143,128 +152,120 @@ contract('Reputation', function (accounts) {
     it('Should yeld the same values as the Python algorithm', async () => {
       const score = await TRLInstance.scoring(0, adminAccount)
 
-      let actualAnalyst1LastPeriodScoreLin = await TRLInstance.weightedScore(linWeights, analyst1Scores)
+      let actualAnalyst1LastPeriodScoreLin = await TRLInstance.weightedScore(linWeights, analyst1Scores, WINDOW_SIZE)
       actualAnalyst1LastPeriodScoreLin = Number((actualAnalyst1LastPeriodScoreLin / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst1LastPeriodScoreLin, actualAnalyst1LastPeriodScoreLin)
 
-      let actualAnalyst1LastPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, analyst1Scores)
+      let actualAnalyst1LastPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, analyst1Scores, WINDOW_SIZE)
       actualAnalyst1LastPeriodScoreRat = Number((actualAnalyst1LastPeriodScoreRat / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst1LastPeriodScoreRat, actualAnalyst1LastPeriodScoreRat)
 
-      let actualAnalyst1LastPeriodScoreExp = await TRLInstance.weightedScore(expWeights, analyst1Scores)
+      let actualAnalyst1LastPeriodScoreExp = await TRLInstance.weightedScore(expWeights, analyst1Scores, WINDOW_SIZE)
       actualAnalyst1LastPeriodScoreExp = Number((actualAnalyst1LastPeriodScoreExp / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst1LastPeriodScoreExp, actualAnalyst1LastPeriodScoreExp)
 
-      let actualAnalyst2LastPeriodScoreLin = await TRLInstance.weightedScore(linWeights, analyst2Scores)
+      let actualAnalyst2LastPeriodScoreLin = await TRLInstance.weightedScore(linWeights, analyst2Scores, WINDOW_SIZE)
       actualAnalyst2LastPeriodScoreLin = Number((actualAnalyst2LastPeriodScoreLin / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2LastPeriodScoreLin, actualAnalyst2LastPeriodScoreLin)
 
-      let actualAnalyst2LastPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, analyst2Scores)
+      let actualAnalyst2LastPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, analyst2Scores, WINDOW_SIZE)
       actualAnalyst2LastPeriodScoreRat = Number((actualAnalyst2LastPeriodScoreRat / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2LastPeriodScoreRat, actualAnalyst2LastPeriodScoreRat)
 
-      let actualAnalyst2LastPeriodScoreExp = await TRLInstance.weightedScore(expWeights, analyst2Scores)
+      let actualAnalyst2LastPeriodScoreExp = await TRLInstance.weightedScore(expWeights, analyst2Scores, WINDOW_SIZE)
       actualAnalyst2LastPeriodScoreExp = Number((actualAnalyst2LastPeriodScoreExp / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2LastPeriodScoreExp, actualAnalyst2LastPeriodScoreExp)
         // assert.equal(0, score)
     })
 
     it('Should yeld correct values when the window size is smaller than the sample', async () => {
-      let actualAnalyst1FirstPeriodScoreLin = await TRLInstance.weightedScore(linWeights, [analyst1Scores[0], analyst1Scores[1]])
+      let actualAnalyst1FirstPeriodScoreLin = await TRLInstance.weightedScore(linWeights, [analyst1Scores[0], analyst1Scores[1]], WINDOW_SIZE)
       actualAnalyst1FirstPeriodScoreLin = Number((actualAnalyst1FirstPeriodScoreLin / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst1FirstPeriodScoreLin, actualAnalyst1FirstPeriodScoreLin)
 
-      let actualAnalyst1FirstPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, [analyst1Scores[0], analyst1Scores[1]])
+      let actualAnalyst1FirstPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, [analyst1Scores[0], analyst1Scores[1]], WINDOW_SIZE)
       actualAnalyst1FirstPeriodScoreRat = Number((actualAnalyst1FirstPeriodScoreRat / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst1FirstPeriodScoreRat, actualAnalyst1FirstPeriodScoreRat)
 
-      let actualAnalyst1FirstPeriodScoreExp = await TRLInstance.weightedScore(expWeights, [analyst1Scores[0], analyst1Scores[1]])
+      let actualAnalyst1FirstPeriodScoreExp = await TRLInstance.weightedScore(expWeights, [analyst1Scores[0], analyst1Scores[1]], WINDOW_SIZE)
       actualAnalyst1FirstPeriodScoreExp = Number((actualAnalyst1FirstPeriodScoreExp / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst1FirstPeriodScoreExp, actualAnalyst1FirstPeriodScoreExp)
 
-      let actualAnalyst2FirstPeriodScoreLin = await TRLInstance.weightedScore(linWeights, [analyst2Scores[0], analyst2Scores[1]])
+      let actualAnalyst2FirstPeriodScoreLin = await TRLInstance.weightedScore(linWeights, [analyst2Scores[0], analyst2Scores[1]], WINDOW_SIZE)
       actualAnalyst2FirstPeriodScoreLin = Number((actualAnalyst2FirstPeriodScoreLin / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2FirstPeriodScoreLin, actualAnalyst2FirstPeriodScoreLin)
 
-      let actualAnalyst2FirstPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, [analyst2Scores[0], analyst2Scores[1]])
+      let actualAnalyst2FirstPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, [analyst2Scores[0], analyst2Scores[1]], WINDOW_SIZE)
       actualAnalyst2FirstPeriodScoreRat = Number((actualAnalyst2FirstPeriodScoreRat / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2FirstPeriodScoreRat, actualAnalyst2FirstPeriodScoreRat)
 
-      let actualAnalyst2FirstPeriodScoreExp = await TRLInstance.weightedScore(expWeights, [analyst2Scores[0], analyst2Scores[1]])
+      let actualAnalyst2FirstPeriodScoreExp = await TRLInstance.weightedScore(expWeights, [analyst2Scores[0], analyst2Scores[1]], WINDOW_SIZE)
       actualAnalyst2FirstPeriodScoreExp = Number((actualAnalyst2FirstPeriodScoreExp / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2FirstPeriodScoreExp, actualAnalyst2FirstPeriodScoreExp)
     })
   })
   describe('Reputation Function should work', async () => {
     it('Should work', async () => {
-      let epoch
-      const stakedTokens = 999
-      let TRLScoring
-      await FrontierTokenInstance.approve(TRLInstance.address, stakedTokens, {from: voterAccounts[0]})
+      await FrontierTokenInstance.approve(ProxyTRLInstance.address, stakedTokens, {from: voterAccounts[0]})
+      const rep1ExpectedResult = 52800000000
+      await ProxyTRLInstance.setWindowSize(WINDOW_SIZE)
+      await ProxyTRLInstance.setReputationLinWeights(linWeightsSmaller)
 
-      const votesRecord = [60, 59, 61, 41, 56]
-      const expectedResult = 52800000000
-
-      let linWeights = [400000000, 300000000, 200000000, 100000000, 0]
-
-      await TRLInstance.setReputationLinWeights(linWeights)
-
-      // Buying votes and voting for the user
       for (let i = 0; i < 5; i++) {
-        await TRLInstance.buyTokenVotes(votesRecord[i], {from: voterAccounts[0]})
-        await TRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
-        epoch = await TRLInstance.currentPeriod.call()
-        TRLScoring = await TRLInstance.scoring.call(epoch, candidateAccounts[0])
+        await ProxyTRLInstance.buyTokenVotes(votesRecord[i], {from: voterAccounts[0]})
+        await ProxyTRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
+        epoch = await ProxyTRLInstance.currentPeriod.call()
+        TRLScoring = await ProxyTRLInstance.scoring.call(epoch, candidateAccounts[0])
         await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
       }
 
-      let res = await TRLInstance.reputation(epoch, candidateAccounts[0])
-      assert.equal(expectedResult, res)
+      let res = await ProxyTRLInstance.reputation(epoch, candidateAccounts[0])
+      assert.equal(rep1ExpectedResult, res)
     })
     it('Should revert when weights are not set', async() => {
-      let epoch
-      const stakedTokens = 999
-      let TRLScoring
-      await FrontierTokenInstance.approve(TRLInstance.address, stakedTokens, {from: voterAccounts[0]})
+      await FrontierTokenInstance.approve(ProxyTRLInstance.address, stakedTokens, {from: voterAccounts[0]})
 
-      const votesRecord = [60, 59, 61, 41, 56]
-      const expectedResult = 52800000000
+      await ProxyTRLInstance.setWindowSize(WINDOW_SIZE)
 
       // Buying votes and voting for the user
       for (let i = 0; i < 5; i++) {
-        await TRLInstance.buyTokenVotes(votesRecord[i], {from: voterAccounts[0]})
-        await TRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
-        epoch = await TRLInstance.currentPeriod.call()
-        TRLScoring = await TRLInstance.scoring.call(epoch, candidateAccounts[0])
+        await ProxyTRLInstance.buyTokenVotes(votesRecord[i], {from: voterAccounts[0]})
+        await ProxyTRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
+        epoch = await ProxyTRLInstance.currentPeriod.call()
+        TRLScoring = await ProxyTRLInstance.scoring.call(epoch, candidateAccounts[0])
         await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
       }
-      await assertRevert(TRLInstance.reputation(epoch, candidateAccounts[0]))
+      await assertRevert(ProxyTRLInstance.reputation(epoch, candidateAccounts[0]))
     })
 
     it('Should revert when non-owner tries to set reputation weights', async() => {
-      let epoch
-      const stakedTokens = 999
-      let TRLScoring
-      await FrontierTokenInstance.approve(TRLInstance.address, stakedTokens, {from: voterAccounts[0]})
+      await FrontierTokenInstance.approve(ProxyTRLInstance.address, stakedTokens, {from: voterAccounts[0]})
 
-      const votesRecord = [60, 59, 61, 41, 56]
-      const expectedResult = 52800000000
-      let linWeights = [400000000, 300000000, 200000000, 100000000, 0]
-      await assertRevert(TRLInstance.setReputationLinWeights(linWeights, {from: voterAccounts[1]}))
+      await ProxyTRLInstance.setWindowSize(WINDOW_SIZE)
+      await assertRevert(ProxyTRLInstance.setReputationLinWeights(linWeightsSmaller, {from: voterAccounts[1]}))
     })
 
     it('Should revert when reputation weights size is different than window size', async() => {
-      let epoch
-      const stakedTokens = 999
-      let TRLScoring
-      await FrontierTokenInstance.approve(TRLInstance.address, stakedTokens, {from: voterAccounts[0]})
+      await FrontierTokenInstance.approve(ProxyTRLInstance.address, stakedTokens, {from: voterAccounts[0]})
 
-      const votesRecord = [60, 59, 61, 41, 56]
-      const expectedResult = 52800000000
+      let shortLinWeights = [400000000, 300000000, 200000000, 100000000]
+      await ProxyTRLInstance.setWindowSize(shortLinWeights.length + 1)
 
-      // set the wrong number of weights, 4 instead of 5
-      let linWeights = [400000000, 300000000, 200000000, 100000000]
-      await assertRevert(TRLInstance.setReputationLinWeights(linWeights))
+      await assertRevert(ProxyTRLInstance.setReputationLinWeights(shortLinWeights))
+    })
+    it('Should set the correct window size', async () => {
+      await FrontierTokenInstance.approve(ProxyTRLInstance.address, stakedTokens, {from: voterAccounts[0]})
+
+      await ProxyTRLInstance.setWindowSize(WINDOW_SIZE)
+      let windowSize = await ProxyTRLInstance.reputationWindowSize.call()
+
+      assert.equal(WINDOW_SIZE, windowSize)
+    })
+    it('Should revert when value is 0 or greater than 100', async () => {
+      await FrontierTokenInstance.approve(ProxyTRLInstance.address, stakedTokens, {from: voterAccounts[0]})
+
+      await assertRevert(ProxyTRLInstance.setWindowSize(0))
+      await assertRevert(ProxyTRLInstance.setWindowSize(101))
     })
   })
 })

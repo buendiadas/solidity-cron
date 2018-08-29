@@ -23,6 +23,9 @@ let adminAccount = web3.eth.accounts[0]
 let voterAccounts = web3.eth.accounts.slice(1, 4)
 let candidateAccounts = web3.eth.accounts.slice(5, 8)
 
+const WINDOW_SIZE = config.reputationWindowSize
+const linWeightsSmaller = config.reputationWeights
+
 contract('TRL<Migrations>', function (accounts) {
   before('Deploying required contracts', async () => {
     // set up
@@ -56,7 +59,7 @@ contract('TRL<Migrations>', function (accounts) {
     staking: true,
     voting: true,
     claiming: true,
-    scoring: true
+    scoring: false // disabled because it conflicts with config.ttl
   }
 
   if (runTests.creatingTheContract) {
@@ -211,9 +214,8 @@ contract('TRL<Migrations>', function (accounts) {
     })
   }
 
-/*
   if (runTests.scoring) {
-    describe('Weighted Scoring', async () => {
+    describe('Reputation', async () => {
       const absLinWeights = [0.39999999999999997, 0.3, 0.19999999999999998, 0.10000000000000002, 0.0]
       const absRatWeights = [0.4461021786749173, 0.21733183063649814, 0.14366002364107508, 0.10729039740282821, 0.0856155696446811]
       const absExpWeights = [0.6399171800385933, 0.23304644109045747, 0.08487136366873695, 0.03090863922781419, 0.011256375974398092]
@@ -242,60 +244,52 @@ contract('TRL<Migrations>', function (accounts) {
       const expectedAnalyst2FirstPeriodScoreRat = 318.2424
       const expectedAnalyst2FirstPeriodScoreExp = 418.9633
 
+      const votesRecord = [60, 59, 61, 41, 56]
+      const stakedTokens = 999
+
+      let epoch
+      let TRLScoring
+
       it('The WeightedScore pure function should yeld the same values as the Python algorithm', async () => {
         const score = await TRLInstance.scoring(0, adminAccount)
 
-        let actualAnalyst1LastPeriodScoreLin = await TRLInstance.weightedScore(linWeights, analyst1Scores)
+        let actualAnalyst1LastPeriodScoreLin = await TRLInstance.weightedScore(linWeights, analyst1Scores, WINDOW_SIZE)
         actualAnalyst1LastPeriodScoreLin = Number((actualAnalyst1LastPeriodScoreLin / MUL_CONSTANT).toFixed(4))
         assert.equal(expectedAnalyst1LastPeriodScoreLin, actualAnalyst1LastPeriodScoreLin)
 
-        let actualAnalyst1LastPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, analyst1Scores)
-        actualAnalyst1LastPeriodScoreRat = Number((actualAnalyst1LastPeriodScoreRat / MUL_CONSTANT).toFixed(4))
-        assert.equal(expectedAnalyst1LastPeriodScoreRat, actualAnalyst1LastPeriodScoreRat)
-
-        let actualAnalyst1LastPeriodScoreExp = await TRLInstance.weightedScore(expWeights, analyst1Scores)
-        actualAnalyst1LastPeriodScoreExp = Number((actualAnalyst1LastPeriodScoreExp / MUL_CONSTANT).toFixed(4))
-        assert.equal(expectedAnalyst1LastPeriodScoreExp, actualAnalyst1LastPeriodScoreExp)
-
-        let actualAnalyst2LastPeriodScoreLin = await TRLInstance.weightedScore(linWeights, analyst2Scores)
-        actualAnalyst2LastPeriodScoreLin = Number((actualAnalyst2LastPeriodScoreLin / MUL_CONSTANT).toFixed(4))
-        assert.equal(expectedAnalyst2LastPeriodScoreLin, actualAnalyst2LastPeriodScoreLin)
-
-        let actualAnalyst2LastPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, analyst2Scores)
-        actualAnalyst2LastPeriodScoreRat = Number((actualAnalyst2LastPeriodScoreRat / MUL_CONSTANT).toFixed(4))
-        assert.equal(expectedAnalyst2LastPeriodScoreRat, actualAnalyst2LastPeriodScoreRat)
-
-        let actualAnalyst2LastPeriodScoreExp = await TRLInstance.weightedScore(expWeights, analyst2Scores)
-        actualAnalyst2LastPeriodScoreExp = Number((actualAnalyst2LastPeriodScoreExp / MUL_CONSTANT).toFixed(4))
-        assert.equal(expectedAnalyst2LastPeriodScoreExp, actualAnalyst2LastPeriodScoreExp)
         // assert.equal(0, score)
       })
 
       it('The WeightedScore pure function should yeld correct values when the window size is smaller', async () => {
-        let actualAnalyst1FirstPeriodScoreLin = await TRLInstance.weightedScore(linWeights, [analyst1Scores[0], analyst1Scores[1]])
+        let actualAnalyst1FirstPeriodScoreLin = await TRLInstance.weightedScore(linWeights, [analyst1Scores[0], analyst1Scores[1]], WINDOW_SIZE)
         actualAnalyst1FirstPeriodScoreLin = Number((actualAnalyst1FirstPeriodScoreLin / MUL_CONSTANT).toFixed(4))
         assert.equal(expectedAnalyst1FirstPeriodScoreLin, actualAnalyst1FirstPeriodScoreLin)
+      })
 
-        let actualAnalyst1FirstPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, [analyst1Scores[0], analyst1Scores[1]])
-        actualAnalyst1FirstPeriodScoreRat = Number((actualAnalyst1FirstPeriodScoreRat / MUL_CONSTANT).toFixed(4))
-        assert.equal(expectedAnalyst1FirstPeriodScoreRat, actualAnalyst1FirstPeriodScoreRat)
+      it('The reputation function should calculate the correct reputation value for a user', async () => {
+        const rep1ExpectedResult = 52800000000
+        const listAddress = await TRLInstance.address
+        await FrontierTokenInstance.approve(listAddress, 400, {from: voterAccounts[0]})
 
-        let actualAnalyst1FirstPeriodScoreExp = await TRLInstance.weightedScore(expWeights, [analyst1Scores[0], analyst1Scores[1]])
-        actualAnalyst1FirstPeriodScoreExp = Number((actualAnalyst1FirstPeriodScoreExp / MUL_CONSTANT).toFixed(4))
-        assert.equal(expectedAnalyst1FirstPeriodScoreExp, actualAnalyst1FirstPeriodScoreExp)
+        // clear stage
+        let currentPeriod
+        for (let i = 0; i < 5; i++) {
+          // advance until stage 0
 
-        let actualAnalyst2FirstPeriodScoreLin = await TRLInstance.weightedScore(linWeights, [analyst2Scores[0], analyst2Scores[1]])
-        actualAnalyst2FirstPeriodScoreLin = Number((actualAnalyst2FirstPeriodScoreLin / MUL_CONSTANT).toFixed(4))
-        assert.equal(expectedAnalyst2FirstPeriodScoreLin, actualAnalyst2FirstPeriodScoreLin)
+          const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
+          console.log('-> Staked' + totalPreStaked)
 
-        let actualAnalyst2FirstPeriodScoreRat = await TRLInstance.weightedScore(ratWeights, [analyst2Scores[0], analyst2Scores[1]])
-        actualAnalyst2FirstPeriodScoreRat = Number((actualAnalyst2FirstPeriodScoreRat / MUL_CONSTANT).toFixed(4))
-        assert.equal(expectedAnalyst2FirstPeriodScoreRat, actualAnalyst2FirstPeriodScoreRat)
+          currentPeriod = await TRLInstance.currentPeriod.call()
+          console.log('--> Stage:' + await TRLInstance.currentStage.call())
+          await TRLInstance.buyTokenVotes(70, {from: voterAccounts[0]})
+          console.log('--> Stage:' + await TRLInstance.currentStage.call())
+          await TRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
+          await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
+        }
 
-        let actualAnalyst2FirstPeriodScoreExp = await TRLInstance.weightedScore(expWeights, [analyst2Scores[0], analyst2Scores[1]])
-        actualAnalyst2FirstPeriodScoreExp = Number((actualAnalyst2FirstPeriodScoreExp / MUL_CONSTANT).toFixed(4))
-        assert.equal(expectedAnalyst2FirstPeriodScoreExp, actualAnalyst2FirstPeriodScoreExp)
+        let res = await TRLInstance.reputation.call(currentPeriod, candidateAccounts[0])
+        assert.equal(parseInt(rep1ExpectedResult), parseInt(res))
       })
     })
-  } */
+  }
 })
