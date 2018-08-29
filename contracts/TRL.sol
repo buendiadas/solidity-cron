@@ -17,11 +17,6 @@ import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 contract TRL is TRLStorage, Ownable, TRLInterface {
     using SafeMath for uint256;
 
-    uint256 reputationWindowSize = 5;    
-    bool reputationWeightsSet = false;
-    uint256[] repWeights = new uint256[](reputationWindowSize);
-    
-
     /**
     * @dev Initializes a new period, by creating a new instance of Periodic Stages contract (https://github.com/Frontier-project/cron) 
     * If not set, the TRL will not be periodic. When set, different states will be stored indexed by periods.
@@ -150,6 +145,22 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     }
 
     /**
+    * @dev Sets the reputation calculation Window Size
+    * @param _windowSize Size of the window
+    **/
+
+    function setWindowSize(uint256 _windowSize) public returns (uint256){
+        require(msg.sender == owner);
+        require(_windowSize != 0);
+        require(_windowSize < 100);
+
+        reputationWindowSize = _windowSize;
+        reputationWindowSizeSet = true;
+        return reputationWindowSize;
+
+    }
+
+    /**
     * @dev Sets the Linear Weights used to Calculate the reputation
     * @param _weights uint256[]
     **/
@@ -158,7 +169,10 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         require(msg.sender == owner);
         require(_weights.length == reputationWindowSize);
 
-        repWeights = _weights;
+        for(uint128 i = 0; i<reputationWindowSize;i++){
+            repWeights.push(_weights[i]);
+        }
+
         reputationWeightsSet=true;
         return repWeights;
     }
@@ -171,6 +185,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
 
     function reputation(uint256 _epoch, address _account) public view returns (uint256) {
         require(reputationWeightsSet);
+        require(reputationWindowSizeSet);
 
         uint256 epochCounter;
         uint256[] memory votes = new uint256[](reputationWindowSize);
@@ -185,7 +200,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
              votes[i]=  votesReceived[i][_account];
         }
 
-        return weightedScore(repWeights,votes);
+        return weightedScore(repWeights,votes, reputationWindowSize);
     }
 
     
@@ -195,11 +210,9 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     * @param _pastScores Array of past scores for the current user
     **/
 
-    function weightedScore(uint256[] _weights, uint256[] _pastScores) public pure returns(uint256){
-        
-        uint256 windowSize = 5;
-   
-        require(_weights.length == windowSize);
+    function weightedScore(uint256[] _weights, uint256[] _pastScores, uint256 _windowSize) public pure returns(uint256){
+ 
+        require(_weights.length == _windowSize);
 
         uint256 score = 0;
         uint256 currWeight = 0;

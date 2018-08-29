@@ -7,12 +7,14 @@ const options = {from: config.ownerAccount}
 const TRLContract = artifacts.require('TRL')
 const OwnedRegistryFactoryContract = artifacts.require('@frontier-token-research/role-registries/contracts/OwnedRegistryFactory')
 
-
 module.exports = (deployer) => {
   deployer.then(async () => {
     let ProxyInstance = await ProxyContract.deployed()
     let TRLInstance = await deployer.deploy(TRLContract)
     await ProxyInstance.setContractLogic(TRLInstance.address)
+
+    const WINDOW_SIZE = config.reputationWindowSize
+    const linWeightsSmaller = config.reputationWeights
 
     if (config.proxyMigration) {
       const RegistryFactory = await OwnedRegistryFactoryContract.deployed()
@@ -25,6 +27,8 @@ module.exports = (deployer) => {
       await ProxyTRL.setVoterRegistry(voterRegistryAddress)
       await ProxyTRL.initPeriod(config.ttl)
       await ProxyTRL.initStages(config.activeTime, config.claimTime)
-    } 
+      await ProxyTRL.setWindowSize(WINDOW_SIZE)
+      await ProxyTRL.setReputationLinWeights(linWeightsSmaller)
+    }
   })
 }
