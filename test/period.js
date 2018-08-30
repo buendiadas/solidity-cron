@@ -28,21 +28,38 @@ contract('Period', function (accounts) {
       assert.strictEqual(calculatedPeriod.toNumber(), periodsToadvance)
     })
   })
-  describe('Calculating offset', async () => {
-    it('Should have set the initial offset to the current block number', async () => {
+  describe('Calculating First Epoch"s Block', async () => {
+    it('Should have set the first epoch block to the current block number', async () => {
       const currentBlock = await web3.eth.blockNumber
-      const storedInitialBlockOffset = await PeriodInstance.blockOffset.call()
+      const storedInitialBlockOffset = await PeriodInstance.getFirstEpochBlock.call()
       assert.strictEqual(storedInitialBlockOffset.toNumber(), currentBlock)
     })
-    it('Should increase offset by N times the period amount after moving N Periods forward', async () => {
+    it('Should increase the first epoch block by N times the period amount after moving N epochs forward', async () => {
       const currentBlock = await web3.eth.blockNumber
-      const currentOffset = await PeriodInstance.getOffset()
+      const firstEpochBlock = await PeriodInstance.getFirstEpochBlock()
       const periodsToadvance = 4
       const blocksToAdvance = T * periodsToadvance
-      const expectedOffset = currentOffset.toNumber() + blocksToAdvance
+      const expectedFirstBlock = firstEpochBlock.toNumber() + blocksToAdvance
       await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAdvance)
-      const finalOffset = await PeriodInstance.getOffset()
-      assert.strictEqual(expectedOffset, finalOffset.toNumber())
+      const finalFirstBlock= await PeriodInstance.getFirstEpochBlock()
+      assert.strictEqual(expectedFirstBlock, finalFirstBlock.toNumber())
+    })
+  })
+  describe('Calculating Last Epoch"s Block', async () => {
+    it('Should have set the first epoch block to the current block number + T', async () => {
+      const currentBlock = await web3.eth.blockNumber
+      const calculatedLastEpoch = await PeriodInstance.getLastEpochBlock.call()
+      assert.strictEqual(currentBlock + T - 1, calculatedLastEpoch.toNumber())
+    })
+    it('Should increase the first epoch block by N times the period amount after moving N epochs forward', async () => {
+      const currentBlock = await web3.eth.blockNumber
+      const lastEpochBlock = await PeriodInstance.getLastEpochBlock()
+      const periodsToadvance = 4
+      const blocksToAdvance = T * periodsToadvance
+      const expectedLastBlock = lastEpochBlock.toNumber() + blocksToAdvance
+      await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAdvance)
+      const finalLastBlock = await PeriodInstance.getLastEpochBlock()
+      assert.strictEqual(expectedLastBlock, finalLastBlock.toNumber())
     })
   })
   describe('Modifying the Period Length', async () => {
@@ -61,24 +78,25 @@ contract('Period', function (accounts) {
       const computedHeight = await PeriodInstance.height.call()
       assert.strictEqual(expectedHeight, computedHeight.toNumber())
     })
-    it('Should keep the same height before the end of the new calculated Period', async () => {
-      const currentHeight = await PeriodInstance.height.call()
+    it('Should keep the same age height before the end of the epoch', async () => {
+      const currentAgeHeight = await PeriodInstance.ageHeight.call()
       const currentRelativeIndex = await PeriodInstance.getRelativeIndex.call()
-      const expectedHeight = currentHeight.toNumber()
+      const expectedHeight = currentAgeHeight.toNumber()
       const blocksToAdvance = T
       await PeriodInstance.setPeriodLength(T - 1)
       await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAdvance)
-      const computedHeight = await PeriodInstance.height.call()
+      const computedHeight = await PeriodInstance.ageHeight.call()
       assert.strictEqual(expectedHeight, computedHeight.toNumber())
     })
-    it('Should start working with the new period after the current period has ended', async () => {
+    it('Should start working with the new period length after the current epoch has ended', async () => {
       const currentHeight = await PeriodInstance.height.call()
-      const currentRelativeIndex = await PeriodInstance.getRelativeIndex.call()
-      await PeriodInstance.setPeriodLength(2)
-      const blocksToAdvance = T + 3
-      await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAdvance)
-      const computedHeight = await PeriodInstance.height.call()
-      const expectedHeight = currentHeight.toNumber() + 2
+      const currentRelativeIndex = await PeriodInstance.getRelativeIndex.call() 
+      await PeriodInstance.setPeriodLength(2) 
+      const blocksToAdvance = T 
+      await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAdvance);
+      const computedHeight = await PeriodInstance.height.call() 
+      const afterRelativeIndex = await PeriodInstance.getRelativeIndex.call()
+      const expectedHeight = currentHeight.toNumber() + 2 
       assert.strictEqual(expectedHeight, computedHeight.toNumber())
     })
   })
@@ -100,6 +118,14 @@ contract('Period', function (accounts) {
       await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAddToEVM)
       const finalRelativeIndex = await PeriodInstance.getRelativeIndex()
       assert.strictEqual(finalRelativeIndex.toNumber(), initialRelativeIndex + 1)
+    })
+  })
+  describe('Hard Changing period Length', async () => {
+    it('Should increase the age number', async () => {
+      const initialAge = await PeriodInstance.age.call();
+      await PeriodInstance.hardAgeTransition(T + 1)
+      const finalAge = await PeriodInstance.age.call();
+      assert.strictEqual(initialAge.toNumber() + 1, finalAge.toNumber())
     })
   })
 })
