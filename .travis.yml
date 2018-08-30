@@ -29,7 +29,7 @@ jobs:
         - npm run migrate-integration
         - npm run test-integration
         - truffle migrate --reset
-        - travis_wait npm run coverage
+        - npm run coverage
       after_script:
         - travis_wait codecov
   
