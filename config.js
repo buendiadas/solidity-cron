@@ -20,5 +20,7 @@ module.exports = {
     '0x9bcf28e6c1e19f11dca9f2a45fbdc4327a94e522',
     '0xbaa5d582b0acdc1d56bc3d3ca83c4f6f89bde54c',
     '0x87f25bfea6d93e30fa0a3e0d86c386244f636a41'
-  ]
+  ],
+  reputationWindowSize: 5,
+  reputationWeights: [400000000, 300000000, 200000000, 100000000, 0]
 }

@@ -23,6 +23,9 @@ let adminAccount = web3.eth.accounts[0]
 let voterAccounts = web3.eth.accounts.slice(1, 4)
 let candidateAccounts = web3.eth.accounts.slice(5, 8)
 
+const WINDOW_SIZE = config.reputationWindowSize
+const linWeightsSmaller = config.reputationWeights
+
 contract('TRL<Migrations>', function (accounts) {
   before('Deploying required contracts', async () => {
     // set up
@@ -30,8 +33,8 @@ contract('TRL<Migrations>', function (accounts) {
     FrontierTokenInstance = await Standard20TokenMock.deployed()
     ProxyInstance = await Proxy.deployed()
     TRLInstance = await TRLContract.at(ProxyInstance.address)
-    let candidateRegistryAddress = await TRLInstance.candidateRegistry.call();
-    let voterRegistryAddress = await TRLInstance.voterRegistry.call();
+    let candidateRegistryAddress = await TRLInstance.candidateRegistry.call()
+    let voterRegistryAddress = await TRLInstance.voterRegistry.call()
     let CandidateRegistryInstance = await OwnedRegistryContract.at(candidateRegistryAddress)
     let VoterRegistryInstance = await OwnedRegistryContract.at(voterRegistryAddress)
 
@@ -55,7 +58,8 @@ contract('TRL<Migrations>', function (accounts) {
     movingPeriods: true,
     staking: true,
     voting: true,
-    claiming: true
+    claiming: true,
+    scoring: false // disabled because it conflicts with config.ttl
   }
 
   if (runTests.creatingTheContract) {
@@ -120,7 +124,7 @@ contract('TRL<Migrations>', function (accounts) {
         const T = config.ttl
         const indexInsideStage = await PeriodInstance.getRelativeIndex()
         const neededIndexInStage = config.activeTime + 1
-        const blocksToAdvance = T - indexInsideStage.toNumber() + neededIndexInStage 
+        const blocksToAdvance = T - indexInsideStage.toNumber() + neededIndexInStage
         let currBlockNumber = web3.eth.blockNumber
         await advanceToBlock.advanceToBlock(currBlockNumber + blocksToAdvance)
         const newIndexInsideStage = await PeriodInstance.getRelativeIndex()
@@ -206,6 +210,85 @@ contract('TRL<Migrations>', function (accounts) {
         await TRLInstance.setMinVotingLimit(requiredVotingLimitAmount, {from: adminAccount})
         const savedVotingLimitAmount = await TRLInstance.votingConstraints.call(0)
         assert.equal(requiredVotingLimitAmount, savedVotingLimitAmount.toNumber())
+      })
+    })
+  }
+
+  if (runTests.scoring) {
+    describe('Reputation', async () => {
+      const absLinWeights = [0.39999999999999997, 0.3, 0.19999999999999998, 0.10000000000000002, 0.0]
+      const absRatWeights = [0.4461021786749173, 0.21733183063649814, 0.14366002364107508, 0.10729039740282821, 0.0856155696446811]
+      const absExpWeights = [0.6399171800385933, 0.23304644109045747, 0.08487136366873695, 0.03090863922781419, 0.011256375974398092]
+
+      const MUL_CONSTANT = 1000000000
+      const linWeights = absLinWeights.map(currWeight => parseInt(currWeight * MUL_CONSTANT))
+      const ratWeights = absRatWeights.map(currWeight => parseInt(currWeight * MUL_CONSTANT))
+      const expWeights = absExpWeights.map(currWeight => parseInt(currWeight * MUL_CONSTANT))
+
+      const analyst1Scores = [628, 644, 489, 463, 409, 593, 585, 616, 412, 556]
+      const analyst2Scores = [477, 481, 631, 346, 409, 527, 585, 479, 301, 496]
+
+      const expectedAnalyst1LastPeriodScoreLin = 527.7000
+      const expectedAnalyst1LastPeriodScoreRat = 539.6030
+      const expectedAnalyst1LastPeriodScoreExp = 528.8464
+
+      const expectedAnalyst2LastPeriodScoreLin = 443.000
+      const expectedAnalyst2LastPeriodScoreRat = 463.3810
+      const expectedAnalyst2LastPeriodScoreExp = 452.2129
+
+      const expectedAnalyst1FirstPeriodScoreLin = 446.0000
+      const expectedAnalyst1FirstPeriodScoreRat = 423.7742
+      const expectedAnalyst1FirstPeriodScoreExp = 558.4598
+
+      const expectedAnalyst2FirstPeriodScoreLin = 335.5000
+      const expectedAnalyst2FirstPeriodScoreRat = 318.2424
+      const expectedAnalyst2FirstPeriodScoreExp = 418.9633
+
+      const votesRecord = [60, 59, 61, 41, 56]
+      const stakedTokens = 999
+
+      let epoch
+      let TRLScoring
+
+      it('The WeightedScore pure function should yeld the same values as the Python algorithm', async () => {
+        const score = await TRLInstance.scoring(0, adminAccount)
+
+        let actualAnalyst1LastPeriodScoreLin = await TRLInstance.weightedScore(linWeights, analyst1Scores, WINDOW_SIZE)
+        actualAnalyst1LastPeriodScoreLin = Number((actualAnalyst1LastPeriodScoreLin / MUL_CONSTANT).toFixed(4))
+        assert.equal(expectedAnalyst1LastPeriodScoreLin, actualAnalyst1LastPeriodScoreLin)
+
+        // assert.equal(0, score)
+      })
+
+      it('The WeightedScore pure function should yeld correct values when the window size is smaller', async () => {
+        let actualAnalyst1FirstPeriodScoreLin = await TRLInstance.weightedScore(linWeights, [analyst1Scores[0], analyst1Scores[1]], WINDOW_SIZE)
+        actualAnalyst1FirstPeriodScoreLin = Number((actualAnalyst1FirstPeriodScoreLin / MUL_CONSTANT).toFixed(4))
+        assert.equal(expectedAnalyst1FirstPeriodScoreLin, actualAnalyst1FirstPeriodScoreLin)
+      })
+
+      it('The reputation function should calculate the correct reputation value for a user', async () => {
+        const rep1ExpectedResult = 52800000000
+        const listAddress = await TRLInstance.address
+        await FrontierTokenInstance.approve(listAddress, 400, {from: voterAccounts[0]})
+
+        // clear stage
+        let currentPeriod
+        for (let i = 0; i < 5; i++) {
+          // advance until stage 0
+
+          const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
+          console.log('-> Staked' + totalPreStaked)
+
+          currentPeriod = await TRLInstance.currentPeriod.call()
+          console.log('--> Stage:' + await TRLInstance.currentStage.call())
+          await TRLInstance.buyTokenVotes(70, {from: voterAccounts[0]})
+          console.log('--> Stage:' + await TRLInstance.currentStage.call())
+          await TRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
+          await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
+        }
+
+        let res = await TRLInstance.reputation.call(currentPeriod, candidateAccounts[0])
+        assert.equal(parseInt(rep1ExpectedResult), parseInt(res))
       })
     })
   }
