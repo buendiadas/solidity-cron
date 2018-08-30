@@ -134,17 +134,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         votingConstraints[1] = _maxVoteAmount; 
     }
 
-    /**
-    * @dev Calculates the Scoring given an address in the current epoch
-    * @param _epoch Epoch where the query is made
-    * @param _account Account that is required to get the scoring
-    **/
-
-    function scoring(uint256 _epoch, address _account) public view returns (uint256) {
-        return votesReceived[_epoch][_account];
-    }
-
-    /**
+       /**
     * @dev Sets the reputation calculation Window Size
     * @param _windowSize Size of the window
     **/
@@ -175,6 +165,17 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
 
         reputationWeightsSet=true;
         return repWeights;
+    }
+
+
+    /**
+    * @dev Calculates the Scoring given an address in the current epoch
+    * @param _epoch Epoch where the query is made
+    * @param _account Account that is required to get the scoring
+    **/
+
+    function scoring(uint256 _epoch, address _account) public view returns (uint256) {
+        return votesReceived[_epoch][_account];
     }
 
     /**
