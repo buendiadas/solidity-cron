@@ -6,12 +6,12 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 
 /**
-*  A periodic contract. Enables any contract to change state on a periodic basis
-*  Before going into detail, it might be helpful to familiarize with the naming convention:
+*  A periodic contract. Enables any contract to change state on a periodic basis.
+*  Before going into code, it might be helpful to familiarize with the naming convention:
 *  T === Period Length --> Number of blocks to complete a cycle
 *  Epoch: Counter of the number of cycles that went by since a given block (blockOffset)
 *  Height == current epoch
-*  Age: Tame where period Length has remained the same
+*  Age: Time where Period Length has remained stable
 *  BlockOffset --> First block inside an age 
 *  Epoch offset --> Starting value of height()
 
@@ -36,11 +36,10 @@ Height
              <-------><----------------------->
                Age 1            Age 2
 
-The contract was designed in order to be deterministic, so that no need of state changes are required. Thus, most of the parameters are calculated via functions. 
+The contract was designed in order to be deterministic, so no need of state changes are required. Thus, most of the parameters are calculated via functions. 
 
-The exception comes when the owner (EOA, or Contract/DAO) decides to modify the period length, transitioning to a new age.
+The exception comes when the owner (EOA, or Contract/DAO) decides to modify the period length. This is considered a breaking change in the behaviour, and the result is the transition to a new age.
 
-Most of the parameters explained above are programaticall
 **/
 
 
@@ -101,9 +100,8 @@ contract Period is Ownable {
 
     function hardAgeTransition(uint256 _T) public {
         require(msg.sender == owner);
-        uint256 tmpHeight = height();
+        epochOffset = height();
         blockOffset = block.number;
-        epochOffset = tmpHeight;
         age ++;
         previousLength = T;
         T = _T;
