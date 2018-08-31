@@ -31,8 +31,17 @@ contract('Period', function (accounts) {
   describe('Calculating First Epoch"s Block', async () => {
     it('Should have set the first epoch block to the current block number', async () => {
       const currentBlock = await web3.eth.blockNumber
-      const storedInitialBlockOffset = await PeriodInstance.getFirstEpochBlock.call()
+      const storedInitialBlockOffset = await PeriodInstance.getFirstEpochBlock()
       assert.strictEqual(storedInitialBlockOffset.toNumber(), currentBlock)
+    })
+    it('Should keep the same first epoch block while making a transition to a new age', async () => {
+      const currentBlock = await web3.eth.blockNumber
+      const storedInitialBlockOffset = await PeriodInstance.getFirstEpochBlock()
+      await PeriodInstance.setPeriodLength(T + 1)
+      const isInTransition = await PeriodInstance.isAgeTransition();
+      assert.strictEqual(true,isInTransition);
+      const computedInitialBlockOffset = await PeriodInstance.getFirstEpochBlock()
+      assert.strictEqual(storedInitialBlockOffset.toNumber(), computedInitialBlockOffset.toNumber())
     })
     it('Should increase the first epoch block by N times the period amount after moving N epochs forward', async () => {
       const currentBlock = await web3.eth.blockNumber
@@ -50,6 +59,15 @@ contract('Period', function (accounts) {
       const currentBlock = await web3.eth.blockNumber
       const calculatedLastEpoch = await PeriodInstance.getLastEpochBlock.call()
       assert.strictEqual(currentBlock + T - 1, calculatedLastEpoch.toNumber())
+    })
+    it('Should keep the same last epoch block while making a transition to a new age', async () => {
+      const currentBlock = await web3.eth.blockNumber
+      const storedLastBlockOffset = await PeriodInstance.getLastEpochBlock()
+      await PeriodInstance.setPeriodLength(T + 1)
+      const isInTransition = await PeriodInstance.isAgeTransition();
+      assert.strictEqual(true,isInTransition);
+      const computedLastBlockOffset = await PeriodInstance.getLastEpochBlock()
+      assert.strictEqual(storedLastBlockOffset.toNumber(), computedLastBlockOffset.toNumber())
     })
     it('Should increase the first epoch block by N times the period amount after moving N epochs forward', async () => {
       const currentBlock = await web3.eth.blockNumber

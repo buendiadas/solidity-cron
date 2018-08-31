@@ -157,7 +157,7 @@ contract Period is Ownable {
 
     function getLastEpochBlock() public view returns (uint256){
          if (isAgeTransition()) {
-             return block.number + T  - getRelativeIndex() - 1;
+             return block.number + previousLength - getRelativeIndex() - 1;
         }
         else {
             return block.number + T  - getRelativeIndex() - 1;
