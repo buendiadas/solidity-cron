@@ -20,6 +20,11 @@ contract('Period', function (accounts) {
       const currentPeriod = await PeriodInstance.height()
       assert.strictEqual(currentPeriod.toNumber(), 0)
     })
+    it('Should return height() as getPeriodNumber()', async () => {
+      const heightGetPeriodNumber = await PeriodInstance.getPeriodNumber.call();
+      const height = await PeriodInstance.height.call();
+      assert.strictEqual(height.toNumber(), heightGetPeriodNumber.toNumber());
+    })
     it('Should return return the same period when increasing evm an arbitrary number of periods', async () => {
       const periodsToadvance = 4
       const blocksToAdvance = T * periodsToadvance
