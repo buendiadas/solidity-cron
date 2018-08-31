@@ -10,7 +10,7 @@ contract('Period', function (accounts) {
   beforeEach(async () => {
     PeriodInstance = await PeriodContract.new(T)
   })
-  describe('Calculating period number', async () => {
+  describe('Calculating Height', async () => {
     it('Should have set the initial offset to the current block number', async () => {
       const currentBlock = await web3.eth.blockNumber
       const blockOffset = await PeriodInstance.blockOffset.call()
@@ -52,6 +52,19 @@ contract('Period', function (accounts) {
       await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAdvance)
       const finalFirstBlock= await PeriodInstance.getFirstEpochBlock()
       assert.strictEqual(expectedFirstBlock, finalFirstBlock.toNumber())
+    })
+  })
+  describe('Calculating Period"s Length', async () => {
+    it('Should return the current epoch length in a regular period', async () => {
+      const periodLength = await PeriodInstance.getLength()
+      assert.strictEqual(T, periodLength.toNumber())
+    })
+    it('Should return the current epoch lentgh inside a transition', async () => {
+      await PeriodInstance.setPeriodLength(T + 1)
+      const isInTransition = await PeriodInstance.isAgeTransition();
+      const periodLength = await PeriodInstance.getLength()
+      assert.strictEqual(true,isInTransition);
+      assert.strictEqual(T, periodLength.toNumber())
     })
   })
   describe('Calculating Last Epoch"s Block', async () => {
@@ -116,6 +129,19 @@ contract('Period', function (accounts) {
       const afterRelativeIndex = await PeriodInstance.getRelativeIndex.call()
       const expectedHeight = currentHeight.toNumber() + 2 
       assert.strictEqual(expectedHeight, computedHeight.toNumber())
+    })
+  })
+  describe('Calculating age"s height', async () => {
+    it('Should return the correct age height while being on a transition', async () => {
+      const blocksToAdvance = T + 1 
+      await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAdvance);
+      const ageHeight = await PeriodInstance.ageHeight.call()
+      const height = await PeriodInstance.height.call()
+      assert.strictEqual(1, height.toNumber())
+      assert.strictEqual(1, ageHeight.toNumber())
+      await PeriodInstance.setPeriodLength(T + 1)
+      const ageHeightAfter = await PeriodInstance.ageHeight.call();
+      assert.strictEqual(ageHeight.toNumber(), ageHeightAfter.toNumber())
     })
   })
   describe('Calculating relative indexes', async () => {

@@ -8,7 +8,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 /**
 *  A periodic contract. Enables any contract to change state on a periodic basis.
 *  Before going into code, it might be helpful to familiarize with the naming convention:
-*  T === Period Length --> Number of blocks to complete a cycle
+*  T ≡ Period Length --> Number of blocks to complete a cycle
 *  Epoch: Counter of the number of cycles that went by since a given block (blockOffset)
 *  Height == current epoch
 *  Age: Time where Period Length has remained stable
@@ -51,7 +51,7 @@ contract Period is Ownable {
     // Number of changes that have been made to the period length
     uint256 public age;
 
-    // Previous previous length, required for transitions between ages
+    // Previous epoch's length, required for transitions between ages
     uint256 public previousLength;
 
     // Initial Block where an age has started
@@ -107,12 +107,35 @@ contract Period is Ownable {
         T = _T;
     }
 
+
+    /**
+     * @dev Deprecated getter of the height number, now just pointing to height()
+     */
+
+    function getPeriodNumber() public view returns (uint256) {
+        return height();
+    }
+
+    /**
+     * @dev Deprecated getter of the height number, now just pointing to height()
+     */
+
+    function getLength() public view returns (uint256) {
+        if (blockOffset > block.number) { // Period has been scheduled or modified. 
+            return previousLength;
+        }
+        else { // Normal behaviour
+            return T;
+        }
+    }
+
     /**
     * @dev Getter for the total height included in this periodic contract, including age transitions
     * @return current height
     */
+
     function height() public view returns (uint256) {
-        if (blockOffset > block.number) { // Period has been scheduled or modified. 
+        if (isAgeTransition()) { // Period has been scheduled or modified. 
             return epochOffset;
         }
         else { // Normal behaviour
@@ -154,12 +177,7 @@ contract Period is Ownable {
     */
 
     function getLastEpochBlock() public view returns (uint256){
-         if (isAgeTransition()) {
-             return block.number + previousLength - getRelativeIndex() - 1;
-        }
-        else {
-            return block.number + T  - getRelativeIndex() - 1;
-        }
+        return block.number + getLength() - getRelativeIndex() - 1;
     }
 
     /*
