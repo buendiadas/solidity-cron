@@ -108,7 +108,7 @@ contract('Stack', function (accounts) {
       await Stack.push(1)
       await Stack.empty()
       const finalHeight = await Stack.height.call()
-      assert.strictEqual(0,finalHeight.toNumber())
+      assert.strictEqual(0, finalHeight.toNumber())
     })
   })
 })

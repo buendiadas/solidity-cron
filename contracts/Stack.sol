@@ -1,13 +1,14 @@
 pragma solidity 0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
 /**
  * A simple FIFO blockstack. 
  * Enables to manage tasks inside a certain capacity 
  */
 
-contract Stack { 
+contract Stack is Ownable { 
     
     // Each Value represents the final position of a slot
     uint256[] public strg; 
@@ -34,7 +35,7 @@ contract Stack {
      * @return height uint representing the amount of slots already reserved in the stack
      */
 
-    function height() public view returns (uint256){
+    function height() public view returns (uint256) {
         return height;
     }
 
@@ -44,6 +45,7 @@ contract Stack {
      */
 
     function push(uint256 _size) public {
+        require(msg.sender == owner);
         require((stackPointer + _size) <= totalCapacity, 'BLOCK_NUM_OVERFLOW');
         strg.push(stackPointer + _size);
         stackPointer += _size;
@@ -55,6 +57,7 @@ contract Stack {
      * Pops the last value from storage
      */
     function pop() public {
+        require(msg.sender == owner);
         require(strg.length > 0, 'EMPTY STORAGE');
         uint256 slotSizeToEmpty = strg[strg.length-1];
         delete strg[strg.length-1];
@@ -73,6 +76,7 @@ contract Stack {
      * Removes every single value from the Stack
      */
     function empty() public {
+        require(msg.sender == owner);
         uint256 l = strg.length;
         for (uint i = 0; i < l; i++){
             pop();
@@ -95,5 +99,4 @@ contract Stack {
             return (position >= strg[slotIndex-1] && position <= strg[slotIndex]);
         }
     }
-
 }
