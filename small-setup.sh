@@ -8,7 +8,7 @@ export PROXY_ADDR_PATH=$TRAVIS_BUILD_DIR/../trlProxyAddress.json
 
 # setup frontierjs
 mkdir $TRAVIS_BUILD_DIR/../frontierjs-dev && cd $TRAVIS_BUILD_DIR/../frontierjs-dev
-git https://github.com/Frontier-project/frontier-js.git
+git clone https://github.com/Frontier-project/frontier-js.git
 cd $TRAVIS_BUILD_DIR/../frontierjs-dev/frontier-js
 npm install
 npm run start:testrpc &
