@@ -8,10 +8,13 @@ export PROXY_ADDR_PATH=$TRAVIS_BUILD_DIR/../trlProxyAddress.json
 
 # setup frontierjs
 mkdir $PLAYGROUND
+echo "Going to playground!"
+( cd $PLAYGROUND && pwd )
 
 #git clone git@github.com:Frontier-project/frontier-js.git $PLAYGROUND
 git clone https://github.com/Frontier-project/frontier-js.git $PLAYGROUND
-
+echo "Showing the playground"
+( cd $PLAYGROUND && ls -lA)
 ( cd $PLAYGROUND && npm install )
 ( cd $PLAYGROUND && npm run start:testrpc & )
 ( cd $PLAYGROUND && npm run test )
