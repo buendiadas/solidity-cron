@@ -3,15 +3,20 @@
 # START rabbitqm
 
 #export TRAVIS_BUILD_DIR=/Users/boss/git/frontier/trl-project/TRL
+export PLAYGROUND=$TRAVIS_BUILD_DIR/frontierjs-dev
 export PROXY_ADDR_PATH=$TRAVIS_BUILD_DIR/../trlProxyAddress.json
 
 # setup frontierjs
-mkdir $TRAVIS_BUILD_DIR/../frontierjs-dev
-#git clone git@github.com:Frontier-project/frontier-js.git $TRAVIS_BUILD_DIR/../frontierjs-dev
-git clone https://github.com/Frontier-project/frontier-js.git $TRAVIS_BUILD_DIR/../frontierjs-dev
-( cd $TRAVIS_BUILD_DIR/../frontierjs-dev && npm install )
-( cd $TRAVIS_BUILD_DIR/../frontierjs-dev && npm run start:testrpc & )
-( cd $TRAVIS_BUILD_DIR/../frontierjs-dev && npm run test )
+mkdir $PLAYGROUND
+
+#git clone git@github.com:Frontier-project/frontier-js.git $PLAYGROUND
+git clone https://github.com/Frontier-project/frontier-js.git $PLAYGROUND
+
+( cd $PLAYGROUND && npm install )
+( cd $PLAYGROUND && npm run start:testrpc & )
+( cd $PLAYGROUND && npm run test )
+rm -r $PLAYGROUND
+echo "Finished small-setup"
 
 
 # rm -r dist

@@ -20,14 +20,12 @@ jobs:
       before_install:
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
         - npm i npm@latest -g
-        - npm install -g ganache-cli
-        - sh ./small-setup.sh
-        
-
       install:
         - npm install
         - npm install -g codecov
       before_script:
+        - npm install -g ganache-cli
+        - sh ./small-setup.sh
         - npm run start &
         - npm run start:testrpc-integration &
       script:
