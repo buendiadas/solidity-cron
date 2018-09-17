@@ -15,6 +15,7 @@ echo "Going to playground!"
 git clone https://github.com/Frontier-project/frontier-js.git $PLAYGROUND
 echo "Showing the playground"
 ( cd $PLAYGROUND && ls -lA)
+( cd $PLAYGROUND && npm cache clean --force )
 ( cd $PLAYGROUND && npm install )
 ( cd $PLAYGROUND && npm run start:testrpc & )
 ( cd $PLAYGROUND && npm run test )
