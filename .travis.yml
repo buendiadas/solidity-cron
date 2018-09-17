@@ -1,6 +1,9 @@
 language: javascript
 
 
+services:
+  - rabbitmq
+
 stages:
   - name: test
 #  - name: migrate
@@ -17,6 +20,9 @@ jobs:
       before_install:
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
         - npm i npm@latest -g
+        - export PROXY_ADDR_PATH=$TRAVIS_BUILD_DIR/../trlProxyAddress.json
+        - mkdir $TRAVIS_BUILD_DIR/../frontierjs-dev && cd $TRAVIS_BUILD_DIR/../frontierjs-dev
+        - git clone git@github.com:Frontier-project/frontier-js.git
       install:
         - npm install
         - npm install -g codecov
