@@ -5,16 +5,13 @@
 #export TRAVIS_BUILD_DIR=/Users/boss/git/frontier/trl-project/TRL
 export PROXY_ADDR_PATH=$TRAVIS_BUILD_DIR/../trlProxyAddress.json
 
-#clean
-sudo rm -r $TRAVIS_BUILD_DIR/../frontierjs-dev
-
 # setup frontierjs
 mkdir $TRAVIS_BUILD_DIR/../frontierjs-dev
-#( cd $TRAVIS_BUILD_DIR/../frontierjs-dev && git clone git@github.com:Frontier-project/frontier-js.git )
-( cd $TRAVIS_BUILD_DIR/../frontierjs-dev && git clone https://github.com/Frontier-project/frontier-js.git )
-( cd $TRAVIS_BUILD_DIR/../frontierjs-dev/frontier-js && npm install )
-( cd $TRAVIS_BUILD_DIR/../frontierjs-dev/frontier-js && npm run start:testrpc & )
-( cd $TRAVIS_BUILD_DIR/../frontierjs-dev/frontier-js && npm run test )
+#git clone git@github.com:Frontier-project/frontier-js.git $TRAVIS_BUILD_DIR/../frontierjs-dev
+git clone https://github.com/Frontier-project/frontier-js.git $TRAVIS_BUILD_DIR/../frontierjs-dev
+( cd $TRAVIS_BUILD_DIR/../frontierjs-dev && npm install )
+( cd $TRAVIS_BUILD_DIR/../frontierjs-dev && npm run start:testrpc & )
+( cd $TRAVIS_BUILD_DIR/../frontierjs-dev && npm run test )
 
 
 # rm -r dist
