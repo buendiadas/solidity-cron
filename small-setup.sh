@@ -3,7 +3,7 @@
 # START rabbitqm
 
 #export TRAVIS_BUILD_DIR=/Users/boss/git/frontier/trl-project/TRL
-export PLAYGROUND=$TRAVIS_BUILD_DIR/frontierjs-dev
+export PLAYGROUND=$TRAVIS_BUILD_DIR/../frontierjs-dev
 export PROXY_ADDR_PATH=$TRAVIS_BUILD_DIR/../trlProxyAddress.json
 
 # setup frontierjs
@@ -13,13 +13,12 @@ echo "Going to playground!"
 
 #git clone git@github.com:Frontier-project/frontier-js.git $PLAYGROUND
 git clone https://github.com/Frontier-project/frontier-js.git $PLAYGROUND
-echo "Showing the playground"
-( cd $PLAYGROUND && ls -lA)
-( cd $PLAYGROUND && npm cache clean --force )
+( cd $PLAYGROUND && echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc )
 ( cd $PLAYGROUND && npm install )
 ( cd $PLAYGROUND && npm run start:testrpc & )
 ( cd $PLAYGROUND && npm run test )
-rm -r $PLAYGROUND
+
+cd $TRAVIS_BUILD_DIR
 echo "Finished small-setup"
 
 
