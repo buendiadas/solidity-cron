@@ -21,10 +21,14 @@ jobs:
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
         - npm i npm@latest -g
       install:
-        - sh ./small-setup-step1.sh
         - npm install -g ganache-cli
         - npm install
         - npm install -g codecov
+        - export PLAYGROUND_FRONTIERJS=$TRAVIS_BUILD_DIR/../frontierjs-dev
+        - export PLAYGROUND_TRLLISTENER=$TRAVIS_BUILD_DIR/../trllistener-dev
+        - export PROXY_ADDR_PATH=$TRAVIS_BUILD_DIR/../trlProxyAddress.json
+        - export INTEGRATION_TEST=1
+        - sh ./small-setup-step1.sh
       before_script:
         - npm run start &
         - npm run start:testrpc-integration &
