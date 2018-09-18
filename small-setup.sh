@@ -3,24 +3,21 @@
 # START rabbitqm
 
 #export TRAVIS_BUILD_DIR=/Users/boss/git/frontier/trl-project/TRL
-export PLAYGROUND=$TRAVIS_BUILD_DIR/../frontierjs-dev
+export PLAYGROUND_FRONTIERJS=$TRAVIS_BUILD_DIR/../frontierjs-dev
+export PLAYGROUND_TRLLISTENER=$TRAVIS_BUILD_DIR/../trllistener-dev
 export PROXY_ADDR_PATH=$TRAVIS_BUILD_DIR/../trlProxyAddress.json
 
 # setup frontierjs
-mkdir $PLAYGROUND
+mkdir $PLAYGROUND_FRONTIERJS
 echo "Going to playground!"
-( cd $PLAYGROUND && pwd )
+( cd $PLAYGROUND_FRONTIERJS && pwd )
 
-#git clone git@github.com:Frontier-project/frontier-js.git $PLAYGROUND
-git clone https://github.com/Frontier-project/frontier-js.git $PLAYGROUND
-( cd $PLAYGROUND && echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc )
-( cd $PLAYGROUND && npm install )
-( cd $PLAYGROUND && npm run start:testrpc & )
-( cd $PLAYGROUND && npm run test )
-
-cd $TRAVIS_BUILD_DIR
-echo "Finished small-setup"
-
+#git clone git@github.com:Frontier-project/frontier-js.git $PLAYGROUND_FRONTIERJS
+git clone https://github.com/Frontier-project/frontier-js.git $PLAYGROUND_FRONTIERJS
+( cd $PLAYGROUND_FRONTIERJS && echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc )
+( cd $PLAYGROUND_FRONTIERJS && npm install )
+( cd $PLAYGROUND_FRONTIERJS && npm run start:testrpc & )
+( cd $PLAYGROUND_FRONTIERJS && npm run test )
 
 # rm -r dist
 # #pass env variable here!
@@ -28,14 +25,16 @@ echo "Finished small-setup"
 
 # # setup trl-listener
 
-# mkdir $TRAVIS_BUILD_DIR/../trl-listener-dev && cd $TRAVIS_BUILD_DIR/../trl-listener-dev
-# git clone git@github.com:Frontier-project/trl-listener.git
-# cd $TRAVIS_BUILD_DIR/../trl-listener-dev/trl-listener
-# npm install
-# npm link $TRAVIS_BUILD_DIR/../frontierjs-dev/frontier-js
-# npm run build
-# npm run start:testrpc &
-# npm run test
+ mkdir $PLAYGROUND_TRLLISTENER 
+ #git clone git@github.com:Frontier-project/trl-listener.git $PLAYGROUND_TRLLISTENER
+ git clone https://github.com/Frontier-project/trl-listener.git $PLAYGROUND_TRLLISTENER
+ 
+ ( cd $PLAYGROUND_TRLLISTENER && echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc )
+ ( cd $PLAYGROUND_TRLLISTENER && npm install )
+ ( cd $PLAYGROUND_TRLLISTENER && npm link $PLAYGROUND_FRONTIERJS )
+ ( cd $PLAYGROUND_TRLLISTENER && npm run build )
+ ( cd $PLAYGROUND_TRLLISTENER && npm run start:testrpc & )
+ ( cd $PLAYGROUND_TRLLISTENER && npm run test )
 
-# #ganache-cli &
-# #npm run test
+cd $TRAVIS_BUILD_DIR
+echo "Finished small-setup"
