@@ -13,7 +13,7 @@ echo "Going to playground!"
 ( cd $PLAYGROUND_FRONTIERJS && pwd )
 
 #git clone git@github.com:Frontier-project/frontier-js.git $PLAYGROUND_FRONTIERJS
-git clone https://github.com/Frontier-project/frontier-js.git $PLAYGROUND_FRONTIERJS
+git clone --single-branch -b FRN-130/test/continuos-integration-trl https://github.com/Frontier-project/frontier-js.git $PLAYGROUND_FRONTIERJS
 ( cd $PLAYGROUND_FRONTIERJS && echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc )
 ( cd $PLAYGROUND_FRONTIERJS && npm install )
 ( cd $PLAYGROUND_FRONTIERJS && npm run start:testrpc & )
