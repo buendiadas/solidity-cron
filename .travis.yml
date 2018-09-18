@@ -22,7 +22,6 @@ jobs:
         - npm i npm@latest -g
       install:
         - npm install -g ganache-cli
-        - sh ./small-setup.sh
         - npm install
         - npm install -g codecov
       before_script:
@@ -34,7 +33,8 @@ jobs:
         - npm run test-integration
         - truffle migrate --reset
         #- travis_wait npm run coverage
-      #after_script:
+      after_script:
+        - sh ./small-setup.sh
       #  - codecov
   
     # - stage: migrate
