@@ -44,8 +44,3 @@ git clone --single-branch -b FRN-130/test/continuos-integration-trl https://gith
  ( cd $PLAYGROUND_TRLLISTENER && npm link $PLAYGROUND_FRONTIERJS )
  ( cd $PLAYGROUND_TRLLISTENER && npm run build )
  ( cd $PLAYGROUND_TRLLISTENER && npm run start:testrpc & )
- ( cd $PLAYGROUND_TRLLISTENER && npm run test )
-
-export INTEGRATION_TEST=0
-cd $TRAVIS_BUILD_DIR
-echo "Finished small-setup"

@@ -13,6 +13,13 @@ module.exports = {
       gas: 4600000
 
     },
+    development_integration_test: {
+      host: 'localhost',
+      port: 7545,
+      network_id: '1212',
+      gas: 4600000
+
+    },
     development_migration_test: {
       host: 'localhost',
       port: 8546,

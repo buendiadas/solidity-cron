@@ -21,6 +21,7 @@ jobs:
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
         - npm i npm@latest -g
       install:
+        - sh ./small-setup-step1.sh
         - npm install -g ganache-cli
         - npm install
         - npm install -g codecov
@@ -34,7 +35,8 @@ jobs:
         - truffle migrate --reset
         #- travis_wait npm run coverage
       after_script:
-        - sh ./small-setup.sh
+        - truffle migrate --reset --network development_integration_test
+        - sh ./small-setup-step2.sh
       #  - codecov
   
     # - stage: migrate
