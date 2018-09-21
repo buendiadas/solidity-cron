@@ -32,13 +32,14 @@ module.exports = (deployer) => {
       await ProxyTRL.setReputationLinWeights(linWeightsSmaller)
 
       // storing the contract address
-      let proxyAddress = await ProxyInstance.address
-      let proxyAddressObj = {address: proxyAddress}
-      proxyAddressObj = JSON.stringify(proxyAddressObj)
+      if (process.env.INTEGRATION_TEST === '1') {
+        let proxyAddress = await ProxyInstance.address
+        let proxyAddressObj = {address: proxyAddress}
+        proxyAddressObj = JSON.stringify(proxyAddressObj)
+        const addressPath = process.env.PROXY_ADDR_PATH
 
-      const addressPath = process.env.PROXY_ADDR_PATH
-
-      await fs.writeFileSync(addressPath, proxyAddressObj)
+        await fs.writeFileSync(addressPath, proxyAddressObj)
+      }
     }
   })
 }
