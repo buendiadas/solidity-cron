@@ -43,26 +43,26 @@ jobs:
         - sh ./small-setup-step2.sh
         - codecov
   
-     - stage: migrate
-       if: branch = master
-       language: node_js
-       node_js:
-         - "8"
-       before_install:
-         - npm i npm@latest -g
-         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
-       install:
-         - npm install
-       script:
-         - truffle migrate --reset --network rinkeby_infura
-       after_script:
-         - npm run mock-infura
+    - stage: migrate
+      if: branch = master
+      language: node_js
+      node_js:
+        - "8"
+      before_install:
+        - npm i npm@latest -g
+        - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
+      install:
+        - npm install
+      script:
+        - truffle migrate --reset --network rinkeby_infura
+      after_script:
+        - npm run mock-infura
 
-     - stage: release
-       provider: script
-       node_js: "8"
-       before_install:
-         - npm install -g npx
-         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
-       script:
-         - npx semantic-release
+    - stage: release
+      provider: script
+      node_js: "8"
+      before_install:
+        - npm install -g npx
+        - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
+      script:
+       - npx semantic-release
