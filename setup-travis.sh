@@ -6,7 +6,7 @@ export TRAVIS_BUILD_DIR=/Users/boss/git/frontier/trl-project/TRL
 export PROXY_ADDR_PATH=$TRAVIS_BUILD_DIR/../trlProxyAddress.json
 
 
-# setup frontierjs
+## setup frontierjs
 mkdir $TRAVIS_BUILD_DIR/../frontierjs-dev && cd $TRAVIS_BUILD_DIR/../frontierjs-dev
 git clone git@github.com:Frontier-project/frontier-js.git
 cd $TRAVIS_BUILD_DIR/../frontierjs-dev/frontier-js
