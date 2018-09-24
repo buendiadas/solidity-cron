@@ -10,8 +10,8 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 contract Proxy is TRLStorage, Ownable {
 
     address public logicContract;
-    
-     /**
+
+    /**
      * @dev Sets the target address where the calls will be delegated. 
      * @param _account Target address, that will be accesible via implementation()
      */
@@ -21,7 +21,7 @@ contract Proxy is TRLStorage, Ownable {
         logicContract = _account;
         return true;
     }
-
+    
     /**
      * @dev ERC897, whether it is a forwarding (1) or an upgradeable (2) proxy
      */

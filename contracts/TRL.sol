@@ -42,7 +42,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         periodicStages.pushStage(_claimTime);
         address periodAddress = periodicStages.period();
         Period period = Period(periodAddress);
-        uint256 T = period.T(); // Avoids Breaking changes on period Handlers, should be deprecated
+        uint256 T = period.T(); 
         emit PeriodInit(T, _activeTime, _claimTime);
     }
 
@@ -59,6 +59,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         require(canStake(msg.sender, _amount));
         require(token.transferFrom(msg.sender, this, _amount));
         votesBalance[currentPeriod()][msg.sender] = votesBalance[currentPeriod()][msg.sender].add(_amount);
+        poolAmount[currentPeriod()] = poolAmount[currentPeriod()].add(_amount);
         emit VotesBought(msg.sender, _amount, currentPeriod());
     }
 
@@ -81,18 +82,20 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     * @dev Claims the correspondant Bounty from the Pool on the current periodIndex. 
     **/
 
-    function claimBounty() public {
-        require(currentStage() == 1);
-        require(candidateRegistry.isWhitelisted(msg.sender) == true);
-        require(totalPeriodVotes[currentPeriod()] > 0);
+    function transferCompensation(uint256 _epoch, address _account) public {
+        require(candidateRegistry.isWhitelisted(_account) == true);
+        require(compensationClaimed[_epoch][_account] == false);
+        require(totalEpochVotes[currentPeriod()] > 0);
         uint256 totalAmount = calculateReward(
             token.balanceOf(this),
-            votesReceived[currentPeriod()][msg.sender],
-            totalPeriodVotes[currentPeriod()]
+            votesReceived[currentPeriod()][_account],
+            totalEpochVotes[currentPeriod()]
         );
-        token.transfer(msg.sender, totalAmount);
-        emit BountyRelased(msg.sender, totalAmount, currentPeriod());
+        token.transfer(_account, totalAmount);
+        compensationClaimed[_epoch][_account] = true;
+        emit CompensationReleased(_account, totalAmount, currentPeriod());
     }
+
 
     /*
     * @dev Sets the minimum stake to participate in a period 
@@ -103,6 +106,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         require(msg.sender == owner);
         stakingConstraints[0] = _minimumStakeAmount;
     }
+
 
     /*
     * @dev Sets the minimum stake to participate in a period 
@@ -223,12 +227,10 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
 
         for(uint i =0; i< _weights.length;i++){
             
-            //if((lastPeriodIndex-1-i)<0){
             if(1000000+lastPeriodIndex-1-i<1000000){
                 continue;
             }
             currScore = _pastScores[lastPeriodIndex-1-i];
-            //currScore = 100;
             currWeight = _weights[i];
             currWeightedScore = currScore.mul(currWeight);
             score = score.add(currWeightedScore);

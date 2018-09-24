@@ -8,7 +8,10 @@ contract TRLStorage {
 
     mapping (uint256 => mapping(address => uint256)) public votesReceived;
     mapping (uint256 => mapping(address => uint256)) public votesBalance;
-    mapping (uint256 => uint256) totalPeriodVotes;
+    mapping (uint256 => mapping(address => bool)) compensationClaimed;
+    mapping (uint256 => uint256) public poolAmount;
+    mapping (uint256 => uint256) public totalEpochVotes;
+
     
     // Registry of candidates to be voted
     Registry public candidateRegistry;
@@ -28,15 +31,13 @@ contract TRLStorage {
     // Array setting up the limits when voting [min_amount, Max_amount]
     uint256[2] public votingConstraints = [0, 2^256 -1];
 
-    uint256 public reputationWindowSize = 0; // set zero
-    bool reputationWindowSizeSet = true; // set false
-    
-    //uint256[] repWeights = new uint256[](reputationWindowSize);
-    
+    uint256 public reputationWindowSize = 0; 
+    bool reputationWindowSizeSet = true;
     bool reputationWeightsSet = false;
     uint256[] public repWeights;
 
     /** Setters **/
+
 
     /**
     * @dev Sets a new candidate registry address
