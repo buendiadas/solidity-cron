@@ -58,7 +58,8 @@ jobs:
       install:
         - npm install
       script:
-        - truffle migrate --reset --network rinkeby_infura
+        #- truffle migrate --reset --network rinkeby_infura
+        - truffle migrate --reset --network rinkeby_frontier
       after_script:
         - npm run mock-infura
 
