@@ -37,7 +37,7 @@ jobs:
         - npm run migrate-integration
         - npm run test-integration
         - truffle migrate --reset
-        - travis_wait npm run coverage
+        #- travis_wait npm run coverage
       after_script:
         - truffle migrate --reset --network development_integration_test
         - sh ./small-setup-step2.sh
