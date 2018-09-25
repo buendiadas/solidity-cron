@@ -2,14 +2,13 @@ pragma solidity ^0.4.24;
     
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
+import "./Vault.sol";
 import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 
 contract TRLStorage {
 
     mapping (uint256 => mapping(address => uint256)) public votesReceived;
     mapping (uint256 => mapping(address => uint256)) public votesBalance;
-    mapping (uint256 => mapping(address => bool)) compensationClaimed;
-    mapping (uint256 => uint256) public poolAmount;
     mapping (uint256 => uint256) public totalEpochVotes;
 
     
@@ -25,6 +24,9 @@ contract TRLStorage {
     // Stages that come periodically 
     PeriodicStages public periodicStages;
 
+    // Contract Storing the funds
+    Vault public vault;
+
     // Minimum stake to participate in the period, 0 by default
     uint256[2] public stakingConstraints = [0, 2^256 -1];
 
@@ -37,7 +39,6 @@ contract TRLStorage {
     uint256[] public repWeights;
 
     /** Setters **/
-
 
     /**
     * @dev Sets a new candidate registry address
@@ -73,6 +74,16 @@ contract TRLStorage {
 
     function setPeriodicStages(address _contractAddress) public {
         periodicStages = PeriodicStages(_contractAddress);
+    }
+
+
+    /**
+    * @dev Sets a new Vault Address
+    * @param _contractAddress new contract address to be set
+    */
+
+    function setVault(address _contractAddress) public {
+        vault = Vault(_contractAddress);
     }
 
 }

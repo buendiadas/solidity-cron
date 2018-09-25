@@ -5,6 +5,7 @@ const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 const TRLContract = artifacts.require('TRL')
 const PeriodicStageContract = artifacts.require('PeriodicStages')
 const PeriodContract = artifacts.require('Period')
+const VaultContract = artifacts.require('Vault')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
 
 contract('TRL<Claiming>', function (accounts) {
@@ -13,6 +14,7 @@ contract('TRL<Claiming>', function (accounts) {
   let CandidateRegistryInstance
   let PeriodicStagesInstance
   let PeriodInstance
+  let Vault
   let VoterRegistryInstance
   let startTime
   let adminAccount = web3.eth.accounts[0]
@@ -23,6 +25,7 @@ contract('TRL<Claiming>', function (accounts) {
     FrontierTokenInstance = await Standard20TokenMock.new(voterAccounts, config.totalTokens, {from: adminAccount})
     CandidateRegistryInstance = await OwnedRegistryContract.new(candidateAccounts, {from: adminAccount})
     VoterRegistryInstance = await OwnedRegistryContract.new(voterAccounts, {from: adminAccount})
+    Vault = await VaultContract.new({from: adminAccount})
   })
   beforeEach(async () => {
     TRLInstance = await TRLContract.new({from: adminAccount})
@@ -46,31 +49,11 @@ contract('TRL<Claiming>', function (accounts) {
       const stakedTokens = 10
       await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0]})
       const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
-      const currentPeriod = await TRLInstance.currentPeriod.call()
+      const height = await TRLInstance.height.call()
       const currentStage = await TRLInstance.currentStage.call()
       const currentIndex = await PeriodInstance.getRelativeIndex()
       const currentStage2 = await PeriodicStagesInstance.currentStage.call();
       await assertRevert(TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]}))
-    })
-  })
-  describe('Calculating reward', async () => {
-    it('Calculate rewards as expected with integer divisions', async () => {
-      const totalPool = 100
-      const claimerVotes = 10
-      const totalVotes = 50
-      const stakedTokens = 10
-      const estimatedReward = totalPool * claimerVotes / totalVotes
-      const actualReward = await TRLInstance.calculateReward.call(totalPool, claimerVotes, totalVotes)
-      assert.strictEqual(estimatedReward, actualReward.toNumber())
-    })
-    it('Calculate rewards as expected with not integer divisions', async () => {
-      const totalPool = 99
-      const claimerVotes = 8
-      const totalVotes = 50
-      const stakedTokens = 10
-      const estimatedReward = Math.floor(totalPool * claimerVotes / totalVotes)
-      const actualReward = await TRLInstance.calculateReward.call(totalPool, claimerVotes, totalVotes)
-      assert.strictEqual(estimatedReward, actualReward.toNumber())
     })
   })
 })

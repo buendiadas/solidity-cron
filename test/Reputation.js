@@ -9,6 +9,7 @@ const advanceToBlock = require('./helpers/advanceToBlock')
 const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 const PeriodicStageContract = artifacts.require('PeriodicStages')
 const PeriodContract = artifacts.require('Period')
+const VaultContract = artifacts.require('Vault')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
 ///
 
@@ -16,7 +17,7 @@ contract('Reputation', function (accounts) {
   let TRLInstance
   let ProxyInstance
   let ProxyTRLInstance
-
+  let Vault
   let ScoringInstance
   let PeriodInstance
   let startTime
@@ -36,6 +37,7 @@ contract('Reputation', function (accounts) {
     FrontierTokenInstance = await Standard20TokenMock.new(voterAccounts, config.totalTokens, {from: adminAccount})
     CandidateRegistryInstance = await OwnedRegistryContract.new(candidateAccounts, {from: adminAccount})
     VoterRegistryInstance = await OwnedRegistryContract.new(voterAccounts, {from: adminAccount})
+    Vault = await VaultContract.new({from: adminAccount})
   })
 
   beforeEach(async () => {
@@ -49,6 +51,7 @@ contract('Reputation', function (accounts) {
     await ProxyTRLInstance.setToken(FrontierTokenInstance.address)
     await ProxyTRLInstance.setCandidateRegistry(CandidateRegistryInstance.address)
     await ProxyTRLInstance.setVoterRegistry(VoterRegistryInstance.address)
+    await ProxyTRLInstance.setVault(Vault.address)
     await ProxyTRLInstance.initPeriod(config.ttl)
     await ProxyTRLInstance.initStages(config.activeTime, config.claimTime)
 
@@ -214,7 +217,7 @@ contract('Reputation', function (accounts) {
       for (let i = 0; i < 5; i++) {
         await ProxyTRLInstance.buyTokenVotes(votesRecord[i], {from: voterAccounts[0]})
         await ProxyTRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
-        epoch = await ProxyTRLInstance.currentPeriod.call()
+        epoch = await ProxyTRLInstance.height.call()
         TRLScoring = await ProxyTRLInstance.scoring.call(epoch, candidateAccounts[0])
         await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
       }
@@ -231,7 +234,7 @@ contract('Reputation', function (accounts) {
       for (let i = 0; i < 5; i++) {
         await ProxyTRLInstance.buyTokenVotes(votesRecord[i], {from: voterAccounts[0]})
         await ProxyTRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
-        epoch = await ProxyTRLInstance.currentPeriod.call()
+        epoch = await ProxyTRLInstance.height.call()
         TRLScoring = await ProxyTRLInstance.scoring.call(epoch, candidateAccounts[0])
         await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
       }
