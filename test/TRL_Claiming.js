@@ -52,7 +52,7 @@ contract('TRL<Claiming>', function (accounts) {
       const height = await TRLInstance.height.call()
       const currentStage = await TRLInstance.currentStage.call()
       const currentIndex = await PeriodInstance.getRelativeIndex()
-      const currentStage2 = await PeriodicStagesInstance.currentStage.call();
+      const currentStage2 = await PeriodicStagesInstance.currentStage.call()
       await assertRevert(TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]}))
     })
   })

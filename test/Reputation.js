@@ -178,7 +178,7 @@ contract('Reputation', function (accounts) {
       let actualAnalyst2LastPeriodScoreExp = await TRLInstance.weightedScore(expWeights, analyst2Scores, WINDOW_SIZE)
       actualAnalyst2LastPeriodScoreExp = Number((actualAnalyst2LastPeriodScoreExp / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2LastPeriodScoreExp, actualAnalyst2LastPeriodScoreExp)
-        // assert.equal(0, score)
+      // assert.equal(0, score)
     })
 
     it('Should yeld correct values when the window size is smaller than the sample', async () => {
@@ -225,7 +225,7 @@ contract('Reputation', function (accounts) {
       let res = await ProxyTRLInstance.reputation(epoch, candidateAccounts[0])
       assert.equal(rep1ExpectedResult, res)
     })
-    it('Should revert when weights are not set', async() => {
+    it('Should revert when weights are not set', async () => {
       await FrontierTokenInstance.approve(ProxyTRLInstance.address, stakedTokens, {from: voterAccounts[0]})
 
       await ProxyTRLInstance.setWindowSize(WINDOW_SIZE)
@@ -241,14 +241,14 @@ contract('Reputation', function (accounts) {
       await assertRevert(ProxyTRLInstance.reputation(epoch, candidateAccounts[0]))
     })
 
-    it('Should revert when non-owner tries to set reputation weights', async() => {
+    it('Should revert when non-owner tries to set reputation weights', async () => {
       await FrontierTokenInstance.approve(ProxyTRLInstance.address, stakedTokens, {from: voterAccounts[0]})
 
       await ProxyTRLInstance.setWindowSize(WINDOW_SIZE)
       await assertRevert(ProxyTRLInstance.setReputationLinWeights(linWeightsSmaller, {from: voterAccounts[1]}))
     })
 
-    it('Should revert when reputation weights size is different than window size', async() => {
+    it('Should revert when reputation weights size is different than window size', async () => {
       await FrontierTokenInstance.approve(ProxyTRLInstance.address, stakedTokens, {from: voterAccounts[0]})
 
       let shortLinWeights = [400000000, 300000000, 200000000, 100000000]

@@ -1,8 +1,8 @@
 pragma solidity ^0.4.24;
-    
+
+import "./Vault.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
-import "./Vault.sol";
 import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 
 contract TRLStorage {

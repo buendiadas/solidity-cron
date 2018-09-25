@@ -96,7 +96,6 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     function setMinimumStake(uint256 _minimumStakeAmount) public {
         require(msg.sender == owner);
         stakingConstraints[0] = _minimumStakeAmount;
-
     }
 
     /*
@@ -181,8 +180,6 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     function reputation(uint256 _epoch, address _account) public view returns (uint256) {
         require(reputationWeightsSet);
         require(reputationWindowSizeSet);
-
-        uint256 epochCounter;
         uint256[] memory votes = new uint256[](reputationWindowSize);
 
         require(repWeights.length == reputationWindowSize); // if window size was changed
@@ -285,7 +282,6 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function weightedScore(uint256[] _weights, uint256[] _pastScores, uint256 _windowSize) public pure returns(uint256){
- 
         require(_weights.length == _windowSize);
 
         uint256 score = 0;
