@@ -38,7 +38,8 @@ echo "Going to playground!"
  mkdir $PLAYGROUND_TRLLISTENER 
  #git clone git@github.com:Frontier-project/trl-listener.git $PLAYGROUND_TRLLISTENER
  #git clone https://github.com/Frontier-project/trl-listener.git $PLAYGROUND_TRLLISTENER
- git clone --single-branch -b FRN-130/test/adding-integration-tests https://github.com/Frontier-project/trl-listener.git $PLAYGROUND_TRLLISTENER
+ #git clone --single-branch -b FRN-130/test/adding-integration-tests https://github.com/Frontier-project/trl-listener.git $PLAYGROUND_TRLLISTENER
+ git clone https://github.com/Frontier-project/trl-listener.git $PLAYGROUND_TRLLISTENER
  
  ( cd $PLAYGROUND_TRLLISTENER && echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc )
  ( cd $PLAYGROUND_TRLLISTENER && npm install )
