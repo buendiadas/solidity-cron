@@ -6,6 +6,7 @@ const PeriodicStageContract = artifacts.require('PeriodicStages')
 const options = {from: config.ownerAccount}
 const TRLContract = artifacts.require('TRL')
 const OwnedRegistryFactoryContract = artifacts.require('@frontier-token-research/role-registries/contracts/OwnedRegistryFactory')
+const fs = require('fs')
 
 module.exports = (deployer) => {
   deployer.then(async () => {
@@ -29,6 +30,16 @@ module.exports = (deployer) => {
       await ProxyTRL.initStages(config.activeTime, config.claimTime)
       await ProxyTRL.setWindowSize(WINDOW_SIZE)
       await ProxyTRL.setReputationLinWeights(linWeightsSmaller)
+
+      // storing the contract address
+      if (process.env.INTEGRATION_TEST === '1') {
+        let proxyAddress = await ProxyInstance.address
+        let proxyAddressObj = {address: proxyAddress}
+        proxyAddressObj = JSON.stringify(proxyAddressObj)
+        const addressPath = process.env.PROXY_ADDR_PATH
+
+        await fs.writeFileSync(addressPath, proxyAddressObj)
+      }
     }
   })
 }

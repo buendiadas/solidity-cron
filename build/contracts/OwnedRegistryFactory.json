@@ -81,14 +81,14 @@
     "absolutePath": "@frontier-token-research/role-registries/contracts/OwnedRegistryFactory.sol",
     "exportedSymbols": {
       "OwnedRegistryFactory": [
-        1490
+        1772
       ]
     },
-    "id": 1491,
+    "id": 1773,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 1424,
+        "id": 1706,
         "literals": [
           "solidity",
           "^",
@@ -101,10 +101,10 @@
       {
         "absolutePath": "@frontier-token-research/role-registries/contracts/OwnedRegistry.sol",
         "file": "./OwnedRegistry.sol",
-        "id": 1425,
+        "id": 1707,
         "nodeType": "ImportDirective",
-        "scope": 1491,
-        "sourceUnit": 1423,
+        "scope": 1773,
+        "sourceUnit": 1705,
         "src": "26:29:11",
         "symbolAliases": [],
         "unitAlias": ""
@@ -112,24 +112,24 @@
       {
         "baseContracts": [],
         "contractDependencies": [
-          1422
+          1704
         ],
         "contractKind": "contract",
         "documentation": "Factory to deploy Owned Registries*",
         "fullyImplemented": true,
-        "id": 1490,
+        "id": 1772,
         "linearizedBaseContracts": [
-          1490
+          1772
         ],
         "name": "OwnedRegistryFactory",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "constant": false,
-            "id": 1429,
+            "id": 1711,
             "name": "registries",
             "nodeType": "VariableDeclaration",
-            "scope": 1490,
+            "scope": 1772,
             "src": "139:46:11",
             "stateVariable": true,
             "storageLocation": "default",
@@ -138,9 +138,9 @@
               "typeString": "mapping(bytes32 => address)"
             },
             "typeName": {
-              "id": 1428,
+              "id": 1710,
               "keyType": {
-                "id": 1426,
+                "id": 1708,
                 "name": "bytes32",
                 "nodeType": "ElementaryTypeName",
                 "src": "148:7:11",
@@ -156,7 +156,7 @@
                 "typeString": "mapping(bytes32 => address)"
               },
               "valueType": {
-                "id": 1427,
+                "id": 1709,
                 "name": "address",
                 "nodeType": "ElementaryTypeName",
                 "src": "159:7:11",
@@ -171,7 +171,7 @@
           },
           {
             "body": {
-              "id": 1472,
+              "id": 1754,
               "nodeType": "Block",
               "src": "388:255:11",
               "statements": [
@@ -185,7 +185,7 @@
                           "typeIdentifier": "t_address",
                           "typeString": "address"
                         },
-                        "id": 1441,
+                        "id": 1723,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -194,25 +194,25 @@
                           "argumentTypes": null,
                           "baseExpression": {
                             "argumentTypes": null,
-                            "id": 1437,
+                            "id": 1719,
                             "name": "registries",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 1429,
+                            "referencedDeclaration": 1711,
                             "src": "406:10:11",
                             "typeDescriptions": {
                               "typeIdentifier": "t_mapping$_t_bytes32_$_t_address_$",
                               "typeString": "mapping(bytes32 => address)"
                             }
                           },
-                          "id": 1439,
+                          "id": 1721,
                           "indexExpression": {
                             "argumentTypes": null,
-                            "id": 1438,
+                            "id": 1720,
                             "name": "_label",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 1431,
+                            "referencedDeclaration": 1713,
                             "src": "417:6:11",
                             "typeDescriptions": {
                               "typeIdentifier": "t_bytes32",
@@ -235,7 +235,7 @@
                         "rightExpression": {
                           "argumentTypes": null,
                           "hexValue": "30783030",
-                          "id": 1440,
+                          "id": 1722,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -264,21 +264,21 @@
                           "typeString": "bool"
                         }
                       ],
-                      "id": 1436,
+                      "id": 1718,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        2122,
-                        2123
+                        2404,
+                        2405
                       ],
-                      "referencedDeclaration": 2122,
+                      "referencedDeclaration": 2404,
                       "src": "398:7:11",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
                         "typeString": "function (bool) pure"
                       }
                     },
-                    "id": 1442,
+                    "id": 1724,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -292,37 +292,37 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 1443,
+                  "id": 1725,
                   "nodeType": "ExpressionStatement",
                   "src": "398:35:11"
                 },
                 {
                   "assignments": [
-                    1445
+                    1727
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 1445,
+                      "id": 1727,
                       "name": "reg",
                       "nodeType": "VariableDeclaration",
-                      "scope": 1473,
+                      "scope": 1755,
                       "src": "443:17:11",
                       "stateVariable": false,
                       "storageLocation": "default",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                        "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                         "typeString": "contract OwnedRegistry"
                       },
                       "typeName": {
                         "contractScope": null,
-                        "id": 1444,
+                        "id": 1726,
                         "name": "OwnedRegistry",
                         "nodeType": "UserDefinedTypeName",
-                        "referencedDeclaration": 1422,
+                        "referencedDeclaration": 1704,
                         "src": "443:13:11",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                          "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                           "typeString": "contract OwnedRegistry"
                         }
                       },
@@ -330,13 +330,13 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 1449,
+                  "id": 1731,
                   "initialValue": {
                     "argumentTypes": null,
                     "arguments": [],
                     "expression": {
                       "argumentTypes": [],
-                      "id": 1447,
+                      "id": 1729,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -344,23 +344,23 @@
                       "nodeType": "NewExpression",
                       "src": "463:17:11",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_function_creation_nonpayable$__$returns$_t_contract$_OwnedRegistry_$1422_$",
+                        "typeIdentifier": "t_function_creation_nonpayable$__$returns$_t_contract$_OwnedRegistry_$1704_$",
                         "typeString": "function () returns (contract OwnedRegistry)"
                       },
                       "typeName": {
                         "contractScope": null,
-                        "id": 1446,
+                        "id": 1728,
                         "name": "OwnedRegistry",
                         "nodeType": "UserDefinedTypeName",
-                        "referencedDeclaration": 1422,
+                        "referencedDeclaration": 1704,
                         "src": "467:13:11",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                          "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                           "typeString": "contract OwnedRegistry"
                         }
                       }
                     },
-                    "id": 1448,
+                    "id": 1730,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -370,7 +370,7 @@
                     "nodeType": "FunctionCall",
                     "src": "463:19:11",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                      "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                       "typeString": "contract OwnedRegistry"
                     }
                   },
@@ -385,18 +385,18 @@
                         "argumentTypes": null,
                         "expression": {
                           "argumentTypes": null,
-                          "id": 1451,
+                          "id": 1733,
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 2119,
+                          "referencedDeclaration": 2401,
                           "src": "519:3:11",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
                             "typeString": "msg"
                           }
                         },
-                        "id": 1452,
+                        "id": 1734,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -418,18 +418,18 @@
                           "typeString": "address"
                         }
                       ],
-                      "id": 1450,
+                      "id": 1732,
                       "name": "OwnedRegistryCreation",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1489,
+                      "referencedDeclaration": 1771,
                       "src": "497:21:11",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_address_$returns$__$",
                         "typeString": "function (address)"
                       }
                     },
-                    "id": 1453,
+                    "id": 1735,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -443,7 +443,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 1454,
+                  "id": 1736,
                   "nodeType": "EmitStatement",
                   "src": "492:38:11"
                 },
@@ -455,18 +455,18 @@
                         "argumentTypes": null,
                         "expression": {
                           "argumentTypes": null,
-                          "id": 1458,
+                          "id": 1740,
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 2119,
+                          "referencedDeclaration": 2401,
                           "src": "562:3:11",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
                             "typeString": "msg"
                           }
                         },
-                        "id": 1459,
+                        "id": 1741,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -490,32 +490,32 @@
                       ],
                       "expression": {
                         "argumentTypes": null,
-                        "id": 1455,
+                        "id": 1737,
                         "name": "reg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1445,
+                        "referencedDeclaration": 1727,
                         "src": "540:3:11",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                          "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                           "typeString": "contract OwnedRegistry"
                         }
                       },
-                      "id": 1457,
+                      "id": 1739,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "transferOwnership",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 1686,
+                      "referencedDeclaration": 1968,
                       "src": "540:21:11",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$returns$__$",
                         "typeString": "function (address) external"
                       }
                     },
-                    "id": 1460,
+                    "id": 1742,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -529,14 +529,14 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 1461,
+                  "id": 1743,
                   "nodeType": "ExpressionStatement",
                   "src": "540:33:11"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 1468,
+                    "id": 1750,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -545,25 +545,25 @@
                       "argumentTypes": null,
                       "baseExpression": {
                         "argumentTypes": null,
-                        "id": 1462,
+                        "id": 1744,
                         "name": "registries",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1429,
+                        "referencedDeclaration": 1711,
                         "src": "583:10:11",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_bytes32_$_t_address_$",
                           "typeString": "mapping(bytes32 => address)"
                         }
                       },
-                      "id": 1464,
+                      "id": 1746,
                       "indexExpression": {
                         "argumentTypes": null,
-                        "id": 1463,
+                        "id": 1745,
                         "name": "_label",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1431,
+                        "referencedDeclaration": 1713,
                         "src": "594:6:11",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
@@ -588,14 +588,14 @@
                       "arguments": [
                         {
                           "argumentTypes": null,
-                          "id": 1466,
+                          "id": 1748,
                           "name": "reg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 1445,
+                          "referencedDeclaration": 1727,
                           "src": "612:3:11",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                            "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                             "typeString": "contract OwnedRegistry"
                           }
                         }
@@ -603,11 +603,11 @@
                       "expression": {
                         "argumentTypes": [
                           {
-                            "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                            "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                             "typeString": "contract OwnedRegistry"
                           }
                         ],
-                        "id": 1465,
+                        "id": 1747,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -620,7 +620,7 @@
                         },
                         "typeName": "address"
                       },
-                      "id": 1467,
+                      "id": 1749,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -640,33 +640,33 @@
                       "typeString": "address"
                     }
                   },
-                  "id": 1469,
+                  "id": 1751,
                   "nodeType": "ExpressionStatement",
                   "src": "583:33:11"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 1470,
+                    "id": 1752,
                     "name": "reg",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 1445,
+                    "referencedDeclaration": 1727,
                     "src": "633:3:11",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                      "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                       "typeString": "contract OwnedRegistry"
                     }
                   },
-                  "functionReturnParameters": 1435,
-                  "id": 1471,
+                  "functionReturnParameters": 1717,
+                  "id": 1753,
                   "nodeType": "Return",
                   "src": "626:10:11"
                 }
               ]
             },
             "documentation": "Creates a new Owned Registry\n@param _label a bytes32 label to identify the new created registry",
-            "id": 1473,
+            "id": 1755,
             "implemented": true,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -674,15 +674,15 @@
             "name": "newRegistry",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1432,
+              "id": 1714,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1431,
+                  "id": 1713,
                   "name": "_label",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1473,
+                  "scope": 1755,
                   "src": "337:14:11",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -691,7 +691,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 1430,
+                    "id": 1712,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "337:7:11",
@@ -708,31 +708,31 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 1435,
+              "id": 1717,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1434,
+                  "id": 1716,
                   "name": "_reg",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1473,
+                  "scope": 1755,
                   "src": "369:18:11",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                    "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                     "typeString": "contract OwnedRegistry"
                   },
                   "typeName": {
                     "contractScope": null,
-                    "id": 1433,
+                    "id": 1715,
                     "name": "OwnedRegistry",
                     "nodeType": "UserDefinedTypeName",
-                    "referencedDeclaration": 1422,
+                    "referencedDeclaration": 1704,
                     "src": "369:13:11",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                      "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                       "typeString": "contract OwnedRegistry"
                     }
                   },
@@ -742,7 +742,7 @@
               ],
               "src": "368:20:11"
             },
-            "scope": 1490,
+            "scope": 1772,
             "src": "316:327:11",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -750,7 +750,7 @@
           },
           {
             "body": {
-              "id": 1484,
+              "id": 1766,
               "nodeType": "Block",
               "src": "715:42:11",
               "statements": [
@@ -759,25 +759,25 @@
                     "argumentTypes": null,
                     "baseExpression": {
                       "argumentTypes": null,
-                      "id": 1480,
+                      "id": 1762,
                       "name": "registries",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1429,
+                      "referencedDeclaration": 1711,
                       "src": "732:10:11",
                       "typeDescriptions": {
                         "typeIdentifier": "t_mapping$_t_bytes32_$_t_address_$",
                         "typeString": "mapping(bytes32 => address)"
                       }
                     },
-                    "id": 1482,
+                    "id": 1764,
                     "indexExpression": {
                       "argumentTypes": null,
-                      "id": 1481,
+                      "id": 1763,
                       "name": "_label",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1475,
+                      "referencedDeclaration": 1757,
                       "src": "743:6:11",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bytes32",
@@ -795,15 +795,15 @@
                       "typeString": "address"
                     }
                   },
-                  "functionReturnParameters": 1479,
-                  "id": 1483,
+                  "functionReturnParameters": 1761,
+                  "id": 1765,
                   "nodeType": "Return",
                   "src": "725:25:11"
                 }
               ]
             },
             "documentation": null,
-            "id": 1485,
+            "id": 1767,
             "implemented": true,
             "isConstructor": false,
             "isDeclaredConst": true,
@@ -811,15 +811,15 @@
             "name": "getRegistry",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1476,
+              "id": 1758,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1475,
+                  "id": 1757,
                   "name": "_label",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1485,
+                  "scope": 1767,
                   "src": "670:14:11",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -828,7 +828,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 1474,
+                    "id": 1756,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "670:7:11",
@@ -845,15 +845,15 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 1479,
+              "id": 1761,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1478,
+                  "id": 1760,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1485,
+                  "scope": 1767,
                   "src": "707:7:11",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -862,7 +862,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 1477,
+                    "id": 1759,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "707:7:11",
@@ -877,7 +877,7 @@
               ],
               "src": "706:9:11"
             },
-            "scope": 1490,
+            "scope": 1772,
             "src": "649:108:11",
             "stateMutability": "view",
             "superFunction": null,
@@ -886,20 +886,20 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 1489,
+            "id": 1771,
             "name": "OwnedRegistryCreation",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 1488,
+              "id": 1770,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1487,
+                  "id": 1769,
                   "indexed": true,
                   "name": "creator",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1489,
+                  "scope": 1771,
                   "src": "791:23:11",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -908,7 +908,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 1486,
+                    "id": 1768,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "791:7:11",
@@ -926,7 +926,7 @@
             "src": "763:53:11"
           }
         ],
-        "scope": 1491,
+        "scope": 1773,
         "src": "103:716:11"
       }
     ],
@@ -936,14 +936,14 @@
     "absolutePath": "@frontier-token-research/role-registries/contracts/OwnedRegistryFactory.sol",
     "exportedSymbols": {
       "OwnedRegistryFactory": [
-        1490
+        1772
       ]
     },
-    "id": 1491,
+    "id": 1773,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 1424,
+        "id": 1706,
         "literals": [
           "solidity",
           "^",
@@ -956,10 +956,10 @@
       {
         "absolutePath": "@frontier-token-research/role-registries/contracts/OwnedRegistry.sol",
         "file": "./OwnedRegistry.sol",
-        "id": 1425,
+        "id": 1707,
         "nodeType": "ImportDirective",
-        "scope": 1491,
-        "sourceUnit": 1423,
+        "scope": 1773,
+        "sourceUnit": 1705,
         "src": "26:29:11",
         "symbolAliases": [],
         "unitAlias": ""
@@ -967,24 +967,24 @@
       {
         "baseContracts": [],
         "contractDependencies": [
-          1422
+          1704
         ],
         "contractKind": "contract",
         "documentation": "Factory to deploy Owned Registries*",
         "fullyImplemented": true,
-        "id": 1490,
+        "id": 1772,
         "linearizedBaseContracts": [
-          1490
+          1772
         ],
         "name": "OwnedRegistryFactory",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "constant": false,
-            "id": 1429,
+            "id": 1711,
             "name": "registries",
             "nodeType": "VariableDeclaration",
-            "scope": 1490,
+            "scope": 1772,
             "src": "139:46:11",
             "stateVariable": true,
             "storageLocation": "default",
@@ -993,9 +993,9 @@
               "typeString": "mapping(bytes32 => address)"
             },
             "typeName": {
-              "id": 1428,
+              "id": 1710,
               "keyType": {
-                "id": 1426,
+                "id": 1708,
                 "name": "bytes32",
                 "nodeType": "ElementaryTypeName",
                 "src": "148:7:11",
@@ -1011,7 +1011,7 @@
                 "typeString": "mapping(bytes32 => address)"
               },
               "valueType": {
-                "id": 1427,
+                "id": 1709,
                 "name": "address",
                 "nodeType": "ElementaryTypeName",
                 "src": "159:7:11",
@@ -1026,7 +1026,7 @@
           },
           {
             "body": {
-              "id": 1472,
+              "id": 1754,
               "nodeType": "Block",
               "src": "388:255:11",
               "statements": [
@@ -1040,7 +1040,7 @@
                           "typeIdentifier": "t_address",
                           "typeString": "address"
                         },
-                        "id": 1441,
+                        "id": 1723,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -1049,25 +1049,25 @@
                           "argumentTypes": null,
                           "baseExpression": {
                             "argumentTypes": null,
-                            "id": 1437,
+                            "id": 1719,
                             "name": "registries",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 1429,
+                            "referencedDeclaration": 1711,
                             "src": "406:10:11",
                             "typeDescriptions": {
                               "typeIdentifier": "t_mapping$_t_bytes32_$_t_address_$",
                               "typeString": "mapping(bytes32 => address)"
                             }
                           },
-                          "id": 1439,
+                          "id": 1721,
                           "indexExpression": {
                             "argumentTypes": null,
-                            "id": 1438,
+                            "id": 1720,
                             "name": "_label",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 1431,
+                            "referencedDeclaration": 1713,
                             "src": "417:6:11",
                             "typeDescriptions": {
                               "typeIdentifier": "t_bytes32",
@@ -1090,7 +1090,7 @@
                         "rightExpression": {
                           "argumentTypes": null,
                           "hexValue": "30783030",
-                          "id": 1440,
+                          "id": 1722,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -1119,21 +1119,21 @@
                           "typeString": "bool"
                         }
                       ],
-                      "id": 1436,
+                      "id": 1718,
                       "name": "require",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [
-                        2122,
-                        2123
+                        2404,
+                        2405
                       ],
-                      "referencedDeclaration": 2122,
+                      "referencedDeclaration": 2404,
                       "src": "398:7:11",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
                         "typeString": "function (bool) pure"
                       }
                     },
-                    "id": 1442,
+                    "id": 1724,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1147,37 +1147,37 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 1443,
+                  "id": 1725,
                   "nodeType": "ExpressionStatement",
                   "src": "398:35:11"
                 },
                 {
                   "assignments": [
-                    1445
+                    1727
                   ],
                   "declarations": [
                     {
                       "constant": false,
-                      "id": 1445,
+                      "id": 1727,
                       "name": "reg",
                       "nodeType": "VariableDeclaration",
-                      "scope": 1473,
+                      "scope": 1755,
                       "src": "443:17:11",
                       "stateVariable": false,
                       "storageLocation": "default",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                        "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                         "typeString": "contract OwnedRegistry"
                       },
                       "typeName": {
                         "contractScope": null,
-                        "id": 1444,
+                        "id": 1726,
                         "name": "OwnedRegistry",
                         "nodeType": "UserDefinedTypeName",
-                        "referencedDeclaration": 1422,
+                        "referencedDeclaration": 1704,
                         "src": "443:13:11",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                          "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                           "typeString": "contract OwnedRegistry"
                         }
                       },
@@ -1185,13 +1185,13 @@
                       "visibility": "internal"
                     }
                   ],
-                  "id": 1449,
+                  "id": 1731,
                   "initialValue": {
                     "argumentTypes": null,
                     "arguments": [],
                     "expression": {
                       "argumentTypes": [],
-                      "id": 1447,
+                      "id": 1729,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -1199,23 +1199,23 @@
                       "nodeType": "NewExpression",
                       "src": "463:17:11",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_function_creation_nonpayable$__$returns$_t_contract$_OwnedRegistry_$1422_$",
+                        "typeIdentifier": "t_function_creation_nonpayable$__$returns$_t_contract$_OwnedRegistry_$1704_$",
                         "typeString": "function () returns (contract OwnedRegistry)"
                       },
                       "typeName": {
                         "contractScope": null,
-                        "id": 1446,
+                        "id": 1728,
                         "name": "OwnedRegistry",
                         "nodeType": "UserDefinedTypeName",
-                        "referencedDeclaration": 1422,
+                        "referencedDeclaration": 1704,
                         "src": "467:13:11",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                          "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                           "typeString": "contract OwnedRegistry"
                         }
                       }
                     },
-                    "id": 1448,
+                    "id": 1730,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1225,7 +1225,7 @@
                     "nodeType": "FunctionCall",
                     "src": "463:19:11",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                      "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                       "typeString": "contract OwnedRegistry"
                     }
                   },
@@ -1240,18 +1240,18 @@
                         "argumentTypes": null,
                         "expression": {
                           "argumentTypes": null,
-                          "id": 1451,
+                          "id": 1733,
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 2119,
+                          "referencedDeclaration": 2401,
                           "src": "519:3:11",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
                             "typeString": "msg"
                           }
                         },
-                        "id": 1452,
+                        "id": 1734,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -1273,18 +1273,18 @@
                           "typeString": "address"
                         }
                       ],
-                      "id": 1450,
+                      "id": 1732,
                       "name": "OwnedRegistryCreation",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1489,
+                      "referencedDeclaration": 1771,
                       "src": "497:21:11",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_event_nonpayable$_t_address_$returns$__$",
                         "typeString": "function (address)"
                       }
                     },
-                    "id": 1453,
+                    "id": 1735,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1298,7 +1298,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 1454,
+                  "id": 1736,
                   "nodeType": "EmitStatement",
                   "src": "492:38:11"
                 },
@@ -1310,18 +1310,18 @@
                         "argumentTypes": null,
                         "expression": {
                           "argumentTypes": null,
-                          "id": 1458,
+                          "id": 1740,
                           "name": "msg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 2119,
+                          "referencedDeclaration": 2401,
                           "src": "562:3:11",
                           "typeDescriptions": {
                             "typeIdentifier": "t_magic_message",
                             "typeString": "msg"
                           }
                         },
-                        "id": 1459,
+                        "id": 1741,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
@@ -1345,32 +1345,32 @@
                       ],
                       "expression": {
                         "argumentTypes": null,
-                        "id": 1455,
+                        "id": 1737,
                         "name": "reg",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1445,
+                        "referencedDeclaration": 1727,
                         "src": "540:3:11",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                          "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                           "typeString": "contract OwnedRegistry"
                         }
                       },
-                      "id": 1457,
+                      "id": 1739,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "transferOwnership",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 1686,
+                      "referencedDeclaration": 1968,
                       "src": "540:21:11",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_external_nonpayable$_t_address_$returns$__$",
                         "typeString": "function (address) external"
                       }
                     },
-                    "id": 1460,
+                    "id": 1742,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1384,14 +1384,14 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 1461,
+                  "id": 1743,
                   "nodeType": "ExpressionStatement",
                   "src": "540:33:11"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 1468,
+                    "id": 1750,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1400,25 +1400,25 @@
                       "argumentTypes": null,
                       "baseExpression": {
                         "argumentTypes": null,
-                        "id": 1462,
+                        "id": 1744,
                         "name": "registries",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1429,
+                        "referencedDeclaration": 1711,
                         "src": "583:10:11",
                         "typeDescriptions": {
                           "typeIdentifier": "t_mapping$_t_bytes32_$_t_address_$",
                           "typeString": "mapping(bytes32 => address)"
                         }
                       },
-                      "id": 1464,
+                      "id": 1746,
                       "indexExpression": {
                         "argumentTypes": null,
-                        "id": 1463,
+                        "id": 1745,
                         "name": "_label",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 1431,
+                        "referencedDeclaration": 1713,
                         "src": "594:6:11",
                         "typeDescriptions": {
                           "typeIdentifier": "t_bytes32",
@@ -1443,14 +1443,14 @@
                       "arguments": [
                         {
                           "argumentTypes": null,
-                          "id": 1466,
+                          "id": 1748,
                           "name": "reg",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 1445,
+                          "referencedDeclaration": 1727,
                           "src": "612:3:11",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                            "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                             "typeString": "contract OwnedRegistry"
                           }
                         }
@@ -1458,11 +1458,11 @@
                       "expression": {
                         "argumentTypes": [
                           {
-                            "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                            "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                             "typeString": "contract OwnedRegistry"
                           }
                         ],
-                        "id": 1465,
+                        "id": 1747,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -1475,7 +1475,7 @@
                         },
                         "typeName": "address"
                       },
-                      "id": 1467,
+                      "id": 1749,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -1495,33 +1495,33 @@
                       "typeString": "address"
                     }
                   },
-                  "id": 1469,
+                  "id": 1751,
                   "nodeType": "ExpressionStatement",
                   "src": "583:33:11"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 1470,
+                    "id": 1752,
                     "name": "reg",
                     "nodeType": "Identifier",
                     "overloadedDeclarations": [],
-                    "referencedDeclaration": 1445,
+                    "referencedDeclaration": 1727,
                     "src": "633:3:11",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                      "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                       "typeString": "contract OwnedRegistry"
                     }
                   },
-                  "functionReturnParameters": 1435,
-                  "id": 1471,
+                  "functionReturnParameters": 1717,
+                  "id": 1753,
                   "nodeType": "Return",
                   "src": "626:10:11"
                 }
               ]
             },
             "documentation": "Creates a new Owned Registry\n@param _label a bytes32 label to identify the new created registry",
-            "id": 1473,
+            "id": 1755,
             "implemented": true,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -1529,15 +1529,15 @@
             "name": "newRegistry",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1432,
+              "id": 1714,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1431,
+                  "id": 1713,
                   "name": "_label",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1473,
+                  "scope": 1755,
                   "src": "337:14:11",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1546,7 +1546,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 1430,
+                    "id": 1712,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "337:7:11",
@@ -1563,31 +1563,31 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 1435,
+              "id": 1717,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1434,
+                  "id": 1716,
                   "name": "_reg",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1473,
+                  "scope": 1755,
                   "src": "369:18:11",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                    "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                     "typeString": "contract OwnedRegistry"
                   },
                   "typeName": {
                     "contractScope": null,
-                    "id": 1433,
+                    "id": 1715,
                     "name": "OwnedRegistry",
                     "nodeType": "UserDefinedTypeName",
-                    "referencedDeclaration": 1422,
+                    "referencedDeclaration": 1704,
                     "src": "369:13:11",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_contract$_OwnedRegistry_$1422",
+                      "typeIdentifier": "t_contract$_OwnedRegistry_$1704",
                       "typeString": "contract OwnedRegistry"
                     }
                   },
@@ -1597,7 +1597,7 @@
               ],
               "src": "368:20:11"
             },
-            "scope": 1490,
+            "scope": 1772,
             "src": "316:327:11",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -1605,7 +1605,7 @@
           },
           {
             "body": {
-              "id": 1484,
+              "id": 1766,
               "nodeType": "Block",
               "src": "715:42:11",
               "statements": [
@@ -1614,25 +1614,25 @@
                     "argumentTypes": null,
                     "baseExpression": {
                       "argumentTypes": null,
-                      "id": 1480,
+                      "id": 1762,
                       "name": "registries",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1429,
+                      "referencedDeclaration": 1711,
                       "src": "732:10:11",
                       "typeDescriptions": {
                         "typeIdentifier": "t_mapping$_t_bytes32_$_t_address_$",
                         "typeString": "mapping(bytes32 => address)"
                       }
                     },
-                    "id": 1482,
+                    "id": 1764,
                     "indexExpression": {
                       "argumentTypes": null,
-                      "id": 1481,
+                      "id": 1763,
                       "name": "_label",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 1475,
+                      "referencedDeclaration": 1757,
                       "src": "743:6:11",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bytes32",
@@ -1650,15 +1650,15 @@
                       "typeString": "address"
                     }
                   },
-                  "functionReturnParameters": 1479,
-                  "id": 1483,
+                  "functionReturnParameters": 1761,
+                  "id": 1765,
                   "nodeType": "Return",
                   "src": "725:25:11"
                 }
               ]
             },
             "documentation": null,
-            "id": 1485,
+            "id": 1767,
             "implemented": true,
             "isConstructor": false,
             "isDeclaredConst": true,
@@ -1666,15 +1666,15 @@
             "name": "getRegistry",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 1476,
+              "id": 1758,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1475,
+                  "id": 1757,
                   "name": "_label",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1485,
+                  "scope": 1767,
                   "src": "670:14:11",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1683,7 +1683,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 1474,
+                    "id": 1756,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "670:7:11",
@@ -1700,15 +1700,15 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 1479,
+              "id": 1761,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1478,
+                  "id": 1760,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1485,
+                  "scope": 1767,
                   "src": "707:7:11",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1717,7 +1717,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 1477,
+                    "id": 1759,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "707:7:11",
@@ -1732,7 +1732,7 @@
               ],
               "src": "706:9:11"
             },
-            "scope": 1490,
+            "scope": 1772,
             "src": "649:108:11",
             "stateMutability": "view",
             "superFunction": null,
@@ -1741,20 +1741,20 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 1489,
+            "id": 1771,
             "name": "OwnedRegistryCreation",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 1488,
+              "id": 1770,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 1487,
+                  "id": 1769,
                   "indexed": true,
                   "name": "creator",
                   "nodeType": "VariableDeclaration",
-                  "scope": 1489,
+                  "scope": 1771,
                   "src": "791:23:11",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1763,7 +1763,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 1486,
+                    "id": 1768,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "791:7:11",
@@ -1781,7 +1781,7 @@
             "src": "763:53:11"
           }
         ],
-        "scope": 1491,
+        "scope": 1773,
         "src": "103:716:11"
       }
     ],
@@ -1810,8 +1810,27 @@
       "links": {},
       "address": "0xb7a86373c87ca6019a4f9622291ce2498ca28200",
       "transactionHash": "0xf65488d8c6ad6dfd3e3ef7098973adb52aafbce379109a564995c38cdb513c97"
+    },
+    "1537107834398": {
+      "events": {
+        "0x86de3e8ad70220b07d21888291dbcf2eb9abb87044911115423316a89c5bc1af": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "creator",
+              "type": "address"
+            }
+          ],
+          "name": "OwnedRegistryCreation",
+          "type": "event"
+        }
+      },
+      "links": {},
+      "address": "0xf97c7a033093ddb08b1bfced9d5e3baab9c76302",
+      "transactionHash": "0xb1e6f1b9d08c9cb97907df09ddadd5e1744b8282e15bb7a8da8dcc3410bb1450"
     }
   },
-  "schemaVersion": "2.0.0",
-  "updatedAt": "2018-08-21T11:27:03.174Z"
+  "schemaVersion": "2.0.1",
+  "updatedAt": "2018-09-16T14:33:30.266Z"
 }
