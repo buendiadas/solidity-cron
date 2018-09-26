@@ -72,6 +72,12 @@ contract('TRL<Active>', function (accounts) {
     })
   })
   describe('Moving periods', async () => {
+    it('Should include currentPeriod as a temporary pointer to height', async () => {
+      const currentPeriod = TRLInstance.currentPeriod.call()
+      const height = TRLInstance.height.call()
+      assert.strictEqual(height.toNumber(), currentPeriod.toNumber())
+
+    }
     it('Should increase the period after advancing one period in blocks', async () => {
       const initialPeriod = await TRLInstance.height.call()
       const periodsToAdvance = 1
