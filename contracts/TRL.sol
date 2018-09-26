@@ -30,8 +30,6 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
 
     /**
     * @dev Initializes a set of states inside a period, that will repeat periodically.
-    * Requires that (_activeTime + _claimTime) < _T
-    * By default, no stage will be defined, and the Smart Contract will stay on stage 0.
     * @param _activeTime  Temporal epoch when the Smart Contract is set as "Active", most of the interactions inside the period will come here
     * @param _claimTime  Temporal epoch where participants can claim their compensation based on the interactions mader on activeTime
     * TODO: Generalize to a general number of periods.
@@ -48,10 +46,8 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
 
     /**
     * @dev Exchanges the main token for an amount of votes
-    * Requires previous allowance of expenditure of at least the amount required
-    * Right now 1:1 exchange used
     * @param _amount Amount of votes that the voter wants to buy
-    * TODO: Generalize to different ratios 
+    * NOTE: Requires previous allowance of expenditure of at least the amount required, right now 1:1 exchange used
     **/
 
     function buyTokenVotes(uint256 _amount) external {
@@ -193,6 +189,15 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         }
 
         return weightedScore(repWeights,votes, reputationWindowSize);
+    }
+
+     /**
+    * @dev Returns the current period number, by calling the period Lib
+    * NOTICE: In deprecation process
+    **/
+
+    function getCurrentPeriod() public view returns(uint256) { 
+        returns height();
     }
 
     /**
