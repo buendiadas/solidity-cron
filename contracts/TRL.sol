@@ -196,7 +196,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     * NOTICE: In deprecation process
     **/
 
-    function getCurrentPeriod() public view returns(uint256) { 
+    function currentPeriod() public view returns(uint256) { 
         return height();
     }
 
