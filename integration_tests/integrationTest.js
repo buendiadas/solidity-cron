@@ -54,12 +54,12 @@ contract('TRL<Migrations>', function (accounts) {
 
   // choose which tests to run
   const runTests = {
-    creatingTheContract: true,
+    creatingTheContract: false,
     movingPeriods: true,
     staking: true,
     voting: true,
     claiming: true,
-    scoring: true // disabled because it conflicts with config.ttl
+    scoring: false // disabled because it conflicts with config.ttl
   }
 
   if (runTests.creatingTheContract) {
@@ -113,13 +113,12 @@ contract('TRL<Migrations>', function (accounts) {
 
       it('Should increase the period N times after advancing N periods in blocks', async () => {
         const initialPeriod = await TRLInstance.currentPeriod.call()
-        const periodsToAdvance = 5
+        const periodsToAdvance = 2
         let currBlockNumber = web3.eth.blockNumber
         await advanceToBlock.advanceToBlock(currBlockNumber + periodsToAdvance * config.ttl)
         const currentPeriod = await TRLInstance.currentPeriod.call()
         assert.strictEqual(initialPeriod.toNumber() + periodsToAdvance, currentPeriod.toNumber())
       })
-
       it('Should increase the stage after moving to the stage position inside the period', async () => {
         const T = config.ttl
         const indexInsideStage = await PeriodInstance.getRelativeIndex()
@@ -150,7 +149,7 @@ contract('TRL<Migrations>', function (accounts) {
         assert.equal(definedMinimumStake, storedMinimumStake.toNumber())
       })
       it('Should edit the maximum stake amount', async () => {
-        const definedMaximumStake = 10
+        const definedMaximumStake = 1000
         await TRLInstance.setMaximumStake(definedMaximumStake)
         const storedMaximumStake = await TRLInstance.stakingConstraints.call(1)
         assert.equal(definedMaximumStake, storedMaximumStake.toNumber())
@@ -163,22 +162,9 @@ contract('TRL<Migrations>', function (accounts) {
       })
       it('Should record the number of votes bought in period 0 on the first period', async () => {
         const listAddress = await TRLInstance.address
-        const stakedTokens = 10
+        const stakedTokens = 20
         await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0]})
         const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
-        const currentPeriod = await TRLInstance.currentPeriod.call()
-        await TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]})
-        const votingBalance = await TRLInstance.votesBalance.call(currentPeriod, voterAccounts[0])
-        assert.equal(totalPreStaked, votingBalance.toNumber())
-      })
-
-      it('Should record the number of staked tokens in period N on the future periods', async () => {
-        const listAddress = await TRLInstance.address
-        const stakedTokens = 10
-        await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0]})
-        const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
-        const periodsToAdvance = 5
-        await advanceToBlock.advanceToBlock(web3.eth.blockNumber + periodsToAdvance * config.ttl)
         const currentPeriod = await TRLInstance.currentPeriod.call()
         await TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]})
         const votingBalance = await TRLInstance.votesBalance.call(currentPeriod, voterAccounts[0])
@@ -191,15 +177,15 @@ contract('TRL<Migrations>', function (accounts) {
       it('Should increase the number of votes received per analyst in the period after voting', async () => {
         const listAddress = await TRLInstance.address
         const stakedTokens = 10
+        await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0]})
+        const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
         const currentPeriod = await TRLInstance.currentPeriod.call()
-        await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0], gas: 4712388 })
-        await TRLInstance.buyTokenVotes(stakedTokens, {from: voterAccounts[0]})
+        await TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]})
         const votingBalance = await TRLInstance.votesBalance.call(currentPeriod, voterAccounts[0])
         await TRLInstance.vote(candidateAccounts[0], votingBalance, {from: voterAccounts[0]})
         const votesReceived = await TRLInstance.votesReceived.call(currentPeriod, candidateAccounts[0])
         assert.equal(votingBalance.toNumber(), votesReceived.toNumber())
       })
-
       it('Should edit the maximum number of votes when admin requires for it', async () => {
         const requiredVotingLimitAmount = 10
         await TRLInstance.setMaxVotingLimit(requiredVotingLimitAmount, {from: adminAccount})
@@ -214,6 +200,7 @@ contract('TRL<Migrations>', function (accounts) {
       })
     })
   }
+ 
 
   if (runTests.scoring) {
     describe('Reputation', async () => {
