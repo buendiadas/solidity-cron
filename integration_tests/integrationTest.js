@@ -59,7 +59,7 @@ contract('TRL<Migrations>', function (accounts) {
     staking: true,
     voting: true,
     claiming: true,
-    scoring: false // disabled because it conflicts with config.ttl
+    scoring: true // disabled because it conflicts with config.ttl
   }
 
   if (runTests.creatingTheContract) {
@@ -190,9 +190,10 @@ contract('TRL<Migrations>', function (accounts) {
     describe('Voting', async () => {
       it('Should increase the number of votes received per analyst in the period after voting', async () => {
         const listAddress = await TRLInstance.address
-        const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
+        const stakedTokens = 10
         const currentPeriod = await TRLInstance.currentPeriod.call()
-        await TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]})
+        await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0], gas: 4712388 })
+        await TRLInstance.buyTokenVotes(stakedTokens, {from: voterAccounts[0]})
         const votingBalance = await TRLInstance.votesBalance.call(currentPeriod, voterAccounts[0])
         await TRLInstance.vote(candidateAccounts[0], votingBalance, {from: voterAccounts[0]})
         const votesReceived = await TRLInstance.votesReceived.call(currentPeriod, candidateAccounts[0])
