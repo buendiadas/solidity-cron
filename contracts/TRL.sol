@@ -51,12 +51,20 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function buyTokenVotes(uint256 _amount) external {
-        require(currentStage() == 0);
-        require(canStake(msg.sender, _amount));
-        require(_deposit(height(), _amount));
-        votesBalance[height()][msg.sender] = votesBalance[height()][msg.sender].add(_amount);
-        emit VotesBought(msg.sender, _amount, height());
+        _votePayment(msg.sender, _amount)
     }
+
+    /**
+    * @dev Exchanges the main token for an amount of votes
+    * @param _amount Amount of votes that the voter wants to buy
+    * NOTE: Requires previous allowance of expenditure of at least the amount required, right now 1:1 exchange used
+    **/
+
+    function executeSubscription(address _who, uint256 _amount) external {
+        require(msg.sender = address(subscription));
+        _votePayment(_who, _amount);
+    }
+
 
     /**
     * @dev Adds a new vote for a candidate
@@ -71,6 +79,23 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         votesBalance[height()][msg.sender] -= _amount;
         emit Vote(msg.sender, _candidateAddress, _amount, height());
     }
+
+
+    /**
+    * @dev Deposits an specified amount to a secure deposit
+    * @param _vaultID Number of the vault where the tokens should go
+    * @param _amount amount of tokens to be deposited in a vault
+    */
+
+    function _votePayment(address _who, uint256 _amount) internal returns (bool success) {
+        require(currentStage() == 0);
+        require(canStake(_who, _amount));
+        require(_deposit(height(), _amount));
+        votesBalance[height()][_who] = votesBalance[height()][msg.sender].add(_amount);
+        emit VotesBought(_who, _amount, height());
+        return true;
+    }
+
     
     /**
     * @dev Deposits an specified amount to a secure deposit
