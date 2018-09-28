@@ -6,6 +6,8 @@ import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 
 /**
 * A Smart contract including multiple Vaults identifiable by ID
+* Every Vault has the possibility of storing multiple ERC20 tokens
+* Don't send tokens directly to this contract using transfer or your funds may be lost, instead, use deposit.
 * Inspired by AragonOS Vault https://github.com/aragon/aragon-apps/blob/master/apps/vault/contracts/Vault.sol
 */
 
@@ -57,7 +59,7 @@ contract Vault is Ownable {
     }
 
     function _deposit(uint256 _vaultID, address _token, address _from, uint256 _value) internal {
-        require(_value > 0);
+        require(_value != 0);
         require(msg.sender == _from);
         require(ERC20(_token).transferFrom(_from, this, _value));
         vaultBalance[_vaultID][_token] = vaultBalance[_vaultID][_token].add(_value);
