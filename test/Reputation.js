@@ -9,6 +9,7 @@ const advanceToBlock = require('./helpers/advanceToBlock')
 const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 const PeriodicStageContract = artifacts.require('PeriodicStages')
 const PeriodContract = artifacts.require('Period')
+const VaultContract = artifacts.require('Vault')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
 ///
 
@@ -16,7 +17,7 @@ contract('Reputation', function (accounts) {
   let TRLInstance
   let ProxyInstance
   let ProxyTRLInstance
-
+  let Vault
   let ScoringInstance
   let PeriodInstance
   let startTime
@@ -36,6 +37,7 @@ contract('Reputation', function (accounts) {
     FrontierTokenInstance = await Standard20TokenMock.new(voterAccounts, config.totalTokens, {from: adminAccount})
     CandidateRegistryInstance = await OwnedRegistryContract.new(candidateAccounts, {from: adminAccount})
     VoterRegistryInstance = await OwnedRegistryContract.new(voterAccounts, {from: adminAccount})
+    Vault = await VaultContract.new({from: adminAccount})
   })
 
   beforeEach(async () => {
@@ -49,6 +51,7 @@ contract('Reputation', function (accounts) {
     await ProxyTRLInstance.setToken(FrontierTokenInstance.address)
     await ProxyTRLInstance.setCandidateRegistry(CandidateRegistryInstance.address)
     await ProxyTRLInstance.setVoterRegistry(VoterRegistryInstance.address)
+    await ProxyTRLInstance.setVault(Vault.address)
     await ProxyTRLInstance.initPeriod(config.ttl)
     await ProxyTRLInstance.initStages(config.activeTime, config.claimTime)
 
@@ -175,7 +178,7 @@ contract('Reputation', function (accounts) {
       let actualAnalyst2LastPeriodScoreExp = await TRLInstance.weightedScore(expWeights, analyst2Scores, WINDOW_SIZE)
       actualAnalyst2LastPeriodScoreExp = Number((actualAnalyst2LastPeriodScoreExp / MUL_CONSTANT).toFixed(4))
       assert.equal(expectedAnalyst2LastPeriodScoreExp, actualAnalyst2LastPeriodScoreExp)
-        // assert.equal(0, score)
+      // assert.equal(0, score)
     })
 
     it('Should yeld correct values when the window size is smaller than the sample', async () => {
@@ -214,7 +217,7 @@ contract('Reputation', function (accounts) {
       for (let i = 0; i < 5; i++) {
         await ProxyTRLInstance.buyTokenVotes(votesRecord[i], {from: voterAccounts[0]})
         await ProxyTRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
-        epoch = await ProxyTRLInstance.currentPeriod.call()
+        epoch = await ProxyTRLInstance.height.call()
         TRLScoring = await ProxyTRLInstance.scoring.call(epoch, candidateAccounts[0])
         await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
       }
@@ -222,7 +225,7 @@ contract('Reputation', function (accounts) {
       let res = await ProxyTRLInstance.reputation(epoch, candidateAccounts[0])
       assert.equal(rep1ExpectedResult, res)
     })
-    it('Should revert when weights are not set', async() => {
+    it('Should revert when weights are not set', async () => {
       await FrontierTokenInstance.approve(ProxyTRLInstance.address, stakedTokens, {from: voterAccounts[0]})
 
       await ProxyTRLInstance.setWindowSize(WINDOW_SIZE)
@@ -231,21 +234,21 @@ contract('Reputation', function (accounts) {
       for (let i = 0; i < 5; i++) {
         await ProxyTRLInstance.buyTokenVotes(votesRecord[i], {from: voterAccounts[0]})
         await ProxyTRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
-        epoch = await ProxyTRLInstance.currentPeriod.call()
+        epoch = await ProxyTRLInstance.height.call()
         TRLScoring = await ProxyTRLInstance.scoring.call(epoch, candidateAccounts[0])
         await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
       }
       await assertRevert(ProxyTRLInstance.reputation(epoch, candidateAccounts[0]))
     })
 
-    it('Should revert when non-owner tries to set reputation weights', async() => {
+    it('Should revert when non-owner tries to set reputation weights', async () => {
       await FrontierTokenInstance.approve(ProxyTRLInstance.address, stakedTokens, {from: voterAccounts[0]})
 
       await ProxyTRLInstance.setWindowSize(WINDOW_SIZE)
       await assertRevert(ProxyTRLInstance.setReputationLinWeights(linWeightsSmaller, {from: voterAccounts[1]}))
     })
 
-    it('Should revert when reputation weights size is different than window size', async() => {
+    it('Should revert when reputation weights size is different than window size', async () => {
       await FrontierTokenInstance.approve(ProxyTRLInstance.address, stakedTokens, {from: voterAccounts[0]})
 
       let shortLinWeights = [400000000, 300000000, 200000000, 100000000]

@@ -9,19 +9,12 @@
   },
   "scripts": {
     "start": "npm run start:testrpc",
-    "start-integration": "npm run start:testrpc-integration",
     "start:testrpc": "ganache-cli -p 8545 -i 5777",
-    "start:testrpc-integration": "ganache-cli -m 'brand insane federal bargain nice pilot recall zero disagree action arrive hint' -p 8546",
     "mock": "truffle exec scripts/fill_registries.js",
     "mock-infura": "truffle exec scripts/fill_registries.js --network rinkeby_infura",
     "compile": "truffle compile",
     "migrate": "truffle migrate",
-    "test-integration-all": "npm run migrate-integration && npm run test-integration",
-    "migrate-integration": "truffle migrate --reset --compile-all --network development_migration_test",
-    "test": "truffle test",
-    "test-integration": "truffle test integration_tests/integrationTest.js --network development_migration_test",
-    "sleep": "./sleep.sh",
-    "coverage": "./node_modules/.bin/solidity-coverage"
+    "test": "truffle test"
   },
   "repository": {
     "type": "git",
@@ -53,17 +46,14 @@
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.7.0",
     "eslint-plugin-standard": "^3.1.0",
-    "eth-gas-reporter": "^0.1.12",
-    "solidity-coverage": "^0.5.0",
+    "eth-gas-reporter": "^0.1.2",
+    "solidity-coverage": "^0.4.15",
     "solidity-metadata-uploader": "0.0.1"
   },
   "dependencies": {
-    "@frontier-token-research/cron": "1.0.3",
-    "@frontier-token-research/role-registries": "^1.2.0",
+    "@frontier-token-research/role-registries": "^1.1.1",
     "dotenv": "^5.0.1",
     "ethereumjs-testrpc-sc": "^6.1.2",
-    "ethjs": "^0.4.0",
-    "fs": "0.0.1-security",
     "ganache-cli": "^6.1.0",
     "init": "^0.1.2",
     "js-sha3": "^0.7.0",
@@ -74,8 +64,7 @@
     "solc": "0.4.24",
     "truffle": "4.1.11",
     "truffle-hdwallet-provider": "0.0.3",
-    "truffle-hdwallet-provider-privkey": "^0.2.0",
-    "zos-lib": "^1.4.0"
+    "truffle-hdwallet-provider-privkey": "^0.2.0"
   },
   "config": {
     "commitizen": {

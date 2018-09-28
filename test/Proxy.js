@@ -7,7 +7,7 @@ contract('Proxy', function (accounts) {
   let TRLInstance
   let ProxyInstance
   let adminAccount = web3.eth.accounts[0]
-  let ProxyTRLInstance;
+  let ProxyTRLInstance
 
   before('Deploying required contracts', async () => {
     ProxyInstance = await ProxyContract.new()
