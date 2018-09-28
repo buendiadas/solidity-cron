@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
-import "./TRLInterface.sol";
 import "./TRLStorage.sol";
+import "./TRLInterface.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
@@ -51,7 +51,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function buyTokenVotes(uint256 _amount) external {
-        _votePayment(msg.sender, _amount)
+        _votePayment(msg.sender, _amount);
     }
 
     /**
@@ -60,9 +60,10 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     * NOTE: Requires previous allowance of expenditure of at least the amount required, right now 1:1 exchange used
     **/
 
-    function executeSubscription(address _who, uint256 _amount) external {
-        require(msg.sender = address(subscription));
+    function executeSubscription(address _who, uint256 _amount) external returns (bool success){
+        require(msg.sender == subscriptionAddress);
         _votePayment(_who, _amount);
+        return true;
     }
 
 
@@ -83,16 +84,16 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
 
     /**
     * @dev Deposits an specified amount to a secure deposit
-    * @param _vaultID Number of the vault where the tokens should go
-    * @param _amount amount of tokens to be deposited in a vault
+    * @param _voterAddress Account that will receive votes in exchange of a payment
+    * @param _amount Total amount received in the subscription
     */
 
-    function _votePayment(address _who, uint256 _amount) internal returns (bool success) {
+    function _votePayment(address _voterAddress, uint256 _amount) internal returns (bool success) {
         require(currentStage() == 0);
-        require(canStake(_who, _amount));
+        require(canStake(_voterAddress, _amount));
         require(_deposit(height(), _amount));
-        votesBalance[height()][_who] = votesBalance[height()][msg.sender].add(_amount);
-        emit VotesBought(_who, _amount, height());
+        votesBalance[height()][_voterAddress] = votesBalance[height()][msg.sender].add(_amount);
+        emit VotesBought(_voterAddress, _amount, height());
         return true;
     }
 

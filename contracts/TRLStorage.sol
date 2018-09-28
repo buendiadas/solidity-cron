@@ -27,6 +27,9 @@ contract TRLStorage {
     // Contract Storing the funds
     Vault public vault;
 
+    // Contract managing Subscriptions
+    address public subscriptionAddress;
+
     // Minimum stake to participate in the period, 0 by default
     uint256[2] public stakingConstraints = [0, 2^256 -1];
 
@@ -84,6 +87,10 @@ contract TRLStorage {
 
     function setVault(address _contractAddress) public {
         vault = Vault(_contractAddress);
+    }
+
+    function setSubscriptionAccount(address _account) public {
+        subscriptionAddress = _account;
     }
 
 }
