@@ -9,7 +9,7 @@ const VaultContract = artifacts.require('Vault')
 const SubscriptionContract = artifacts.require('Subscription')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
 
-contract('TRL<Active>', function (accounts) {
+contract('Subscription', function (accounts) {
   let TRLInstance
   let FrontierTokenInstance
   let CandidateRegistryInstance
@@ -40,7 +40,7 @@ contract('TRL<Active>', function (accounts) {
     await TRLInstance.initStages(config.ttl, 0)
   })
   beforeEach(async () => {
-    SubscriptionInstance = await SubscriptionContract.new(TRLInstance.address)
+    SubscriptionInstance = await SubscriptionContract.new()
     await TRLInstance.setSubscriptionAccount(SubscriptionInstance.address);
     let periodicStagesAddress = await TRLInstance.periodicStages.call()
     PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
@@ -50,38 +50,38 @@ contract('TRL<Active>', function (accounts) {
   describe('Adding a subscription', async () => {
     it('Should set a subscription as active when a voter requires it', async () => {
       await FrontierTokenInstance.approve(SubscriptionInstance.address, 12 * subscriptionAmount, {from: voterAccounts[0], gas: 4712388})
-      await SubscriptionInstance.subscribe(subscriptionAmount, {from: voterAccounts[0]})
+      await SubscriptionInstance.subscribe(subscriptionAmount, TRLInstance.address, {from: voterAccounts[0]})
       const storedSubscription = await SubscriptionInstance.subscriptions.call(voterAccounts[0])
-      assert.strictEqual(true, storedSubscription[0])
+      assert.strictEqual(true, storedSubscription[1])
     })
     it('Should set a subscription amount when a voter requires it', async () => {
       await FrontierTokenInstance.approve(SubscriptionInstance.address, 12 * subscriptionAmount, {from: voterAccounts[0], gas: 4712388})
-      await SubscriptionInstance.subscribe(subscriptionAmount, {from: voterAccounts[0]})
+      await SubscriptionInstance.subscribe(subscriptionAmount, TRLInstance.address, {from: voterAccounts[0]})
       const storedSubscription = await SubscriptionInstance.subscriptions.call(voterAccounts[0])
-      assert.strictEqual(subscriptionAmount, storedSubscription[1].toNumber())
+      assert.strictEqual(subscriptionAmount, storedSubscription[2].toNumber())
     })
     it('Should set the next epoch to execute the subscription as the current height', async () => {
       await FrontierTokenInstance.approve(SubscriptionInstance.address, 12 * subscriptionAmount, {from: voterAccounts[0], gas: 4712388})
-      await SubscriptionInstance.subscribe(subscriptionAmount, {from: voterAccounts[0]})
+      await SubscriptionInstance.subscribe(subscriptionAmount, TRLInstance.address, {from: voterAccounts[0]})
       const storedSubscription = await SubscriptionInstance.subscriptions.call(voterAccounts[0])
       const height = TRLInstance.height.call();
-      assert.strictEqual(1, storedSubscription[2].toNumber())
+      assert.strictEqual(1, storedSubscription[3].toNumber())
     })
     it('Should throw when the subscription is less than the minimum amount', async () => {
       await FrontierTokenInstance.approve(SubscriptionInstance.address, 12 * subscriptionAmount, {from: voterAccounts[0], gas: 4712388})
       await SubscriptionInstance.setMin(minimumSubscription);
-      await assertRevert(SubscriptionInstance.subscribe(minimumSubscription -1, {from:voterAccounts[0]}))
+      await assertRevert(SubscriptionInstance.subscribe(minimumSubscription -1, TRLInstance.address, {from:voterAccounts[0]}))
     })
     it('Should throw when the subscription is more than the maximum amount', async () => {
       await FrontierTokenInstance.approve(SubscriptionInstance.address, 12 * subscriptionAmount, {from: voterAccounts[0], gas: 4712388})
       await SubscriptionInstance.setMax(maximumSubscription);
-      await assertRevert(SubscriptionInstance.subscribe(maximumSubscription +1, {from:voterAccounts[0]}))
+      await assertRevert(SubscriptionInstance.subscribe(maximumSubscription +1, TRLInstance.address, {from:voterAccounts[0]}))
     })
   })
   describe('Executing a subscription', async () => {
     it('Should be able to execute a subscription on a already subscribed user', async () => {
       await FrontierTokenInstance.approve(SubscriptionInstance.address, 12 * subscriptionAmount, {from: voterAccounts[0], gas: 4712388})
-      await SubscriptionInstance.subscribe(subscriptionAmount, {from: voterAccounts[0], gas: 4712388})
+      await SubscriptionInstance.subscribe(subscriptionAmount, TRLInstance.address, {from: voterAccounts[0], gas: 4712388})
       const periodsToAdvance = 1
       await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
       await SubscriptionInstance.execute(voterAccounts[0], {gas: 4712388})
@@ -89,7 +89,7 @@ contract('TRL<Active>', function (accounts) {
     })
     it('Should revert if a subscription is tried to be executed twice in the same period', async () => {
       await FrontierTokenInstance.approve(SubscriptionInstance.address, 12 * subscriptionAmount, {from: voterAccounts[0], gas: 4712388})
-      await SubscriptionInstance.subscribe(subscriptionAmount, {from: voterAccounts[0], gas: 4712388}) 
+      await SubscriptionInstance.subscribe(subscriptionAmount, TRLInstance.address, {from: voterAccounts[0], gas: 4712388}) 
       await assertRevert(SubscriptionInstance.execute(voterAccounts[0], {gas: 4712388}))
     })
   })

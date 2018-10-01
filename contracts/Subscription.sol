@@ -19,17 +19,15 @@ contract Subscription is Ownable {
     event SubscriptionCancelled(address indexed _from, address indexed _to, uint256 _tokenAmount);
     event SubscriptionExecuted(address indexed _from, address indexed _to, uint256 _tokenAmounts);
     event SubscriptionFailed(address indexed _from, address indexed _to, uint256 _tokenAmount);
+    event SubscriptionRefunded(address indexed _from, address indexed _to, uint256 _tokenAmount);
 
 
-    address public trlAddress;
     uint256[2] public bounds = [0, 2^256 - 1];
-    mapping (address => SubscriptionDetails) public subscriptions;
+    mapping (address => Conditions) public subscriptions;
 
-    constructor(address _target) public {
-        trlAddress = _target;
-    }
 
-    struct SubscriptionDetails {
+    struct Conditions {
+        address target;
         bool active;
         uint256 amount;
         uint256 nextEpoch;
@@ -41,17 +39,26 @@ contract Subscription is Ownable {
     * NOTICE: It will charge the first payment in order to include the subscription
     */
 
-    function subscribe(uint256 _amount) external {
+    function subscribe(uint256 _amount, address _target) external {
         require(_amount > bounds[0] && _amount < bounds[1]);
-        subscriptions[msg.sender] = SubscriptionDetails(true, _amount, TRL(trlAddress).height());
-        bool firstPayment = _execute(msg.sender); // Require a first payment in order to start the subscription
+        subscriptions[msg.sender] = Conditions(_target, true, _amount, TRL(_target).height());
+        bool firstPayment = _execute(msg.sender);
         if (firstPayment) {
-            emit SubscriptionCreated(msg.sender, trlAddress, _amount);
+            emit SubscriptionCreated(msg.sender, _target, _amount);
         }
         else {
             subscriptions[msg.sender].active = false;
-            emit SubscriptionFailed(msg.sender, trlAddress, _amount);
+            emit SubscriptionFailed(msg.sender, _target, _amount);
         }
+    }
+
+    /**
+    * @dev Executes a subscription on behalf of the user
+    * @param _account Address of the user where the subscription is executed
+    */
+    
+    function execute(address _account) external returns (bool) {
+        _execute(_account);
     }
 
     /**
@@ -62,7 +69,7 @@ contract Subscription is Ownable {
     function cancel(address _account) external { 
         require(canCancel(msg.sender, _account));
         subscriptions[_account].active = false;
-        emit SubscriptionCreated(_account, trlAddress, subscriptions[_account].amount);
+        emit SubscriptionCreated(_account, subscriptions[_account].target, subscriptions[_account].amount);
     }
 
 
@@ -70,7 +77,6 @@ contract Subscription is Ownable {
     * @dev Sets the minimum subscription, only allowed to be done by the owner
     * @param _bound Minimum value of the subscription accepte
     */
-
     function setMin(uint256 _bound) external onlyOwner {
         bounds[0] = _bound;
     }
@@ -85,43 +91,70 @@ contract Subscription is Ownable {
     }
 
     /**
-    * @dev Executes a subscription on behalf of the user
-    * @param _account Address of the user where the subscription is executed
+    * @dev Conditions required to cancel a subscription
+    * @param _from subscriber
+    * @param _to publisher address
     */
-    
-    function execute(address _account) public returns (bool) {
-        require(subscriptions[_account].nextEpoch <= TRL(trlAddress).height() && subscriptions[_account].active);
-        _execute(_account);
-       
+
+    function canCancel(address _from, address _to ) public view returns(bool) {
+        return (_from == owner || _from == _to);
     }
 
     /**
-    * @dev Executes a subscription on behalf of the user
-    * @param _account Target account where the subsciption is going to be executed
+    * @dev Check if the subscription from an account is accepted to be executed
+    * @param _account Account that is checked to have an active subscription
     */
+
+    function canBeExecuted(address _account) public view returns (bool) {
+        return subscriptions[_account].nextEpoch <= TRL(subscriptions[_account].target).height(); 
+        subscriptions[_account].active;
+    }
     
+    /**
+    * @dev Settles the subscription for the current period
+    * @param _account Address of the user that is having its Subscription executed
+    */
+
     function _execute(address _account) internal returns (bool) {
-        require(subscriptions[_account].nextEpoch <= TRL(trlAddress).height() && subscriptions[_account].active);
-        StandardToken token = StandardToken(address(TRL(trlAddress).token()));
+        require(canBeExecuted(_account));
+        StandardToken token = StandardToken(address(TRL(subscriptions[_account].target).token()));
         token.transferFrom(_account, this, subscriptions[_account].amount);
-        token.approve(trlAddress,subscriptions[_account].amount);
-        bool success = TRL(trlAddress).executeSubscription(_account, subscriptions[_account].amount);
-        if (success){
-            subscriptions[_account].nextEpoch ++;   
-            emit SubscriptionExecuted(_account, trlAddress, subscriptions[_account].amount);
-        }
-        else {
-             emit SubscriptionFailed(_account, trlAddress, subscriptions[_account].amount);
-        }
+        token.approve(subscriptions[_account].target, subscriptions[_account].amount);
+        bool success = TRL(subscriptions[_account].target).executeSubscription(_account, subscriptions[_account].amount);
+        (success) ? _successfulExecution(_account) : _failedExecution(_account);
+        return success;
+    }
+
+    /**
+    * @dev Internal handler for successful executions
+    * @param _account Address of the user that just realized a succesful execution
+    */
+
+    function _successfulExecution(address _account) internal returns (bool) {
+        subscriptions[_account].nextEpoch++;   
+        emit SubscriptionExecuted(_account, subscriptions[_account].target, subscriptions[_account].amount);
         return true;
     }
 
+    /**
+    * @dev Internal handler for failed executions
+    * @param _account Address of the subscriber that had a failed execution
+    */
 
+    function _failedExecution(address _account) internal returns (bool) {
+        require(_reimburse(_account));
+        subscriptions[_account].active = false;
+        emit SubscriptionFailed(_account, subscriptions[_account].target, subscriptions[_account].amount);
+    }
 
-    function canCancel(address _from, address _to ) public view returns(bool){
-        if(_from == owner || _from == _to) {
-            return true;
-        } 
-        return false;
+     /**
+    * @dev Sends the account subscription back to the user
+    * @param _account Address of the subscriber to receive his subscription amount back
+    */
+
+    function _reimburse(address _account) internal returns (bool){
+        StandardToken token = StandardToken(address(TRL(subscriptions[_account].target).token()));
+        token.transfer(_account, subscriptions[_account].amount);
+        emit SubscriptionRefunded(_account, this, subscriptions[_account].amount);  
     }
 }
