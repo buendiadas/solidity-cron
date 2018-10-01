@@ -319,14 +319,14 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         uint256 currWeight = 0;
         uint256 currScore = 0;
         uint256 currWeightedScore = 0;
-        uint256 lastEpoch = _pastScores.length;
+        uint256 lastPeriodIndex = _pastScores.length;
 
         for(uint i =0; i< _weights.length;i++){
             
-            if(1000000+lastEpoch-1-i<1000000){
+            if(1000000+lastPeriodIndex-1-i<1000000){
                 continue;
             }
-            currScore = _pastScores[lastEpoch-1-i];
+            currScore = _pastScores[lastPeriodIndex-1-i];
             currWeight = _weights[i];
             currWeightedScore = currScore.mul(currWeight);
             score = score.add(currWeightedScore);
