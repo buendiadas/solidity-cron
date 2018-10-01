@@ -29,8 +29,8 @@ jobs:
         - export INTEGRATION_TEST=1
         - sh ./small-setup-step1.sh
       before_script:
-        - npm run start &
-        - npm run start:testrpc-integration &
+        - npm run start > ganache-unittest-logs.txt & 
+        - npm run start:testrpc-integration > ganache-integration-logs.txt &
       script:
         - truffle test
         - npm run migrate-integration
