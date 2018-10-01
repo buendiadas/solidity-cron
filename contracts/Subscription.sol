@@ -17,7 +17,7 @@ contract Subscription is Ownable {
 
     event SubscriptionCreated(address indexed _from, address indexed _to, uint256 _tokenAmount);
     event SubscriptionCancelled(address indexed _from, address indexed _to, uint256 _tokenAmount);
-    event SubscriptionExecuted(address indexed _from, address indexed _to, uint256 _tokenAmount);
+    event SubscriptionExecuted(address indexed _from, address indexed _to, uint256 _tokenAmounts);
     event SubscriptionFailed(address indexed _from, address indexed _to, uint256 _tokenAmount);
 
 
@@ -86,6 +86,7 @@ contract Subscription is Ownable {
 
     /**
     * @dev Executes a subscription on behalf of the user
+    * @param _account Address of the user where the subscription is executed
     */
     
     function execute(address _account) public returns (bool) {
@@ -104,9 +105,9 @@ contract Subscription is Ownable {
         StandardToken token = StandardToken(address(TRL(trlAddress).token()));
         token.transferFrom(_account, this, subscriptions[_account].amount);
         token.approve(trlAddress,subscriptions[_account].amount);
-        subscriptions[_account].nextEpoch ++;   
         bool success = TRL(trlAddress).executeSubscription(_account, subscriptions[_account].amount);
         if (success){
+            subscriptions[_account].nextEpoch ++;   
             emit SubscriptionExecuted(_account, trlAddress, subscriptions[_account].amount);
         }
         else {

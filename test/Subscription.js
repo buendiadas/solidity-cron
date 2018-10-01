@@ -36,8 +36,8 @@ contract('TRL<Active>', function (accounts) {
     await TRLInstance.setCandidateRegistry(CandidateRegistryInstance.address)
     await TRLInstance.setVoterRegistry(VoterRegistryInstance.address)
     await TRLInstance.setVault(Vault.address)
-    await TRLInstance.initPeriod(config.ttl * 100)
-    await TRLInstance.initStages(config.ttl * 100, 0)
+    await TRLInstance.initPeriod(config.ttl)
+    await TRLInstance.initStages(config.ttl, 0)
   })
   beforeEach(async () => {
     SubscriptionInstance = await SubscriptionContract.new(TRLInstance.address)
