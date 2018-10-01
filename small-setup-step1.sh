@@ -14,4 +14,4 @@ export INTEGRATION_TEST=1
  
  ( cd $PLAYGROUND_TRLLISTENER && echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc )
  ( cd $PLAYGROUND_TRLLISTENER && npm install )
- ( cd $PLAYGROUND_TRLLISTENER && npm run start:testrpc-trl & )
+ ( cd $PLAYGROUND_TRLLISTENER && npm run start:testrpc-trl > ganache-trlintegration-logs.txt & )
