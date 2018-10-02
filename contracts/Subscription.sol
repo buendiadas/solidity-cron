@@ -18,7 +18,6 @@ contract Subscription is Ownable {
     event SubscriptionCreated(address indexed _from, address indexed _to, uint256 _tokenAmount);
     event SubscriptionCancelled(address indexed _from, address indexed _to, uint256 _tokenAmount);
     event SubscriptionExecuted(address indexed _from, address indexed _to, uint256 _tokenAmounts);
-    event SubscriptionFailed(address indexed _from, address indexed _to, uint256 _tokenAmount);
     event SubscriptionRefunded(address indexed _from, address indexed _to, uint256 _tokenAmount);
 
 
@@ -41,15 +40,10 @@ contract Subscription is Ownable {
 
     function subscribe(uint256 _amount, address _target) external {
         require(_amount > bounds[0] && _amount < bounds[1]);
-        subscriptions[msg.sender] = Conditions(_target, true, _amount, TRL(_target).height());
-        bool firstPayment = _execute(msg.sender);
-        if (firstPayment) {
-            emit SubscriptionCreated(msg.sender, _target, _amount);
-        }
-        else {
-            subscriptions[msg.sender].active = false;
-            emit SubscriptionFailed(msg.sender, _target, _amount);
-        }
+        subscriptions[msg.sender] = Conditions(_target, false, _amount, TRL(_target).height());
+        _execute(msg.sender);
+        subscriptions[msg.sender].active = true;
+        emit SubscriptionCreated(msg.sender, _target, _amount);
     }
 
     /**
@@ -58,6 +52,7 @@ contract Subscription is Ownable {
     */
     
     function execute(address _account) external returns (bool) {
+        require(subscriptions[_account].active);
         _execute(_account);
     }
 
@@ -69,7 +64,7 @@ contract Subscription is Ownable {
     function cancel(address _account) external { 
         require(canCancel(msg.sender, _account));
         subscriptions[_account].active = false;
-        emit SubscriptionCreated(_account, subscriptions[_account].target, subscriptions[_account].amount);
+        emit SubscriptionCancelled(_account, subscriptions[_account].target, subscriptions[_account].amount);
     }
 
 
@@ -106,8 +101,7 @@ contract Subscription is Ownable {
     */
 
     function canBeExecuted(address _account) public view returns (bool) {
-        return subscriptions[_account].nextEpoch <= TRL(subscriptions[_account].target).height(); 
-        subscriptions[_account].active;
+        return subscriptions[_account].nextEpoch <= TRL(subscriptions[_account].target).height();
     }
     
     /**
@@ -117,12 +111,20 @@ contract Subscription is Ownable {
 
     function _execute(address _account) internal returns (bool) {
         require(canBeExecuted(_account));
+        _relayApprove(_account);
+        TRL(subscriptions[_account].target).executeSubscription(_account, subscriptions[_account].amount);
+        _successfulExecution(_account);
+    }
+
+    /**
+    * @dev Relays the approval received from subscriber to the target contract
+    * @param _account Address of subscriber.
+    */
+
+    function _relayApprove(address _account) internal returns (bool) {
         StandardToken token = StandardToken(address(TRL(subscriptions[_account].target).token()));
         token.transferFrom(_account, this, subscriptions[_account].amount);
         token.approve(subscriptions[_account].target, subscriptions[_account].amount);
-        bool success = TRL(subscriptions[_account].target).executeSubscription(_account, subscriptions[_account].amount);
-        (success) ? _successfulExecution(_account) : _failedExecution(_account);
-        return success;
     }
 
     /**
@@ -134,27 +136,5 @@ contract Subscription is Ownable {
         subscriptions[_account].nextEpoch++;   
         emit SubscriptionExecuted(_account, subscriptions[_account].target, subscriptions[_account].amount);
         return true;
-    }
-
-    /**
-    * @dev Internal handler for failed executions
-    * @param _account Address of the subscriber that had a failed execution
-    */
-
-    function _failedExecution(address _account) internal returns (bool) {
-        require(_reimburse(_account));
-        subscriptions[_account].active = false;
-        emit SubscriptionFailed(_account, subscriptions[_account].target, subscriptions[_account].amount);
-    }
-
-     /**
-    * @dev Sends the account subscription back to the user
-    * @param _account Address of the subscriber to receive his subscription amount back
-    */
-
-    function _reimburse(address _account) internal returns (bool){
-        StandardToken token = StandardToken(address(TRL(subscriptions[_account].target).token()));
-        token.transfer(_account, subscriptions[_account].amount);
-        emit SubscriptionRefunded(_account, this, subscriptions[_account].amount);  
     }
 }

@@ -31,6 +31,9 @@ contract('Subscription', function (accounts) {
     VoterRegistryInstance = await OwnedRegistryContract.new(voterAccounts, {from: adminAccount})
     Vault = await VaultContract.new({from: adminAccount})
     FrontierTokenInstance = await Standard20TokenMock.new(voterAccounts, config.totalTokens, {from: adminAccount})
+  })
+  beforeEach(async () => {
+    SubscriptionInstance = await SubscriptionContract.new()
     TRLInstance = await TRLContract.new({from: adminAccount})
     await TRLInstance.setToken(FrontierTokenInstance.address)
     await TRLInstance.setCandidateRegistry(CandidateRegistryInstance.address)
@@ -38,10 +41,7 @@ contract('Subscription', function (accounts) {
     await TRLInstance.setVault(Vault.address)
     await TRLInstance.initPeriod(config.ttl)
     await TRLInstance.initStages(config.ttl, 0)
-  })
-  beforeEach(async () => {
-    SubscriptionInstance = await SubscriptionContract.new()
-    await TRLInstance.setSubscriptionAccount(SubscriptionInstance.address);
+    await TRLInstance.setSubscriptionAccount(SubscriptionInstance.address)
     let periodicStagesAddress = await TRLInstance.periodicStages.call()
     PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
     let periodAddress = await PeriodicStagesInstance.period.call()
@@ -76,6 +76,34 @@ contract('Subscription', function (accounts) {
       await FrontierTokenInstance.approve(SubscriptionInstance.address, 12 * subscriptionAmount, {from: voterAccounts[0], gas: 4712388})
       await SubscriptionInstance.setMax(maximumSubscription);
       await assertRevert(SubscriptionInstance.subscribe(maximumSubscription +1, TRLInstance.address, {from:voterAccounts[0]}))
+    })
+  })
+  describe('Cancelling a subscription', async () => {
+    it('Should be able to cancel a subscription from the subscriber account', async () => {
+      await FrontierTokenInstance.approve(SubscriptionInstance.address, 12 * subscriptionAmount, {from: voterAccounts[0], gas: 4712388})
+      await SubscriptionInstance.subscribe(subscriptionAmount, TRLInstance.address, {from: voterAccounts[0]})
+      const storedSubscription = await SubscriptionInstance.subscriptions.call(voterAccounts[0])
+      assert.equal(true, storedSubscription[1])
+      await SubscriptionInstance.cancel(voterAccounts[0], {from: voterAccounts[0], gas: 4712388})
+      const storedSubscriptionAfterCancel = await SubscriptionInstance.subscriptions.call(voterAccounts[0])
+      assert.equal(false, storedSubscriptionAfterCancel[1])
+    })
+    it('Should be able to cancel a subscription from the subscriber account', async () => {
+      await FrontierTokenInstance.approve(SubscriptionInstance.address, 12 * subscriptionAmount, {from: voterAccounts[0], gas: 4712388})
+      await SubscriptionInstance.subscribe(subscriptionAmount, TRLInstance.address, {from: voterAccounts[0]})
+      const storedSubscription = await SubscriptionInstance.subscriptions.call(voterAccounts[0])
+      await SubscriptionInstance.cancel(voterAccounts[0], {from: accounts[0], gas: 4712388})
+      assert.equal(true, storedSubscription[1])
+      const storedSubscriptionAfterCancel = await SubscriptionInstance.subscriptions.call(voterAccounts[0])
+      assert.equal(false, storedSubscriptionAfterCancel[1])
+    })
+    it('Should throw when a user different than the voter or admin try to cancel the subscription', async () => {
+      await FrontierTokenInstance.approve(SubscriptionInstance.address, 12 * subscriptionAmount, {from: voterAccounts[0], gas: 4712388})
+      await SubscriptionInstance.subscribe(subscriptionAmount, TRLInstance.address, {from: voterAccounts[0]})
+      const storedSubscription = await SubscriptionInstance.subscriptions.call(voterAccounts[0])
+      await SubscriptionInstance.cancel(voterAccounts[0], {from: accounts[0], gas: 4712388})
+      assert.equal(true, storedSubscription[1])
+      assertRevert(await SubscriptionInstance.subscriptions.call(voterAccounts[2]))
     })
   })
   describe('Executing a subscription', async () => {

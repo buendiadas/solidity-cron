@@ -24,7 +24,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function initPeriod(uint256 _T) public {
-        periodicStages = new PeriodicStages(_T);
+        setPeriodicStages(address(new PeriodicStages(_T)));
         emit PeriodicStagesCreated(periodicStages);
     }
 
@@ -60,12 +60,11 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     * NOTE: Requires previous allowance of expenditure of at least the amount required, right now 1:1 exchange used
     **/
 
-    function executeSubscription(address _who, uint256 _amount) external returns (bool success){
+    function executeSubscription(address _account, uint256 _amount) external returns (bool success){
         require(msg.sender == subscriptionAddress);
-        _votePayment(_who, _amount);
+        _votePayment(_account, _amount);
         return true;
     }
-
 
     /**
     * @dev Adds a new vote for a candidate
@@ -81,35 +80,6 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         emit Vote(msg.sender, _candidateAddress, _amount, height());
     }
 
-
-    /**
-    * @dev Deposits an specified amount to a secure deposit
-    * @param _voterAddress Account that will receive votes in exchange of a payment
-    * @param _amount Total amount received in the subscription
-    */
-
-    function _votePayment(address _voterAddress, uint256 _amount) internal returns (bool success) {
-        require(currentStage() == 0);
-        require(canStake(_voterAddress, _amount));
-        require(_deposit(height(), _amount));
-        votesBalance[height()][_voterAddress] = votesBalance[height()][msg.sender].add(_amount);
-        emit VotesBought(_voterAddress, _amount, height());
-        return true;
-    }
-
-    
-    /**
-    * @dev Deposits an specified amount to a secure deposit
-    * @param _vaultID Number of the vault where the tokens should go
-    * @param _amount amount of tokens to be deposited in a vault
-    */
-
-    function _deposit(uint256 _vaultID, uint256 _amount) internal returns (bool success) {
-        require(token.transferFrom(msg.sender, this, _amount));
-        token.approve(address(vault), _amount);
-        vault.deposit(_vaultID, address(token), this, _amount);
-        return true;
-    }
     /*
     * @dev Sets the minimum stake to participate in a period 
     * @param _minimumStakeAmount minimum stake to be added
@@ -207,7 +177,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         require(repWeights.length == reputationWindowSize); // if window size was changed
         require(votes.length == reputationWindowSize);
 
-        for(uint i = 0; i< 5; i++){
+        for(uint i = 0; i< 5; i++) {
             if(_epoch<i){
                 votes[i] = 0;
             }
@@ -272,7 +242,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     function canStake(
         address _sender, 
         uint256 _amount) 
-        internal view returns (bool) 
+        public view returns (bool) 
     {
         return (stakeInsideConstraints(_amount + votesBalance[height()][_sender]));
 
@@ -286,7 +256,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
 
     function stakeInsideConstraints(
         uint256 _amount) 
-        internal view returns (bool) 
+        public view returns (bool) 
     { 
         return _amount >= stakingConstraints[0] &&
         _amount <= stakingConstraints[1];
@@ -332,5 +302,32 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
             score = score.add(currWeightedScore);
         }
         return score;
+    }
+
+    /**
+    * @dev Deposits an specified amount to a secure deposit
+    * @param _voterAddress Account that will receive votes in exchange of a payment
+    * @param _amount Total amount received in the subscription
+    */
+
+    function _votePayment(address _voterAddress, uint256 _amount) internal returns (bool success) {
+        require(currentStage() == 0);
+        require(canStake(_voterAddress, _amount));
+        require(_deposit(height(), _amount));
+        votesBalance[height()][_voterAddress] = votesBalance[height()][msg.sender].add(_amount);
+        emit VotesBought(_voterAddress, _amount, height());
+        return true;
+    }
+    /**
+    * @dev Deposits an specified amount to a secure deposit
+    * @param _vaultID Number of the vault where the tokens should go
+    * @param _amount amount of tokens to be deposited in a vault
+    */
+
+    function _deposit(uint256 _vaultID, uint256 _amount) internal returns (bool success) {
+        require(token.transferFrom(msg.sender, this, _amount));
+        token.approve(address(vault), _amount);
+        vault.deposit(_vaultID, address(token), this, _amount);
+        return true;
     }
 }
