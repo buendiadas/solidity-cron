@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
-import "./TRLInterface.sol";
 import "./TRLStorage.sol";
+import "./TRLInterface.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
@@ -24,7 +24,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function initPeriod(uint256 _T) public {
-        periodicStages = new PeriodicStages(_T);
+        setPeriodicStages(address(new PeriodicStages(_T)));
         emit PeriodicStagesCreated(periodicStages);
     }
 
@@ -51,11 +51,19 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function buyTokenVotes(uint256 _amount) external {
-        require(currentStage() == 0);
-        require(canStake(msg.sender, _amount));
-        require(_deposit(height(), _amount));
-        votesBalance[height()][msg.sender] = votesBalance[height()][msg.sender].add(_amount);
-        emit VotesBought(msg.sender, _amount, height());
+        _votePayment(msg.sender, _amount);
+    }
+
+    /**
+    * @dev Exchanges the main token for an amount of votes
+    * @param _amount Amount of votes that the voter wants to buy
+    * NOTE: Requires previous allowance of expenditure of at least the amount required, right now 1:1 exchange used
+    **/
+
+    function executeSubscription(address _account, uint256 _amount) external returns (bool success) {
+        require(msg.sender == subscriptionAddress);
+        _votePayment(_account, _amount);
+        return true;
     }
 
     /**
@@ -71,19 +79,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         votesBalance[height()][msg.sender] -= _amount;
         emit Vote(msg.sender, _candidateAddress, _amount, height());
     }
-    
-    /**
-    * @dev Deposits an specified amount to a secure deposit
-    * @param _vaultID Number of the vault where the tokens should go
-    * @param _amount amount of tokens to be deposited in a vault
-    */
 
-    function _deposit(uint256 _vaultID, uint256 _amount) internal returns (bool success) {
-        require(token.transferFrom(msg.sender, this, _amount));
-        token.approve(address(vault), _amount);
-        vault.deposit(_vaultID, address(token), this, _amount);
-        return true;
-    }
     /*
     * @dev Sets the minimum stake to participate in a period 
     * @param _minimumStakeAmount minimum stake to be added
@@ -129,7 +125,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     * @param _windowSize Size of the window
     **/
 
-    function setWindowSize(uint256 _windowSize) public returns (uint256){
+    function setWindowSize(uint256 _windowSize) public returns (uint256) {
         require(msg.sender == owner);
         require(_windowSize != 0);
         require(_windowSize < 100);
@@ -145,15 +141,15 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     * @param _weights uint256[]
     **/
 
-    function setReputationLinWeights(uint256[] _weights) public returns (uint256[]){
+    function setReputationLinWeights(uint256[] _weights) public returns (uint256[]) { 
         require(msg.sender == owner);
         require(_weights.length == reputationWindowSize);
 
-        for(uint128 i = 0; i<reputationWindowSize;i++){
+        for(uint128 i = 0; i < reputationWindowSize; i++){
             repWeights.push(_weights[i]);
         }
 
-        reputationWeightsSet=true;
+        reputationWeightsSet = true;
         return repWeights;
     }
 
@@ -181,7 +177,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         require(repWeights.length == reputationWindowSize); // if window size was changed
         require(votes.length == reputationWindowSize);
 
-        for(uint i = 0; i< 5; i++){
+        for(uint i = 0; i < reputationWindowSize; i++) {
             if(_epoch<i){
                 votes[i] = 0;
             }
@@ -246,7 +242,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     function canStake(
         address _sender, 
         uint256 _amount) 
-        internal view returns (bool) 
+        public view returns (bool) 
     {
         return (stakeInsideConstraints(_amount + votesBalance[height()][_sender]));
 
@@ -260,7 +256,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
 
     function stakeInsideConstraints(
         uint256 _amount) 
-        internal view returns (bool) 
+        public view returns (bool) 
     { 
         return _amount >= stakingConstraints[0] &&
         _amount <= stakingConstraints[1];
@@ -286,7 +282,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     * @param _pastScores Array of past scores for the current user
     **/
 
-    function weightedScore(uint256[] _weights, uint256[] _pastScores, uint256 _windowSize) public pure returns(uint256){
+    function weightedScore(uint256[] _weights, uint256[] _pastScores, uint256 _windowSize) public pure returns(uint256) {
         require(_weights.length == _windowSize);
 
         uint256 score = 0;
@@ -295,16 +291,43 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         uint256 currWeightedScore = 0;
         uint256 lastEpoch = _pastScores.length;
 
-        for(uint i =0; i< _weights.length;i++){
+        for(uint i = 0; i < _weights.length; i++) {
             
-            if(1000000+lastEpoch-1-i<1000000){
+            if(1000000 + lastEpoch - 1 -i < 1000000){
                 continue;
             }
-            currScore = _pastScores[lastEpoch-1-i];
+            currScore = _pastScores[lastEpoch - 1 - i];
             currWeight = _weights[i];
             currWeightedScore = currScore.mul(currWeight);
             score = score.add(currWeightedScore);
         }
         return score;
+    }
+
+    /**
+    * @dev Deposits an specified amount to a secure deposit
+    * @param _voterAddress Account that will receive votes in exchange of a payment
+    * @param _amount Total amount received in the subscription
+    */
+
+    function _votePayment(address _voterAddress, uint256 _amount) internal returns (bool success) {
+        require(currentStage() == 0);
+        require(canStake(_voterAddress, _amount));
+        require(_deposit(height(), _amount));
+        votesBalance[height()][_voterAddress] = votesBalance[height()][msg.sender].add(_amount);
+        emit VotesBought(_voterAddress, _amount, height());
+        return true;
+    }
+    /**
+    * @dev Deposits an specified amount to a secure deposit
+    * @param _vaultID Number of the vault where the tokens should go
+    * @param _amount amount of tokens to be deposited in a vault
+    */
+
+    function _deposit(uint256 _vaultID, uint256 _amount) internal returns (bool success) {
+        require(token.transferFrom(msg.sender, this, _amount));
+        token.approve(address(vault), _amount);
+        vault.deposit(_vaultID, address(token), this, _amount);
+        return true;
     }
 }
