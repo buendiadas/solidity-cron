@@ -3,8 +3,7 @@ pragma solidity ^0.4.24;
 import "./TRL.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "@frontier-token-research/cron/contracts/Period.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "@frontier-token-research/cron/contracts/Period.sol";    
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 
 /**
@@ -39,7 +38,7 @@ contract Subscription is Ownable {
     */
 
     function subscribe(uint256 _amount, address _target) external {
-        require(_amount > bounds[0] && _amount < bounds[1]);
+        require(_amount >= bounds[0] && _amount <= bounds[1]);
         subscriptions[msg.sender] = Conditions(_target, false, _amount, TRL(_target).height());
         _execute(msg.sender);
         subscriptions[msg.sender].active = true;

@@ -60,7 +60,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     * NOTE: Requires previous allowance of expenditure of at least the amount required, right now 1:1 exchange used
     **/
 
-    function executeSubscription(address _account, uint256 _amount) external returns (bool success){
+    function executeSubscription(address _account, uint256 _amount) external returns (bool success) {
         require(msg.sender == subscriptionAddress);
         _votePayment(_account, _amount);
         return true;
@@ -125,7 +125,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     * @param _windowSize Size of the window
     **/
 
-    function setWindowSize(uint256 _windowSize) public returns (uint256){
+    function setWindowSize(uint256 _windowSize) public returns (uint256) {
         require(msg.sender == owner);
         require(_windowSize != 0);
         require(_windowSize < 100);
@@ -141,15 +141,15 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     * @param _weights uint256[]
     **/
 
-    function setReputationLinWeights(uint256[] _weights) public returns (uint256[]){
+    function setReputationLinWeights(uint256[] _weights) public returns (uint256[]) { 
         require(msg.sender == owner);
         require(_weights.length == reputationWindowSize);
 
-        for(uint128 i = 0; i<reputationWindowSize;i++){
+        for(uint128 i = 0; i < reputationWindowSize; i++){
             repWeights.push(_weights[i]);
         }
 
-        reputationWeightsSet=true;
+        reputationWeightsSet = true;
         return repWeights;
     }
 
@@ -177,7 +177,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         require(repWeights.length == reputationWindowSize); // if window size was changed
         require(votes.length == reputationWindowSize);
 
-        for(uint i = 0; i< 5; i++) {
+        for(uint i = 0; i < reputationWindowSize; i++) {
             if(_epoch<i){
                 votes[i] = 0;
             }
@@ -282,21 +282,21 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     * @param _pastScores Array of past scores for the current user
     **/
 
-    function weightedScore(uint256[] _weights, uint256[] _pastScores, uint256 _windowSize) public pure returns(uint256){
+    function weightedScore(uint256[] _weights, uint256[] _pastScores, uint256 _windowSize) public pure returns(uint256) {
         require(_weights.length == _windowSize);
 
         uint256 score = 0;
         uint256 currWeight = 0;
         uint256 currScore = 0;
         uint256 currWeightedScore = 0;
-        uint256 lastPeriodIndex = _pastScores.length;
+        uint256 lastEpoch = _pastScores.length;
 
-        for(uint i =0; i< _weights.length;i++){
+        for(uint i = 0; i < _weights.length; i++) {
             
-            if(1000000+lastPeriodIndex-1-i<1000000){
+            if(1000000 + lastEpoch - 1 -i < 1000000){
                 continue;
             }
-            currScore = _pastScores[lastPeriodIndex-1-i];
+            currScore = _pastScores[lastEpoch - 1 - i];
             currWeight = _weights[i];
             currWeightedScore = currScore.mul(currWeight);
             score = score.add(currWeightedScore);
