@@ -330,4 +330,13 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         vault.deposit(_vaultID, address(token), this, _amount);
         return true;
     }
+
+    /**
+    * @dev Function that issues a test event. This is used to test the
+    *      trl-listener infrastructure
+    */
+
+    function launchTestEvent() public{
+        emit Vote(address(0), address(0),block.timestamp, 0);
+    }
 }

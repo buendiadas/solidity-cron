@@ -241,4 +241,15 @@ contract('TRL<Active>', function (accounts) {
       assert.strictEqual(stakedTokens, TRLScoring.toNumber())
     })
   })
+  describe('Test event', async () => {
+    it('Should emit the test event', async () => {
+      const listAddress = await TRLInstance.address
+      try {
+        await TRLInstance.launchTestEvent()
+        assert.equal(1, 1)
+      } catch (e) {
+        assert.equal(1, 2)
+      }
+    })
+  })
 })
