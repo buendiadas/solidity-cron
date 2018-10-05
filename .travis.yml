@@ -29,7 +29,7 @@ jobs:
         - export PLAYGROUND_TRLLISTENER=$TRAVIS_BUILD_DIR/../trllistener-dev
         - export PROXY_ADDR_PATH=$TRAVIS_BUILD_DIR/../trlProxyAddress.json
         - export INTEGRATION_TEST=1
-        - sh ./small-setup-step1.sh
+        - sh ./scripts/setup-listener-integration.sh
       before_script:
         - npm run start > ganache-unittest-logs.txt & 
         - npm run start:testrpc-integration > ganache-integration-logs.txt &
