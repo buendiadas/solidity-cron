@@ -15,6 +15,7 @@ contract TRLInterface {
     function vote(address _candidateAddress, uint256 _amount) external;
     function height() public view returns(uint256);
     function currentStage() public view returns(uint256);
+    function launchTestEvent() public;
     
 }
 
