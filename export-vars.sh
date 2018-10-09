@@ -1,4 +1,0 @@
-export PLAYGROUND_FRONTIERJS=$TRAVIS_BUILD_DIR/../frontierjs-dev
-export PLAYGROUND_TRLLISTENER=$TRAVIS_BUILD_DIR/../trllistener-dev
-export PROXY_ADDR_PATH=$TRAVIS_BUILD_DIR/../trlProxyAddress.json
-export INTEGRATION_TEST=1
