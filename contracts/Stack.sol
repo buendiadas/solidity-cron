@@ -45,7 +45,7 @@ contract Stack is Ownable {
      */
 
     function push(uint256 _size) public {
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         require((stackPointer + _size) <= totalCapacity, 'BLOCK_NUM_OVERFLOW');
         strg.push(stackPointer + _size);
         stackPointer += _size;
@@ -57,7 +57,7 @@ contract Stack is Ownable {
      * Pops the last value from storage
      */
     function pop() public {
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         require(strg.length > 0, 'EMPTY STORAGE');
         uint256 slotSizeToEmpty = strg[strg.length-1];
         delete strg[strg.length-1];
@@ -76,7 +76,7 @@ contract Stack is Ownable {
      * Removes every single value from the Stack
      */
     function empty() public {
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         uint256 l = strg.length;
         for (uint i = 0; i < l; i++){
             pop();
