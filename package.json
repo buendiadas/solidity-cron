@@ -9,7 +9,8 @@
   "scripts": {
     "start": "ganache-cli -p 8545",
     "test": "truffle test",
-    "coverage": "./node_modules/.bin/solidity-coverage"
+    "coverage": "./node_modules/.bin/solidity-coverage",
+    "clean-compile-install-test": "rm -r build && rm -r node_modules && npm install && npm run test"
   },
   "keywords": [
     "Ethereum",
