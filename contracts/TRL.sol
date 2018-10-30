@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 import "./TRLStorage.sol";
 import "./TRLInterface.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
 import "@frontier-token-research/role-registries/contracts/OwnedRegistryFactory.sol";
 import "@frontier-token-research/cron/contracts/Period.sol";
@@ -14,8 +14,15 @@ import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 * A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates, and sets the compensation of the candidates based on previous interactions 
 **/
 
-contract TRL is TRLStorage, Ownable, TRLInterface {
+contract TRL is TRLStorage, Ownable {
     using SafeMath for uint256;
+
+
+    event PeriodInit(uint256 _T, uint256 _active, uint256 _claim);
+    event VotesBought(address indexed _recipient, uint256 _amount, uint256 _periodIndex);
+    event MinimumStakeSet(uint256 _amount);
+    event Vote(address indexed _voterAddress, address indexed _candidateAddress, uint256 _amount, uint256 _periodIndex);
+    event PeriodicStagesCreated(address _a);
     
     /**
     * @dev Initializes a new period, by creating a new instance of Periodic Stages contract (https://github.com/Frontier-project/cron) 
@@ -86,7 +93,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function setMinimumStake(uint256 _minimumStakeAmount) public {
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         stakingConstraints[0] = _minimumStakeAmount;
     }
 
@@ -96,7 +103,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function setMaximumStake(uint256 _maximumStakeAmount) public {
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         stakingConstraints[1] = _maximumStakeAmount;
     }
 
@@ -106,7 +113,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function setMinVotingLimit(uint256 _minVoteAmount) public {
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         votingConstraints[0] = _minVoteAmount; 
     }
 
@@ -116,7 +123,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function setMaxVotingLimit(uint256 _maxVoteAmount) public {
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         votingConstraints[1] = _maxVoteAmount; 
     }
 
@@ -126,7 +133,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function setWindowSize(uint256 _windowSize) public returns (uint256) {
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         require(_windowSize != 0);
         require(_windowSize < 100);
 
@@ -142,7 +149,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function setReputationLinWeights(uint256[] _weights) public returns (uint256[]) { 
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         require(_weights.length == reputationWindowSize);
 
         for(uint128 i = 0; i < reputationWindowSize; i++){

@@ -2,7 +2,7 @@ pragma solidity 0.4.24;
 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 /**
 * A Smart contract including multiple Vaults identifiable by ID
@@ -44,7 +44,7 @@ contract Vault is Ownable {
     function transfer(uint256 _vaultID, address _token, address _to, uint256 _value)
         external
     {
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         _transfer(_vaultID, _token, _to, _value);
     }
 

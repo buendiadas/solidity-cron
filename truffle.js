@@ -10,7 +10,8 @@ module.exports = {
       host: 'localhost',
       port: 8545,
       network_id: '1212',
-      gas: 4600000
+      gas: 6721975,
+      gasPrice: 1
 
     },
     development_integration_test: {

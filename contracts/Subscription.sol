@@ -4,7 +4,7 @@ import "./TRL.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "@frontier-token-research/cron/contracts/Period.sol";    
-import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 /**
 * Handle subscription details and permissions
@@ -91,7 +91,7 @@ contract Subscription is Ownable {
     */
 
     function canCancel(address _from, address _to ) public view returns(bool) {
-        return (_from == owner || _from == _to);
+        return (_from == owner() || _from == _to);
     }
 
     /**
@@ -121,7 +121,7 @@ contract Subscription is Ownable {
     */
 
     function _relayApprove(address _account) internal returns (bool) {
-        StandardToken token = StandardToken(address(TRL(subscriptions[_account].target).token()));
+        ERC20 token = ERC20(address(TRL(subscriptions[_account].target).token()));
         token.transferFrom(_account, this, subscriptions[_account].amount);
         token.approve(subscriptions[_account].target, subscriptions[_account].amount);
     }
