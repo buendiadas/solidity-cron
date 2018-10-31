@@ -27,7 +27,8 @@ jobs:
 
     - stage: Release
       provider: script
-      node_js: "8"
+      node_js:
+        - "8"
       before_install:
         - npm install -g npx
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
