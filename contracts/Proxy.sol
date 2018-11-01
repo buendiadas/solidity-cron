@@ -17,7 +17,7 @@ contract Proxy is TRLStorage, Ownable {
      */
      
     function setContractLogic(address _account) public returns (bool success) {
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         logicContract = _account;
         return true;
     }

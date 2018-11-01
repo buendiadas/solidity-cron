@@ -10,28 +10,29 @@ module.exports = {
       host: 'localhost',
       port: 8545,
       network_id: '1212',
-      gas: 4600000
+      gas: 6721975,
+      gasPrice: 1
 
     },
     development_integration_test: {
       host: 'localhost',
       port: 7545,
       network_id: '1212',
-      gas: 4600000
+      gas: 6721975
 
     },
     development_migration_test: {
       host: 'localhost',
       port: 8546,
       network_id: '1212',
-      gas: 4600000
+      gas: 6721975
     },
     rinkeby: {
       host: 'localhost',
       port: 8545,
       network_id: 4,
-      gas: 4600000,
-      gasPrice: 25000000000
+      gas: 6721975,
+      gasPrice: 4
     },
     rinkeby_infura: {
       provider: function () {

@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "./Vault.sol";
-import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
 import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 
@@ -19,7 +19,7 @@ contract TRLStorage {
     Registry public voterRegistry;
 
     // Master Token, used to buy votes
-    StandardToken public token;
+    ERC20 public token;
 
     // Stages that come periodically 
     PeriodicStages public periodicStages;
@@ -67,7 +67,7 @@ contract TRLStorage {
     */
 
     function setToken(address _contractAddress) public {
-        token = StandardToken(_contractAddress);
+        token = ERC20(_contractAddress);
     }
 
     /**
