@@ -35,6 +35,7 @@ module.exports = (deployer) => {
       await ProxyTRL.setReputationLinWeights(linWeightsSmaller)
 
       // storing the contract address
+      // added this comment to trigger a release
       if (process.env.INTEGRATION_TEST === '1') {
         let proxyAddress = await ProxyInstance.address
         let proxyAddressObj = {address: proxyAddress}
