@@ -72,6 +72,7 @@ jobs:
         - export SUBSCRIPTION_ADDR=$((grep Subscription truffle-logs.txt | cut -d ":" -f2) | awk '{print $1}')
         - export TRL_ADDR=$((grep TRL truffle-logs.txt | cut -d ":" -f2) | awk '{print $1}')
         - export TRL_VERSION=$((grep "##" semantic-release-logs.txt | cut -d "(" -f1) | cut -d " " -f2 | head -n 1)
+        - cd scripts && node updateContractManager.js
       after_script:
         - npm run mock-infura
         - npx semantic-release
