@@ -56,6 +56,7 @@ jobs:
         - "8"
       before_install:
         - npm i npm@latest -g
+        - npm install -g npx
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
       install:
         - npm install
@@ -64,12 +65,4 @@ jobs:
         - truffle migrate --reset --network rinkeby_frontier
       after_script:
         - npm run mock-infura
-
-    - stage: release
-      provider: script
-      node_js: "8"
-      before_install:
-        - npm install -g npx
-        - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
-      script:
-       - npx semantic-release
+        - npx semantic-release
