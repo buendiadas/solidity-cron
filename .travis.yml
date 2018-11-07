@@ -71,6 +71,7 @@ jobs:
         - export TRL_ADDR=$((grep TRL truffle-logs.txt | cut -d ":" -f2) | awk '{print $1}')
         - export TRL_VERSION=$(grep "The next release version is" semantic-release-logs.txt | cut -d " " -f11)
         - cd scripts && node updateContractManager.js
+        - echo "Updated the contract manager"
       after_script:
         - npm run mock-infura
         - npx semantic-release
