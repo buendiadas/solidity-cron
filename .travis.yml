@@ -9,9 +9,7 @@ services:
 stages:
   - name: test
   - name: migrate
-    if: branch = master
-  - name: release
-    if: branch = master
+    if: type != pull_request AND branch = master
 
 jobs:
   include:
@@ -50,26 +48,29 @@ jobs:
         - codecov
   
     - stage: migrate
-      if: branch = master
+      # if: branch = master
       language: node_js
       node_js:
         - "8"
       before_install:
         - npm i npm@latest -g
+        - npm install -g npx
         - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
       install:
         - npm install
       script:
         #- truffle migrate --reset --network rinkeby_infura
         - truffle migrate --reset --network rinkeby_frontier
+        - truffle networks > truffle-logs.txt
+        - npx semantic-release --dry-run --no-ci > semantic-release-logs.txt
+        - export VAULT_ADDR=$((grep Vault truffle-logs.txt | cut -d ":" -f2) | awk '{print $1}')
+        - export REGISTRY_FACTORY_ADDR=$((grep OwnedRegistryFactory truffle-logs.txt | cut -d ":" -f2) | awk '{print $1}')
+        - export PROXY_ADDR=$((grep Proxy truffle-logs.txt | cut -d ":" -f2) | awk '{print $1}')
+        - export TOKEN_ADDR=$((grep Standard20TokenMock truffle-logs.txt | cut -d ":" -f2) | awk '{print $1}')
+        - export SUBSCRIPTION_ADDR=$((grep Subscription truffle-logs.txt | cut -d ":" -f2) | awk '{print $1}')
+        - export TRL_ADDR=$((grep TRL truffle-logs.txt | cut -d ":" -f2) | awk '{print $1}')
+        - export TRL_VERSION=$(grep "The next release version is" semantic-release-logs.txt | cut -d " " -f11)
+        - cd scripts && node updateContractManager.js
       after_script:
         - npm run mock-infura
-
-    - stage: release
-      provider: script
-      node_js: "8"
-      before_install:
-        - npm install -g npx
-        - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
-      script:
-       - npx semantic-release
+        - npx semantic-release
