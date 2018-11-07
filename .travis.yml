@@ -9,9 +9,7 @@ services:
 stages:
   - name: test
   - name: migrate
-    if: branch = master
-  - name: release
-    if: branch = master
+    if: type != pull_request AND branch = master
 
 jobs:
   include:
@@ -50,7 +48,7 @@ jobs:
         - codecov
   
     - stage: migrate
-      if: branch = master
+      # if: branch = master
       language: node_js
       node_js:
         - "8"
