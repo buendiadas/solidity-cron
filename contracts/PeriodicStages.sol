@@ -27,13 +27,13 @@ contract PeriodicStages is Ownable {
     }
 
     function setPeriodLength(uint256 _T) public {
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         stack.empty();
         period.setPeriodLength(_T);
     }
 
     function pushStage(uint256 _duration) public {
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         stack.push(_duration);
     }
 

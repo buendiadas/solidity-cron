@@ -1,6 +1,6 @@
 {
   "name": "@frontier-token-research/cron",
-  "version": "1.0.3",
+  "version": "3.0.0",
   "description": "",
   "main": "truffle-config.js",
   "directories": {
@@ -9,7 +9,8 @@
   "scripts": {
     "start": "ganache-cli -p 8545",
     "test": "truffle test",
-    "coverage": "./node_modules/.bin/solidity-coverage"
+    "coverage": "./node_modules/.bin/solidity-coverage",
+    "clean-compile-install-test": "rm -r build && rm -r node_modules && npm install && npm run test"
   },
   "keywords": [
     "Ethereum",
@@ -29,14 +30,14 @@
     "babel-preset-stage-3": "^6.17.0",
     "babel-register": "^6.23.0",
     "ganache-cli": "^6.1.2",
-    "openzeppelin-solidity": "1.10.0",
+    "openzeppelin-solidity": "2.0.0",
     "truffle": "^4.1.11"
   },
   "devDependencies": {
     "coveralls": "^3.0.1",
     "cz-conventional-changelog": "^2.1.0",
     "eth-gas-reporter": "^0.1.7",
-    "semantic-release": "^15.5.2",
+    "semantic-release": "^15.9.16",
     "solidity-coverage": "^0.5.4"
   },
   "config": {

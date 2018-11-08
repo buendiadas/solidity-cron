@@ -83,7 +83,7 @@ contract Period is Ownable {
     */
 
     function setPeriodLength(uint256 _T) public {
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         uint256 tmpHeight = height();
         blockOffset = getLastEpochBlock() + 1;
         epochOffset = tmpHeight;
@@ -99,7 +99,7 @@ contract Period is Ownable {
     */
 
     function hardAgeTransition(uint256 _T) public {
-        require(msg.sender == owner);
+        require(msg.sender == owner());
         epochOffset = height();
         blockOffset = block.number;
         age ++;
