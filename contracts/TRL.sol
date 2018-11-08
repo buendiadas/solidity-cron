@@ -14,16 +14,8 @@ import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
 * A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates, and sets the compensation of the candidates based on previous interactions 
 **/
 
-contract TRL is TRLStorage, Ownable {
+contract TRL is TRLStorage, Ownable, TRLInterface {
     using SafeMath for uint256;
-
-
-    event PeriodInit(uint256 _T, uint256 _active, uint256 _claim);
-    event VotesBought(address indexed _recipient, uint256 _amount, uint256 _periodIndex);
-    event MinimumStakeSet(uint256 _amount);
-    event Vote(address indexed _voterAddress, address indexed _candidateAddress, uint256 _amount, uint256 _periodIndex);
-    event PeriodicStagesCreated(address _a);
-    
     /**
     * @dev Initializes a new period, by creating a new instance of Periodic Stages contract (https://github.com/Frontier-project/cron) 
     * If not set, the TRL will not be periodic. When set, different states will be stored indexed by periods.
