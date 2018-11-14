@@ -4,7 +4,7 @@ const time = require('./helpers/time');
 
 var asciichart = require('asciichart')
 
-const PeriodContract = artifacts.require('MonthlyPeriod')
+const PeriodContract = artifacts.require('Monthly')
 let PeriodInstance
 const T = 1
 let initialOffset
@@ -17,9 +17,7 @@ contract('Montly Period', function (accounts) {
     startTime = await web3.eth.getBlock(web3.eth.blockNumber).timestamp;
 
     startTimeMoment = await moment.unix(startTime)
-    const timeAfter = moment(startTime).add(1, 'months')
-    console.log("Diference in seconds: " + (parseInt(timeAfter.unix()) - parseInt(startTimeMoment.unix())))
-
+    const timeAfter = moment(startTimeMoment).add(1, 'months')
   })
   describe('Calculating Height', async () => {
     it('Should start having a height of 0', async () => {
