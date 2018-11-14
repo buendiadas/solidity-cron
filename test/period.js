@@ -25,7 +25,7 @@ contract('Period', function (accounts) {
       const height = await PeriodInstance.height.call();
       assert.strictEqual(height.toNumber(), heightGetPeriodNumber.toNumber());
     })
-    it('Should return return the same period when increasing evm an arbitrary number of periods', async () => {
+    it('Should return return the advanced number of epochs when increasing evm an arbitrary number of epochs', async () => {
       const periodsToadvance = 4
       const blocksToAdvance = T * periodsToadvance
       await advanceToBlock.advanceToBlock(web3.eth.blockNumber + blocksToAdvance)

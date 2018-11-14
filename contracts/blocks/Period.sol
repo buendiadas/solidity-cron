@@ -2,6 +2,7 @@ pragma solidity 0.4.24;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "./IPeriod.sol";
 
 
 
@@ -43,7 +44,7 @@ The exception comes when the owner (EOA, or Contract/DAO) decides to modify the 
 **/
 
 
-contract Period is Ownable {    
+contract Period is Ownable, IPeriod {    
 
     // Current period length
     uint256 public T;
