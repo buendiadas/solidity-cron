@@ -53,6 +53,17 @@ contract('Vault', function (accounts) {
     await token.approve(vault.address, 10, {from: voterAccounts[0]})
     await vault.deposit(0, token.address, voterAccounts[0], depositAmount, {from: voterAccounts[0]})
     await assertRevert(vault.transfer(0, token.address, tokenReceiver, transferAmount))
-  }) 
+  })
+
+  it('Returns the correct bounty pool amount', async () => {
+	const vaultBalance = 10
+  	await token.approve(vault.address, vaultBalance, {from: voterAccounts[0]})
+    await vault.deposit(0, token.address, voterAccounts[0], vaultBalance, {from: voterAccounts[0]})
+    await vault.close(0, token.address)
+	let actualBountyPoolAmount = await vault.bountyPoolAmount(0, token.address)
+	assert.equal(actualBountyPoolAmount, vaultBalance)
+  })
+
+ 
 
 })

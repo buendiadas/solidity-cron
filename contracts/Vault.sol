@@ -85,6 +85,18 @@ contract Vault is Ownable {
         return vaultBalance[_vaultID][_token];
     }
 
+	/**
+    * @dev Returns bounty pool amount given a `_vaultID`
+    * @param _vaultID Identifier of the vault where the tokens have been deposited
+    * @param _token Adress of the ERC20 token
+    */
+
+    function bountyPoolAmount(uint256 _vaultID, address _token) public view returns (uint256) {
+        return vaultClosingValues[_vaultID][_token];
+    }
+
+ 
+
     function _deposit(uint256 _vaultID, address _token, address _from, uint256 _value) internal {
         require(_value != 0);
         require(msg.sender == _from);
