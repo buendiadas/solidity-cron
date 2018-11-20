@@ -19,6 +19,31 @@ contract Vault is Ownable {
     event Deposit(uint256 indexed id, address indexed token, address indexed sender, uint256 amount);
 
     mapping (uint256 => mapping (address => uint256)) vaultBalance;
+    
+    mapping (uint256 => mapping (address => uint256)) vaultClosingValues;
+
+    
+  
+
+    /**
+    * @dev Close the vault for `_token` the vault `_period`
+    * @param _vaultID ID of the vault where tokens are being deposited
+    * @param _token Address of the token being transferred
+    */
+
+    function close(uint256 _vaultID, address _token) external{
+    	vaultClosingValues[_vaultID][_token] = vaultBalance[_vaultID][_token];
+    }
+
+    modifier vaultIsClosed(uint256 _vaultID, address _token){
+    	require(vaultClosingValues[_vaultID][_token] > 0,"The vault is not closed");
+	_;
+    }
+   
+    modifier vaultIsOpen(uint256 _vaultID, address _token){
+    	require(vaultClosingValues[_vaultID][_token] == 0,"The vault is not open");
+	_;
+    }
 
 
     /**
@@ -29,8 +54,10 @@ contract Vault is Ownable {
     * @param _value Amount of tokens being transferred
     */
 
-    function deposit(uint256 _vaultID, address _token, address _from, uint256 _value) external {
-        _deposit(_vaultID, _token, _from, _value);
+    function deposit(uint256 _vaultID, address _token, address _from, uint256 _value) external 
+    vaultIsOpen(_vaultID, _token)
+    {
+	_deposit(_vaultID, _token, _from, _value);
     }
 
     /**
@@ -42,7 +69,7 @@ contract Vault is Ownable {
     */
 
     function transfer(uint256 _vaultID, address _token, address _to, uint256 _value)
-        external
+        external vaultIsClosed(_vaultID, _token)
     {
         require(msg.sender == owner());
         _transfer(_vaultID, _token, _to, _value);
