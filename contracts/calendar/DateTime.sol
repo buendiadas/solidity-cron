@@ -50,8 +50,15 @@ library DateTime {
 
     function diffMonths(uint256 _x, uint256 _y) public pure returns (uint256) {
         require(getYear(_x) >= getYear(_y), 'First argument provided must be > second argument');
-        return diffYears(_x, _y) * 12 + uint256(getMonth(_x) - getMonth(_y)) ;
+        uint8 delta = getMonth(_x) > getMonth(_y) ? 1 : 0;
+        return (diffYears(_x, _y) - delta) * 12  + uint256(getMonth(_x) - getMonth(_y)) ;
     }
+
+    function diffDays(uint256 _x, uint256 _y) public pure returns (uint256) {
+        require(_x > _y);
+        return(_x - _y) / 86400;
+    }
+
 
     function getMonth(uint256 _timestamp) public pure returns (uint8) {
             return parseTimestamp(_timestamp).month;
