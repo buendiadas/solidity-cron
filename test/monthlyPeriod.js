@@ -22,6 +22,10 @@ contract('Montly Period', function (accounts) {
       const height = await PeriodInstance.height()
       assert.strictEqual(0, height.toNumber())
     }),
+    it('Should return 1 as length when being a  daily', async () => {
+      const length = await PeriodInstance.getLength()
+      assert.strictEqual(1, length.toNumber())
+    }),
     it('Should return return the same period when increasing evm an arbitrary number of months', async () => {
       const periodsToadvance = 432;
       const monthsToAdvance = T * periodsToadvance

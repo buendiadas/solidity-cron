@@ -30,39 +30,39 @@ library DateTime {
         secondsAccountedFor += yearInSeconds() * (year - originYear() - numLeapYears);
 
         while (secondsAccountedFor > _timestamp) {
-                if (isLeapYear(uint16(year - 1))) {
-                        secondsAccountedFor -= leapYearInSeconds();
-                }
-                else {
-                        secondsAccountedFor -= yearInSeconds();
-                }
-                year -= 1;
+            if (isLeapYear(uint16(year - 1))) {
+                    secondsAccountedFor -= leapYearInSeconds();
+            }
+            else {
+                    secondsAccountedFor -= yearInSeconds();
+            }
+            year -= 1;
         }
         return year;
     }
 
     function getMonth(uint256 _timestamp) public pure returns (uint8) {
-            return parseTimestamp(_timestamp).month;
+        return parseTimestamp(_timestamp).month;
     }
 
     function getDay(uint256 _timestamp) public pure returns (uint8) {
-            return parseTimestamp(_timestamp).day;
+        return parseTimestamp(_timestamp).day;
     }
 
     function getHour(uint256 _timestamp) public pure returns (uint8) {
-            return uint8((_timestamp / 60 / 60) % 24);
+        return uint8((_timestamp / 60 / 60) % 24);
     }
 
     function getMinute(uint256 _timestamp) public pure returns (uint8) {
-            return uint8((_timestamp / 60) % 60);
+        return uint8((_timestamp / 60) % 60);
     }
 
     function getSecond(uint256 _timestamp) public pure returns (uint8) {
-            return uint8(_timestamp % 60);
+        return uint8(_timestamp % 60);
     }
 
     function getWeekday(uint256 _timestamp) public pure returns (uint8) {
-            return uint8((_timestamp / dayInSeconds() + 4) % 7);
+        return uint8((_timestamp / dayInSeconds() + 4) % 7);
     }
 
     function getDaysInMonth(uint16 _month, uint16 _year) public pure returns (uint8) {
@@ -93,41 +93,8 @@ library DateTime {
 
     function diffDays(uint256 _x, uint256 _y) public pure returns (uint256) {
         require(_x > _y);
-        return(_x - _y) / 86400;
+        return(_x - _y) / dayInSeconds();
     }
-
-        function toTimestamp(uint16 _year, uint8 _month, uint8 _day) public pure returns (uint256 _timestamp) {
-        return toTimestamp(_year, _month, _day, 0, 0, 0);
-    }
-
-    function toTimestamp(uint16 _year, uint8 _month, uint8 _day, uint8 _hour) public pure returns (uint256 _timestamp) {
-        return toTimestamp(_year, _month, _day, _hour, 0, 0);
-    }
-
-    function toTimestamp(uint16 _year, uint8 _month, uint8 _day, uint8 _hour, uint8 _minute) public pure returns (uint256 _timestamp) {
-        return toTimestamp(_year, _month, _day, _hour, _minute, 0);
-    }
-
-    function toTimestamp(uint16 year, uint8 month, uint8 day, uint8 hour, uint8 minute, uint8 second) public pure returns (uint256 _timestamp) {
-        uint16 i;
-        for (i = originYear(); i < year; i++) {
-                if (isLeapYear(i)) {
-                _timestamp += leapYearInSeconds();
-                }
-                else {
-                _timestamp += yearInSeconds();
-                }
-        }
-        for (i = 1; i < month; i++) {
-        _timestamp += dayInSeconds() * getDaysInMonth(i - 1, year);
-        }
-        _timestamp += dayInSeconds() * (day - 1);
-        _timestamp += hourInSeconds() * (hour);
-        _timestamp += minuteInSeconds() * (minute);
-        _timestamp += second;
-        return _timestamp;
-    }
-
 
     function isLeapYear(uint16 year) public pure returns (bool) {
         if (year % 4 != 0) {
@@ -142,7 +109,7 @@ library DateTime {
         return true;
     }
     
-    function originYear() public pure returns(uint16){
+    function originYear() public pure returns(uint16) {
         return 1970;
     }
     
@@ -184,20 +151,20 @@ library DateTime {
         secondsAccountedFor += yearInSeconds() * (dt.year - originYear() - buf);
         uint256 secondsInMonth;
         for (i = 1; i <= 12; i++) {
-                secondsInMonth = dayInSeconds() * getDaysInMonth(i, dt.year);
-                if (secondsInMonth + secondsAccountedFor > _timestamp) {
-                        dt.month = i;
-                        break;
-                }
-                secondsAccountedFor += secondsInMonth;
+            secondsInMonth = dayInSeconds() * getDaysInMonth(i, dt.year);
+            if (secondsInMonth + secondsAccountedFor > _timestamp) {
+                    dt.month = i;
+                    break;
+            }
+            secondsAccountedFor += secondsInMonth;
         }
 
         for (i = 1; i <= getDaysInMonth(dt.month, dt.year); i++) {
-                if (dayInSeconds() + secondsAccountedFor > _timestamp) {
-                        dt.day = i;
-                        break;
-                }
-                secondsAccountedFor += dayInSeconds();
+            if (dayInSeconds() + secondsAccountedFor > _timestamp) {
+                    dt.day = i;
+                    break;
+            }
+            secondsAccountedFor += dayInSeconds();
         }
 
         dt.hour = getHour(_timestamp);
