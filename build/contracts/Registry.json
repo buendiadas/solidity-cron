@@ -132,14 +132,14 @@
     "absolutePath": "@frontier-token-research/role-registries/contracts/Registry.sol",
     "exportedSymbols": {
       "Registry": [
-        2789
+        2837
       ]
     },
-    "id": 2790,
+    "id": 2838,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 2744,
+        "id": 2792,
         "literals": [
           "solidity",
           "0.4",
@@ -154,9 +154,9 @@
         "contractKind": "contract",
         "documentation": "Generic Registry Interface, used in Frontier for Candidates and Voters\nPotentially enabling Any king of registry (Centralized or decentralized, like TCR)*",
         "fullyImplemented": false,
-        "id": 2789,
+        "id": 2837,
         "linearizedBaseContracts": [
-          2789
+          2837
         ],
         "name": "Registry",
         "nodeType": "ContractDefinition",
@@ -164,20 +164,20 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 2748,
+            "id": 2796,
             "name": "_WhiteList",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 2747,
+              "id": 2795,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2746,
+                  "id": 2794,
                   "indexed": false,
                   "name": "_whiteListedAccount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2748,
+                  "scope": 2796,
                   "src": "236:27:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -186,7 +186,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2745,
+                    "id": 2793,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "236:7:12",
@@ -206,20 +206,20 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 2752,
+            "id": 2800,
             "name": "_Remove",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 2751,
+              "id": 2799,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2750,
+                  "id": 2798,
                   "indexed": false,
                   "name": "_removedAccount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2752,
+                  "scope": 2800,
                   "src": "285:23:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -228,7 +228,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2749,
+                    "id": 2797,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "285:7:12",
@@ -248,20 +248,20 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 2762,
+            "id": 2810,
             "name": "_Application",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 2761,
+              "id": 2809,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2754,
+                  "id": 2802,
                   "indexed": true,
                   "name": "listingHash",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2762,
+                  "scope": 2810,
                   "src": "334:27:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -270,7 +270,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 2753,
+                    "id": 2801,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "334:7:12",
@@ -284,11 +284,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 2756,
+                  "id": 2804,
                   "indexed": false,
                   "name": "deposit",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2762,
+                  "scope": 2810,
                   "src": "363:12:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -297,7 +297,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 2755,
+                    "id": 2803,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "363:4:12",
@@ -311,11 +311,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 2758,
+                  "id": 2806,
                   "indexed": false,
                   "name": "data",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2762,
+                  "scope": 2810,
                   "src": "377:11:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -324,7 +324,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 2757,
+                    "id": 2805,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "377:6:12",
@@ -338,11 +338,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 2760,
+                  "id": 2808,
                   "indexed": true,
                   "name": "applicant",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2762,
+                  "scope": 2810,
                   "src": "390:25:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -351,7 +351,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2759,
+                    "id": 2807,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "390:7:12",
@@ -371,7 +371,7 @@
           {
             "body": null,
             "documentation": "@dev Adds a new account to the registry\n@param _accountToWhiteList account to be added to the registry*",
-            "id": 2767,
+            "id": 2815,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -379,15 +379,15 @@
             "name": "whiteList",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 2765,
+              "id": 2813,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2764,
+                  "id": 2812,
                   "name": "_accountToWhiteList",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2767,
+                  "scope": 2815,
                   "src": "574:27:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -396,7 +396,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2763,
+                    "id": 2811,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "574:7:12",
@@ -413,12 +413,12 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 2766,
+              "id": 2814,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "609:0:12"
             },
-            "scope": 2789,
+            "scope": 2837,
             "src": "555:55:12",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -427,7 +427,7 @@
           {
             "body": null,
             "documentation": "@dev Removes an account from the registry\n@param _accountToRemove account to be removed from the Registry*",
-            "id": 2772,
+            "id": 2820,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -435,15 +435,15 @@
             "name": "remove",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 2770,
+              "id": 2818,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2769,
+                  "id": 2817,
                   "name": "_accountToRemove",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2772,
+                  "scope": 2820,
                   "src": "767:24:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -452,7 +452,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2768,
+                    "id": 2816,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "767:7:12",
@@ -469,12 +469,12 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 2771,
+              "id": 2819,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "799:0:12"
             },
-            "scope": 2789,
+            "scope": 2837,
             "src": "751:49:12",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -483,7 +483,7 @@
           {
             "body": null,
             "documentation": " @dev Returns true when a listing Hash is already Whitelisted\n @param _accountChecked identifier queried listing",
-            "id": 2779,
+            "id": 2827,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": true,
@@ -491,15 +491,15 @@
             "name": "isWhitelisted",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 2775,
+              "id": 2823,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2774,
+                  "id": 2822,
                   "name": "_accountChecked",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2779,
+                  "scope": 2827,
                   "src": "971:23:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -508,7 +508,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2773,
+                    "id": 2821,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "971:7:12",
@@ -525,15 +525,15 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 2778,
+              "id": 2826,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2777,
+                  "id": 2825,
                   "name": "whitelisted",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2779,
+                  "scope": 2827,
                   "src": "1017:16:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -542,7 +542,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 2776,
+                    "id": 2824,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "1017:4:12",
@@ -557,7 +557,7 @@
               ],
               "src": "1016:18:12"
             },
-            "scope": 2789,
+            "scope": 2837,
             "src": "948:87:12",
             "stateMutability": "view",
             "superFunction": null,
@@ -566,7 +566,7 @@
           {
             "body": null,
             "documentation": " @dev Creates an application to be included in the registry\n @param _amount Amount of tokens that will be staked initially (some registries might require it, otherwise, 0)\n @param _data Used for external information related with the application (e.g IPFS hash)",
-            "id": 2788,
+            "id": 2836,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -574,15 +574,15 @@
             "name": "apply",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 2786,
+              "id": 2834,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2781,
+                  "id": 2829,
                   "name": "_id",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2788,
+                  "scope": 2836,
                   "src": "1353:11:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -591,7 +591,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 2780,
+                    "id": 2828,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "1353:7:12",
@@ -605,10 +605,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 2783,
+                  "id": 2831,
                   "name": "_amount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2788,
+                  "scope": 2836,
                   "src": "1366:12:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -617,7 +617,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 2782,
+                    "id": 2830,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "1366:4:12",
@@ -631,10 +631,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 2785,
+                  "id": 2833,
                   "name": "_data",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2788,
+                  "scope": 2836,
                   "src": "1380:12:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -643,7 +643,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 2784,
+                    "id": 2832,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "1380:6:12",
@@ -660,19 +660,19 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 2787,
+              "id": 2835,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1402:0:12"
             },
-            "scope": 2789,
+            "scope": 2837,
             "src": "1338:65:12",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 2790,
+        "scope": 2838,
         "src": "193:1217:12"
       }
     ],
@@ -682,14 +682,14 @@
     "absolutePath": "@frontier-token-research/role-registries/contracts/Registry.sol",
     "exportedSymbols": {
       "Registry": [
-        2789
+        2837
       ]
     },
-    "id": 2790,
+    "id": 2838,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 2744,
+        "id": 2792,
         "literals": [
           "solidity",
           "0.4",
@@ -704,9 +704,9 @@
         "contractKind": "contract",
         "documentation": "Generic Registry Interface, used in Frontier for Candidates and Voters\nPotentially enabling Any king of registry (Centralized or decentralized, like TCR)*",
         "fullyImplemented": false,
-        "id": 2789,
+        "id": 2837,
         "linearizedBaseContracts": [
-          2789
+          2837
         ],
         "name": "Registry",
         "nodeType": "ContractDefinition",
@@ -714,20 +714,20 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 2748,
+            "id": 2796,
             "name": "_WhiteList",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 2747,
+              "id": 2795,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2746,
+                  "id": 2794,
                   "indexed": false,
                   "name": "_whiteListedAccount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2748,
+                  "scope": 2796,
                   "src": "236:27:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -736,7 +736,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2745,
+                    "id": 2793,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "236:7:12",
@@ -756,20 +756,20 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 2752,
+            "id": 2800,
             "name": "_Remove",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 2751,
+              "id": 2799,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2750,
+                  "id": 2798,
                   "indexed": false,
                   "name": "_removedAccount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2752,
+                  "scope": 2800,
                   "src": "285:23:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -778,7 +778,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2749,
+                    "id": 2797,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "285:7:12",
@@ -798,20 +798,20 @@
           {
             "anonymous": false,
             "documentation": null,
-            "id": 2762,
+            "id": 2810,
             "name": "_Application",
             "nodeType": "EventDefinition",
             "parameters": {
-              "id": 2761,
+              "id": 2809,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2754,
+                  "id": 2802,
                   "indexed": true,
                   "name": "listingHash",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2762,
+                  "scope": 2810,
                   "src": "334:27:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -820,7 +820,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 2753,
+                    "id": 2801,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "334:7:12",
@@ -834,11 +834,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 2756,
+                  "id": 2804,
                   "indexed": false,
                   "name": "deposit",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2762,
+                  "scope": 2810,
                   "src": "363:12:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -847,7 +847,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 2755,
+                    "id": 2803,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "363:4:12",
@@ -861,11 +861,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 2758,
+                  "id": 2806,
                   "indexed": false,
                   "name": "data",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2762,
+                  "scope": 2810,
                   "src": "377:11:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -874,7 +874,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 2757,
+                    "id": 2805,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "377:6:12",
@@ -888,11 +888,11 @@
                 },
                 {
                   "constant": false,
-                  "id": 2760,
+                  "id": 2808,
                   "indexed": true,
                   "name": "applicant",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2762,
+                  "scope": 2810,
                   "src": "390:25:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -901,7 +901,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2759,
+                    "id": 2807,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "390:7:12",
@@ -921,7 +921,7 @@
           {
             "body": null,
             "documentation": "@dev Adds a new account to the registry\n@param _accountToWhiteList account to be added to the registry*",
-            "id": 2767,
+            "id": 2815,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -929,15 +929,15 @@
             "name": "whiteList",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 2765,
+              "id": 2813,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2764,
+                  "id": 2812,
                   "name": "_accountToWhiteList",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2767,
+                  "scope": 2815,
                   "src": "574:27:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -946,7 +946,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2763,
+                    "id": 2811,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "574:7:12",
@@ -963,12 +963,12 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 2766,
+              "id": 2814,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "609:0:12"
             },
-            "scope": 2789,
+            "scope": 2837,
             "src": "555:55:12",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -977,7 +977,7 @@
           {
             "body": null,
             "documentation": "@dev Removes an account from the registry\n@param _accountToRemove account to be removed from the Registry*",
-            "id": 2772,
+            "id": 2820,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -985,15 +985,15 @@
             "name": "remove",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 2770,
+              "id": 2818,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2769,
+                  "id": 2817,
                   "name": "_accountToRemove",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2772,
+                  "scope": 2820,
                   "src": "767:24:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1002,7 +1002,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2768,
+                    "id": 2816,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "767:7:12",
@@ -1019,12 +1019,12 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 2771,
+              "id": 2819,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "799:0:12"
             },
-            "scope": 2789,
+            "scope": 2837,
             "src": "751:49:12",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -1033,7 +1033,7 @@
           {
             "body": null,
             "documentation": " @dev Returns true when a listing Hash is already Whitelisted\n @param _accountChecked identifier queried listing",
-            "id": 2779,
+            "id": 2827,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": true,
@@ -1041,15 +1041,15 @@
             "name": "isWhitelisted",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 2775,
+              "id": 2823,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2774,
+                  "id": 2822,
                   "name": "_accountChecked",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2779,
+                  "scope": 2827,
                   "src": "971:23:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1058,7 +1058,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 2773,
+                    "id": 2821,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "971:7:12",
@@ -1075,15 +1075,15 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 2778,
+              "id": 2826,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2777,
+                  "id": 2825,
                   "name": "whitelisted",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2779,
+                  "scope": 2827,
                   "src": "1017:16:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1092,7 +1092,7 @@
                     "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 2776,
+                    "id": 2824,
                     "name": "bool",
                     "nodeType": "ElementaryTypeName",
                     "src": "1017:4:12",
@@ -1107,7 +1107,7 @@
               ],
               "src": "1016:18:12"
             },
-            "scope": 2789,
+            "scope": 2837,
             "src": "948:87:12",
             "stateMutability": "view",
             "superFunction": null,
@@ -1116,7 +1116,7 @@
           {
             "body": null,
             "documentation": " @dev Creates an application to be included in the registry\n @param _amount Amount of tokens that will be staked initially (some registries might require it, otherwise, 0)\n @param _data Used for external information related with the application (e.g IPFS hash)",
-            "id": 2788,
+            "id": 2836,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -1124,15 +1124,15 @@
             "name": "apply",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 2786,
+              "id": 2834,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 2781,
+                  "id": 2829,
                   "name": "_id",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2788,
+                  "scope": 2836,
                   "src": "1353:11:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1141,7 +1141,7 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 2780,
+                    "id": 2828,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
                     "src": "1353:7:12",
@@ -1155,10 +1155,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 2783,
+                  "id": 2831,
                   "name": "_amount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2788,
+                  "scope": 2836,
                   "src": "1366:12:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1167,7 +1167,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 2782,
+                    "id": 2830,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "1366:4:12",
@@ -1181,10 +1181,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 2785,
+                  "id": 2833,
                   "name": "_data",
                   "nodeType": "VariableDeclaration",
-                  "scope": 2788,
+                  "scope": 2836,
                   "src": "1380:12:12",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1193,7 +1193,7 @@
                     "typeString": "string"
                   },
                   "typeName": {
-                    "id": 2784,
+                    "id": 2832,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "1380:6:12",
@@ -1210,19 +1210,19 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 2787,
+              "id": 2835,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "1402:0:12"
             },
-            "scope": 2789,
+            "scope": 2837,
             "src": "1338:65:12",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "external"
           }
         ],
-        "scope": 2790,
+        "scope": 2838,
         "src": "193:1217:12"
       }
     ],
@@ -1234,5 +1234,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-11-22T12:54:36.005Z"
+  "updatedAt": "2018-11-22T17:05:50.914Z"
 }
