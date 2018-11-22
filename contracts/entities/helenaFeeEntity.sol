@@ -3,8 +3,8 @@ pragma solidity 0.4.24;
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import "../Balance.sol"
-import "../Vault.sol"
+import "../Balance.sol";
+import "../Vault.sol";
 
 contract helenaAgent is Ownable {
     using SafeMath for uint256;
@@ -35,24 +35,23 @@ contract helenaAgent is Ownable {
 		VaultInstance = Vault(_vaultAddress);
 	}
 
-   function addAllowedReceiver(address _receiver, address token) external{
+   function addAllowedReceiver(address _receiver, address _token) external{
    		require(msg.sender == owner());
 		
 		allowedReceivers[_receiver][_token] = true;
    }
 	// todo: change the vaultID variable name to period
-   function collectPayment(address _destination, address _token, address _period) 
+   function collectPayment(address _destination, address _token, uint256 _period) 
    external
    {
 		require(allowedReceivers[_destination][_token]);
 		// todo: add checks:
    		// 		check vault has been closed for period
 		// 		check that balance has been calculated before
-		// todo add period as argument
-		uint256 entityBalance = BalanceInstance.getBalance(address(this), _token);
+		uint256 entityBalance = BalanceInstance.getBalance(address(this), _token, _period);
        // calculate the specific _destination value; 1 token; send 1 token 
-		BalanceInstance.withdraw(address(this),_token, entityBalance);
-		Vault.transfer(_receiver, entityBalance);
+		BalanceInstance.withdraw(address(this),_token, entityBalance, _period);
+//		Vault.transfer(_receiver, entityBalance);
    }
 }
 
