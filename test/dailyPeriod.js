@@ -1,6 +1,6 @@
 var advanceToBlock = require('./helpers/advanceToBlock')
 const moment = require('moment')
-const time = require('./helpers/time');
+const time = require('./helpers/time')
 
 var asciichart = require('asciichart')
 
@@ -14,7 +14,7 @@ let startTimeMoment
 contract('Daily Period', function (accounts) {
   beforeEach(async () => {
     PeriodInstance = await PeriodContract.new(T)
-    startTime = await web3.eth.getBlock(web3.eth.blockNumber).timestamp;
+    startTime = await web3.eth.getBlock(web3.eth.blockNumber).timestamp
     startTimeMoment = await moment.unix(startTime)
   })
   describe('Calculating Height', async () => {
@@ -27,9 +27,9 @@ contract('Daily Period', function (accounts) {
       assert.strictEqual(1, length.toNumber())
     }),
     it('Should return return the same period when increasing evm an arbitrary number of days', async () => {
-      const periodsToadvance = 432;
+      const periodsToadvance = 432
       const daysToAdvance = T * periodsToadvance
-      const creationTimestamp = await PeriodInstance.creationTimestamp();
+      const creationTimestamp = await PeriodInstance.creationTimestamp()
       const timeAfter = moment(startTimeMoment).add(daysToAdvance, 'days')
       await time.increaseTo(timeAfter.unix())
       const height = await PeriodInstance.height()

@@ -39,10 +39,10 @@ contract('PeriodicStages', function (accounts) {
     })
     it('Should be able to push a new stage', async () => {
       await PeriodicStagesInstance.setPeriodLength(T - 1)
-      const newStageLength = 1;
-      await PeriodicStagesInstance.pushStage(newStageLength);
-      const newHeight = await Stack.height.call();
-      assert.strictEqual(1, newHeight.toNumber());
+      const newStageLength = 1
+      await PeriodicStagesInstance.pushStage(newStageLength)
+      const newHeight = await Stack.height.call()
+      assert.strictEqual(1, newHeight.toNumber())
     })
     it('Should return 0 if the current block is inside of the first pushed stage', async () => {
       const bounds = [T / 5]
