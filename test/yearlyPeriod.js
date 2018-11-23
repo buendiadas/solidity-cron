@@ -1,15 +1,13 @@
 var advanceToBlock = require('./helpers/advanceToBlock')
 const moment = require('moment')
 const time = require('./helpers/time')
-
-var asciichart = require('asciichart')
-
 const PeriodContract = artifacts.require('Yearly')
 let PeriodInstance
 const T = 1
 let initialOffset
 let startTime
 let startTimeMoment
+const periodsToadvance = 432
 
 contract('Montly Period', function (accounts) {
   beforeEach(async () => {
@@ -27,7 +25,7 @@ contract('Montly Period', function (accounts) {
       assert.strictEqual(1, length.toNumber())
     }),
     it('Should return return the same period when increasing evm an arbitrary number of months', async () => {
-      const periodsToadvance = 432
+
       const yearsToAdvance = T * periodsToadvance
       const creationTimestamp = await PeriodInstance.creationTimestamp()
       const timeAfter = moment(startTimeMoment).add(yearsToAdvance, 'years')
