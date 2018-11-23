@@ -8,10 +8,10 @@ import "./TRL.sol";
 import "./Vault.sol";
 
 
-contract Balance is Ownable {
+contract Bank is Ownable {
 	using SafeMath for uint256;
 
-	TRL TRLInstance;
+	
 	Allowance AllowanceInstance;
 	Vault VaultInstance;
 
@@ -19,9 +19,9 @@ contract Balance is Ownable {
 	mapping (uint256 => mapping (address => mapping(address => uint256))) entityBalanceForPeriod;
 	mapping (uint256 => mapping (address => uint256)) public balanceStage; // 0= unset , 1= set, 2= changed
 
-	constructor(address _TRLContractAddress, address _allowanceContractAddress, address _vaultContractAddress) public {
+	constructor(address _allowanceContractAddress, address _vaultContractAddress) public {
 		require(msg.sender == owner(), "Sender must be the owner");
-		TRLInstance = TRL(_TRLContractAddress);
+		
 		AllowanceInstance = Allowance(_allowanceContractAddress);
 		VaultInstance = Vault(_vaultContractAddress);
 	}
@@ -54,24 +54,23 @@ contract Balance is Ownable {
 	{
 		// check that it's the owner calling the function    
 		require(msg.sender == owner() || msg.sender == _entity, "Only the owner can update this value");
+		
 		// Get the current balance of this entity, in number of tokens
 		uint256 currentBalance = entityBalanceForPeriod[_period][_tokenAddress][_entity];
-		// Check that it's not withdrawing more than it has
+		
+		// --> Check that it's not withdrawing more than it has
 		require(_paymentAmount <= currentBalance, "Trying to withdraw more than the balance");
+		
 		// Transfer the value from the Vault
 		VaultInstance.transfer(_period, _tokenAddress, _receiver, _paymentAmount);
+		
 		// Update the entity's balance
 		entityBalanceForPeriod[_period][_tokenAddress][_entity] = currentBalance.sub(_paymentAmount);
+		
 		// Set the balance stage flag to 2, meaning "changed".
 		// "changed" means the balance has been changed after it was set.    
 		balanceStage[_period][_tokenAddress] = 2;
 	}
-	// Get balance for current period
-	/*
-	function getBalance (address _entity, address _tokenAddress) view external returns (uint256){
-			uint256 currentPeriod = TRLInstance.height();
-			return entityBalanceForPeriod[currentPeriod][_tokenAddress][_entity];
-		}*/
 
 	// Get balance for specific period
 	

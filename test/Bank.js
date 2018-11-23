@@ -1,6 +1,6 @@
 /* global artifacts, contract, web3, beforeEach, assert, it */
 
-const BalanceContract = artifacts.require('Balance')
+const BankContract = artifacts.require('Bank')
 const AllowanceContract = artifacts.require('Allowance')
 
 const config = require('../config')
@@ -10,14 +10,13 @@ const TRLContract = artifacts.require('TRL')
 const VaultContract = artifacts.require('Vault')
 
 contract('TRL<Active>', function (accounts) {
-  let TRLInstance
   let FrontierTokenInstance
   let Vault
   let owner = web3.eth.accounts[0]
   let voterAccounts = web3.eth.accounts.slice(1, 4)
   let candidateAccounts = web3.eth.accounts.slice(5, 8)
   let Allowance
-  let Balance
+  let Bank
 
   const entity1 = voterAccounts[0]
   const entity2 = voterAccounts[1]
@@ -55,19 +54,13 @@ contract('TRL<Active>', function (accounts) {
     )
 
     await Vault.close(0, FrontierTokenInstance.address)
-    TRLInstance = await TRLContract.new({ from: owner })
-    await TRLInstance.setToken(FrontierTokenInstance.address)
-    await TRLInstance.setVault(Vault.address)
-    await TRLInstance.initPeriod(config.ttl)
-    await TRLInstance.initStages(config.activeTime, config.claimTime)
 
     Allowance = await AllowanceContract.new()
-    Balance = await BalanceContract.new(
-      TRLInstance.address,
+    Bank = await BankContract.new(
       Allowance.address,
       Vault.address
     )
-    await Vault.setBalanceContractAddress(Balance.address, { from: owner })
+    await Vault.setBankContractAddress(Bank.address, { from: owner })
   })
 
   it('Should calculate the balance', async () => {
@@ -75,7 +68,7 @@ contract('TRL<Active>', function (accounts) {
     const entityAllowance = 40
     const periodPool = 200
     const expectedAllowance = 80
-    const actualAllowance = await Balance._calculateBalance(
+    const actualAllowance = await Bank._calculateBalance(
       entityAllowance,
       periodPool
     )
@@ -85,7 +78,7 @@ contract('TRL<Active>', function (accounts) {
   it('Should be period 0', async () => {
     // _calculateBalance(uint256 _entityAllowance, uint256 _periodPool)
 
-    const balance = await Balance.getBalance(
+    const balance = await Bank.getBalance(
       candidateAccounts[0],
       FrontierTokenInstance.address,
       period
@@ -97,23 +90,23 @@ contract('TRL<Active>', function (accounts) {
     await Allowance.addEntity(entity1, 'entity-1', entity1Allowance, period)
     await Allowance.addEntity(entity2, 'entity-2', entity2Allowance, period)
     await Allowance.addEntity(entity3, 'entity-3', entity3Allowance, period)
-    await Balance.setBalancesForEntities(
+    await Bank.setBalancesForEntities(
       [entity1, entity2, entity3],
       FrontierTokenInstance.address,
       period,
       { from: owner }
     )
-    const setBalance1 = await Balance.getBalance(
+    const setBalance1 = await Bank.getBalance(
       entity1,
       FrontierTokenInstance.address,
       period
     )
-    const setBalance2 = await Balance.getBalance(
+    const setBalance2 = await Bank.getBalance(
       entity2,
       FrontierTokenInstance.address,
       period
     )
-    const setBalance3 = await Balance.getBalance(
+    const setBalance3 = await Bank.getBalance(
       entity3,
       FrontierTokenInstance.address,
       period
@@ -137,26 +130,26 @@ contract('TRL<Active>', function (accounts) {
 
   it('Should return the correct balance after withdraw', async () => {
     await Allowance.addEntity(entity1, 'entity-1', entity1Allowance, period)
-    await Balance.setBalancesForEntities(
+    await Bank.setBalancesForEntities(
       [entity1],
       FrontierTokenInstance.address,
       period,
       { from: owner }
     )
-    const initialBalance = await Balance.getBalance(
+    const initialBalance = await Bank.getBalance(
       entity1,
       FrontierTokenInstance.address,
       period
     )
     const withdrawAmount = 100
-    await Balance.makePayment(
+    await Bank.makePayment(
       entity1,
       receiver,
       FrontierTokenInstance.address,
       withdrawAmount,
       period
     )
-    const afterBalance = await Balance.getBalance(
+    const afterBalance = await Bank.getBalance(
       entity1,
       FrontierTokenInstance.address,
       period
@@ -181,20 +174,20 @@ contract('TRL<Active>', function (accounts) {
 
   it('Should fail when withdrawing too much', async () => {
     await Allowance.addEntity(entity1, 'entity-1', entity1Allowance, period)
-    await Balance.setBalancesForEntities(
+    await Bank.setBalancesForEntities(
       [entity1],
       FrontierTokenInstance.address,
       period,
       { from: owner }
     )
-    const initialBalance = await Balance.getBalance(
+    const initialBalance = await Bank.getBalance(
       entity1,
       FrontierTokenInstance.address,
       period
     )
     const withdrawAmount = initialBalance + 1
     await assertRevert(
-      Balance.makePayment(
+      Bank.makePayment(
         entity1,
         receiver,
         FrontierTokenInstance.address,

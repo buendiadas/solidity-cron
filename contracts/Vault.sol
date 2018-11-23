@@ -25,7 +25,7 @@ contract Vault is Ownable {
 	address balanceContractAddress;    
   
 
-	function setBalanceContractAddress(address _balanceContractAddress) external {
+	function setBankContractAddress(address _balanceContractAddress) external {
 		require(msg.sender == owner(), "only owner can set the contract address");
 
 		balanceContractAddress = _balanceContractAddress;
