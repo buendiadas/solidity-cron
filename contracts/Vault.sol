@@ -25,6 +25,11 @@ contract Vault is Ownable {
 	address balanceContractAddress;    
   
 
+	/**
+    * @dev Sets the address of the Bank smart-contract, so that transfers can be authorized
+    * @param _balanceContractAddress Bank smart-contract address
+    **/
+
 	function setBankContractAddress(address _balanceContractAddress) external {
 		require(msg.sender == owner(), "only owner can set the contract address");
 
@@ -42,11 +47,23 @@ contract Vault is Ownable {
 		vaultClosingValues[_vaultID][_token] = vaultBalance[_vaultID][_token];
 	}
 
+	/**
+	* @dev Checks the vault is closed
+	* @param _vaultID ID of the vault where tokens are being deposited
+	* @param _token Address of the token being transferred
+	*/
+
 	modifier vaultIsClosed(uint256 _vaultID, address _token){
 		require(vaultClosingValues[_vaultID][_token] > 0,"The vault is not closed");
 		_;
 	}
    
+   /**
+	* @dev Checks the vault is open
+	* @param _vaultID ID of the vault where tokens are being deposited
+	* @param _token Address of the token being transferred
+	*/
+
 	modifier vaultIsOpen(uint256 _vaultID, address _token){
 		require(vaultClosingValues[_vaultID][_token] == 0,"The vault is not open");
 		_;

@@ -7,6 +7,10 @@ import "./Allowance.sol";
 import "./TRL.sol";
 import "./Vault.sol";
 
+/**
+* The Bank smart-contract keeps track of the balance of each entity
+* It is also responsible for interacting with the Vault
+*/
 
 contract Bank is Ownable {
 	using SafeMath for uint256;
@@ -26,7 +30,12 @@ contract Bank is Ownable {
 		VaultInstance = Vault(_vaultContractAddress);
 	}
 
-	// anyone can call this function
+	/**
+    * @dev Calculates the balance for an array of entities, based on the bounty pool amount for that period
+    * @param _entities The entities array
+    * @param _tokenAddress The address of the token contract
+    * @param _period The period to which this balance corresponds to
+    **/
 	function setBalancesForEntities(address[] _entities, address _tokenAddress, uint256 _period) external {
 		// only allow 10 at most, more will probably be an input mistake
 		require(_entities.length < 10, "Should not provide more than 10 entities");
@@ -48,7 +57,14 @@ contract Bank is Ownable {
 		}
 	}
 	
-	// updates the balance after a withdrawal
+	/**
+    * @dev Makes a payment to a receiver
+    * @param _entity The entity that is making the withdraw. This needs to be passed as a param, and not just read from msg.sender, so that it can be triggerd by the owner.
+    * @param _receiver The account that will receive the payment
+    * @param _tokenAddress The address of the token contract
+    * @param _paymentAmount The token amount to be transfered
+    **/
+	
 	function makePayment (address _entity,address _receiver,address _tokenAddress, uint256 _paymentAmount, 
 		uint256 _period) external 
 	{
@@ -72,14 +88,24 @@ contract Bank is Ownable {
 		balanceStage[_period][_tokenAddress] = 2;
 	}
 
-	// Get balance for specific period
+	/**
+    * @dev Returns an entity's balance for a period and token
+    * @param _entity The entity that is making the withdraw. This needs to be passed as a param, and not just read from msg.sender, so that it can be triggerd by the owner.
+    * @param _tokenAddress The address of the token contract
+    * @param _period The period for which the balance is checked
+    **/
 	
 	function getBalance (address _entity, address _tokenAddress, uint256 _period) external view returns (uint256) {
 		return entityBalanceForPeriod[_period][_tokenAddress][_entity];
 	}
 
 
-	//Returns the number of tokens, based on the percentage share of the bounty pool tokens 
+	/**
+    * @dev Pure function that converts a percentage into an absolute number of tokens
+    * @param _entityAllowance The entity's % allowance
+    * @param _periodPool Amount of tokens in the bounty pool for that period
+    **/
+
 	function _calculateBalance(uint256 _entityAllowance, uint256 _periodPool) pure returns (uint256 allowance) {
 		uint256 stepCalculation = _entityAllowance.mul(_periodPool);
 		return stepCalculation.div(100);

@@ -22,10 +22,17 @@ contract helenaAgent is Ownable, IFeeEntity {
   Vault VaultInstance;
 
   constructor (address _vaultAddress, address _balanceAddress){   
-
     BankInstance = Bank(_balanceAddress);
     VaultInstance = Vault(_vaultAddress);
   }
+
+  /**
+  * @dev Calculates the amount that the receiver should receive.
+  * @param _entityBalance Balance of the entity
+  * @param _period Period for which the value is to be calculated
+  * @param _token Token for which the value is to be calculated
+  * @param _receiver Receiver for which the value is to be calculated
+  */
 
   function calculatePaymentAmount(uint256 _entityBalance, uint256 _period, address _token, address _receiver) returns (uint256 amount){
     // In the case of HelenaFee, it returns the full balance
@@ -34,6 +41,12 @@ contract helenaAgent is Ownable, IFeeEntity {
     return _entityBalance;
   }
 
+  /**
+  * @dev Adds a new authorized receiver for transfers made by this entity
+  * @param _destination Address of the receiver
+  * @param _token Token for which the transfers are authorized
+  */
+
   function addAllowedReceiver(address _destination, address _token) external{
     require(msg.sender == owner());
 
@@ -41,6 +54,12 @@ contract helenaAgent is Ownable, IFeeEntity {
     emit addedAllowedReceiver(_destination, _token);
   }
 
+  /**
+  * @dev Triggers the payment to a receiver. 
+  * @param _destination Address of the receiver
+  * @param _token Token for which the transfer is being triggered
+  * @param _period Period for which the transfer is being triggered
+  */
   function collectPayment(address _destination, address _token, uint256 _period) 
   external
   {
@@ -49,23 +68,6 @@ contract helenaAgent is Ownable, IFeeEntity {
     uint256 entityBalance = BankInstance.getBalance(address(this), _token, _period);
     uint256 paymentAmount = calculatePaymentAmount(entityBalance, _period, _token, _destination);
     BankInstance.makePayment(address(this), _destination, _token, entityBalance, _period);
-    collectedPayment(_destination, _token, _period, paymentAmount);
+    emit collectedPayment(_destination, _token, _period, paymentAmount);
   }
 }
-
-
-/*
-Comments:
-    - ~~Adding events~~
-    - Get better names for allowance and balance, make it more specific
-
-    */
-
-
-
-
-
-
-
-
-

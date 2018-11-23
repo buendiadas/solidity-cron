@@ -5,10 +5,10 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 /**
-* A Smart contract including multiple Vaults identifiable by ID
-* Every Vault has the possibility of storing multiple ERC20 tokens
-* Don't send tokens directly to this contract using transfer or your funds may be lost, instead, use deposit.
-* Inspired by AragonOS Vault https://github.com/aragon/aragon-apps/blob/master/apps/vault/contracts/Vault.sol
+* A smart-contract that keeps track of what
+* percentage of the Bounty Pool, each Entity is 
+* allowed to receive.
+* An entity is a smart-contract
 */
 
 
@@ -17,6 +17,8 @@ contract Allowance is Ownable {
 
 	mapping (uint256 => mapping (address => Entity)) public entitiesAllowance;
 	
+	// This variable is used to keep track of the total allowance of a period
+	// It's necessary to make sure the value never exceeds 100	
 	mapping (uint256 => uint256) currentTotalAllowance;
 
 	struct Entity {
@@ -24,32 +26,65 @@ contract Allowance is Ownable {
 		uint256 allowance;
 	}
 
+	/**
+    * @dev Authorized a new entity
+    * @param _entityAddress The entity's smart-contract address
+    * @param _name A human readable name that can be given to that entity
+    * @param _allowance A number from 0 to 100,which corresponds to the percentage of the bounty pool that entity is entitled to
+    * @param _period The period to which this allowance corresponds to
+    * TODO: Add a way to make an allowance valid for multiple periods
+    **/
 
-	function addEntity(address entityAddress, string name, uint256 allowance, uint256 _period) external{
+
+	function addEntity(address _entityAddress, string _name, uint256 _allowance, uint256 _period) external{
 		require(msg.sender == owner(),"Message sender is not the owner");
-		require(allowance != 0 && allowance <= 100, "Invalid allowance value. Has to be 0<x<=100");
-		require(allowance.add(currentTotalAllowance[_period]) <= 100, "New allowance exceeds 100 as total allowance");
+		require(_allowance != 0 && _allowance <= 100, "Invalid allowance value. Has to be 0<x<=100");
+		require(_allowance.add(currentTotalAllowance[_period]) <= 100, "New allowance exceeds 100 as total allowance");
 
-		entitiesAllowance[_period][entityAddress] = Entity(name,allowance);
-		currentTotalAllowance[_period] = currentTotalAllowance[_period].add(allowance);
+		entitiesAllowance[_period][_entityAddress] = Entity(_name,_allowance);
+		currentTotalAllowance[_period] = currentTotalAllowance[_period].add(_allowance);
 	}
 
-	function removeEntity(address entityAddress, uint256 _period) external {
+	/**
+    * @dev Removes the authorization of an entity
+    * @param _entityAddress The entity's smart-contract address
+    * @param _period The period to which this allowance corresponds to
+    **/
+
+	function removeEntity(address _entityAddress, uint256 _period) external {
 		require(msg.sender == owner(),"Message sender is not the owner");
 
-		currentTotalAllowance[_period] = currentTotalAllowance[_period].sub(entitiesAllowance[_period][entityAddress].allowance);
-		delete entitiesAllowance[_period][entityAddress];
+		currentTotalAllowance[_period] = currentTotalAllowance[_period].sub(entitiesAllowance[_period][_entityAddress].allowance);
+		delete entitiesAllowance[_period][_entityAddress];
 	}
 
-	function getEntityAllowance (address entityAddress, uint256 _period) external view returns (uint256 allowance) {
-		return entitiesAllowance[_period][entityAddress].allowance;
+	/**
+    * @dev Returns the allowance % of an entity
+    * @param _entityAddress The entity's smart-contract address
+    * @param _period The period to which this allowance corresponds to
+    **/
+
+	function getEntityAllowance (address _entityAddress, uint256 _period) external view returns (uint256 allowance) {
+		return entitiesAllowance[_period][_entityAddress].allowance;
 	}
 
-	function getEntityName (address entityAddress, uint256 _period) external view returns (string name) {
-		return entitiesAllowance[_period][entityAddress].name;
+	/**
+    * @dev Returns the name of an entity
+    * @param _entityAddress The entity's smart-contract address
+    * @param _period The period to which this allowance corresponds to
+    **/
+
+	function getEntityName (address _entityAddress, uint256 _period) external view returns (string name) {
+		return entitiesAllowance[_period][_entityAddress].name;
 	}
 
-	function getEntityNameAndAllowance (address entityAddress, uint256 _period) external view returns (string name, uint256 allowance) {
-		return (entitiesAllowance[_period][entityAddress].name, entitiesAllowance[_period][entityAddress].allowance);
+	/**
+    * @dev Returns the allowance % of and name of an entity
+    * @param _entityAddress The entity's smart-contract address
+    * @param _period The period to which this allowance corresponds to
+    **/
+
+	function getEntityNameAndAllowance (address _entityAddress, uint256 _period) external view returns (string name, uint256 allowance) {
+		return (entitiesAllowance[_period][_entityAddress].name, entitiesAllowance[_period][_entityAddress].allowance);
 	}
 }
