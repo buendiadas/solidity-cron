@@ -123,6 +123,7 @@ contract Vault is Ownable {
 
 	function _deposit(uint256 _vaultID, address _token, address _from, uint256 _value) internal {
 		require(_value != 0);
+		// todo: remove require(msg.sender == _from); the transfer was approved before
 		require(msg.sender == _from);
 		require(ERC20(_token).transferFrom(_from, this, _value));
 		vaultBalance[_vaultID][_token] = vaultBalance[_vaultID][_token].add(_value);

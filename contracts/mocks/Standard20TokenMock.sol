@@ -9,4 +9,10 @@ contract Standard20TokenMock is ERC20 {
             _mint(accounts[i],initialBalance);
         }
     }
+
+    function issueTokens(address[] accounts, uint256 tokenAmount) external {
+    	for (uint i = 0; i < accounts.length; i++){
+            _mint(accounts[i],tokenAmount);
+        }
+    }
 }
