@@ -23,6 +23,18 @@ const VAULT_ADDR = process.env.VAULT_ADDR
 const VAULT_ABI = require('../build/contracts/Vault.json')
 updates.push({name: 'vault', address: VAULT_ADDR, abi: VAULT_ABI})
 
+const ALLOWANCE_ADDR = process.env.ALLOWANCE_ADDR
+const ALLOWANCE_ABI = require('../build/contracts/Allowance.json')
+updates.push({name: 'allowance', address: ALLOWANCE_ADDR, abi: ALLOWANCE_ABI})
+
+const BANK_ADDR = process.env.BANK_ADDR
+const BANK_ABI = require('../build/contracts/Bank.json')
+updates.push({name: 'bank', address: BANK_ADDR, abi: BANK_ABI})
+
+const HELENA_AGENT_ADDR = process.env.HELENA_AGENT_ADDR
+const HELENA_AGENT_ABI = require('../build/contracts/helenaAgent.json')
+updates.push({name: 'helena-agent', address: HELENA_AGENT_ADDR, abi: HELENA_AGENT_ABI})
+
 async function updateContractManager (updates) {
   for (let update of updates) {
     let updateState = await ContractManager.updateContract(update.name, TRL_VERSION, update.abi, update.address)
