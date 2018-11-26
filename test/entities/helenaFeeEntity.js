@@ -1,6 +1,6 @@
 /* global artifacts, contract, web3, beforeEach, assert, it */
 
-const BalanceContract = artifacts.require('Balance')
+const BalanceContract = artifacts.require('Bank')
 const AllowanceContract = artifacts.require('Allowance')
 const HelenaFeeContract = artifacts.require('HelenaAgent')
 
