@@ -2,7 +2,7 @@
 
 const BalanceContract = artifacts.require('Bank')
 const AllowanceContract = artifacts.require('Allowance')
-const HelenaFeeContract = artifacts.require('HelenaAgent')
+const HelenaFeeContract = artifacts.require('helenaAgent')
 
 const config = require('../../config')
 const { assertRevert } = require('../helpers/assertRevert')
