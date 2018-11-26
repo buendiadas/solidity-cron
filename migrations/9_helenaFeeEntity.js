@@ -1,5 +1,5 @@
 /* global artifacts  */
-const HelenaFeeEntityContract = artifacts.require('HelenaAgent')
+const HelenaFeeEntityContract = artifacts.require('helenaAgent')
 const VaultContract = artifacts.require('Vault')
 const BankContract = artifacts.require('Bank')
 

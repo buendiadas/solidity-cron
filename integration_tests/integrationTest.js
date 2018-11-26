@@ -11,7 +11,7 @@ const OwnedRegistryContract = artifacts.require('OwnedRegistry')
 const OwnedRegistryFactory = artifacts.require('OwnedRegistryFactory')
 const VaultContract = artifacts.require('Vault')
 const AllowanceContract = artifacts.require('Allowance')
-const HelenaFeeContract = artifacts.require('HelenaAgent')
+const HelenaFeeContract = artifacts.require('helenaAgent')
 const BankContract = artifacts.require('Bank')
 const keccak256 = require('js-sha3').keccak256
 
