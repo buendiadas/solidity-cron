@@ -2,9 +2,9 @@ pragma solidity 0.4.24;
 
 import "./DateTime.sol";
 import "../IPeriod.sol";
-import "../TracksCreation.sol";
+import "../Traceable.sol";
 
-contract Monthly is IPeriod, TracksCreation {
+contract Monthly is IPeriod, Traceable {
     using DateTime for *;
     
     function getLength() public view returns(uint256) {

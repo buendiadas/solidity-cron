@@ -2,13 +2,13 @@ pragma solidity 0.4.24;
 
 import "./DateTime.sol";
 import "../IPeriod.sol";
-import "../TracksCreation.sol";
+import "../Traceable.sol";
 
 /**
  * A particular case of a periodic contract where the height increased by one every period
  */
 
-contract Daily is IPeriod, TracksCreation {
+contract Daily is IPeriod, Traceable {
     using DateTime for *;
 
     /**
