@@ -31,60 +31,60 @@ contract Allowance is Ownable {
     * @param _entityAddress The entity's smart-contract address
     * @param _name A human readable name that can be given to that entity
     * @param _allowance A number from 0 to 100,which corresponds to the percentage of the bounty pool that entity is entitled to
-    * @param _period The period to which this allowance corresponds to
+    * @param _epoch The period to which this allowance corresponds to
     * TODO: Add a way to make an allowance valid for multiple periods
     **/
 
 
-	function addEntity(address _entityAddress, string _name, uint256 _allowance, uint256 _period) external{
+	function addEntity(address _entityAddress, string _name, uint256 _allowance, uint256 _epoch) external{
 		require(msg.sender == owner(),"Message sender is not the owner");
 		require(_allowance != 0 && _allowance <= 100, "Invalid allowance value. Has to be 0<x<=100");
-		require(_allowance.add(currentTotalAllowance[_period]) <= 100, "New allowance exceeds 100 as total allowance");
+		require(_allowance.add(currentTotalAllowance[_epoch]) <= 100, "New allowance exceeds 100 as total allowance");
 
-		entitiesAllowance[_period][_entityAddress] = Entity(_name,_allowance);
-		currentTotalAllowance[_period] = currentTotalAllowance[_period].add(_allowance);
+		entitiesAllowance[_epoch][_entityAddress] = Entity(_name,_allowance);
+		currentTotalAllowance[_epoch] = currentTotalAllowance[_epoch].add(_allowance);
 	}
 
 	/**
     * @dev Removes the authorization of an entity
     * @param _entityAddress The entity's smart-contract address
-    * @param _period The period to which this allowance corresponds to
+    * @param _epoch The period to which this allowance corresponds to
     **/
 
-	function removeEntity(address _entityAddress, uint256 _period) external {
+	function removeEntity(address _entityAddress, uint256 _epoch) external {
 		require(msg.sender == owner(),"Message sender is not the owner");
 
-		currentTotalAllowance[_period] = currentTotalAllowance[_period].sub(entitiesAllowance[_period][_entityAddress].allowance);
-		delete entitiesAllowance[_period][_entityAddress];
+		currentTotalAllowance[_epoch] = currentTotalAllowance[_epoch].sub(entitiesAllowance[_epoch][_entityAddress].allowance);
+		delete entitiesAllowance[_epoch][_entityAddress];
 	}
 
 	/**
     * @dev Returns the allowance % of an entity
     * @param _entityAddress The entity's smart-contract address
-    * @param _period The period to which this allowance corresponds to
+    * @param _epoch The period to which this allowance corresponds to
     **/
 
-	function getEntityAllowance (address _entityAddress, uint256 _period) external view returns (uint256 allowance) {
-		return entitiesAllowance[_period][_entityAddress].allowance;
+	function getEntityAllowance (address _entityAddress, uint256 _epoch) external view returns (uint256 allowance) {
+		return entitiesAllowance[_epoch][_entityAddress].allowance;
 	}
 
 	/**
     * @dev Returns the name of an entity
     * @param _entityAddress The entity's smart-contract address
-    * @param _period The period to which this allowance corresponds to
+    * @param _epoch The period to which this allowance corresponds to
     **/
 
-	function getEntityName (address _entityAddress, uint256 _period) external view returns (string name) {
-		return entitiesAllowance[_period][_entityAddress].name;
+	function getEntityName (address _entityAddress, uint256 _epoch) external view returns (string name) {
+		return entitiesAllowance[_epoch][_entityAddress].name;
 	}
 
 	/**
     * @dev Returns the allowance % of and name of an entity
     * @param _entityAddress The entity's smart-contract address
-    * @param _period The period to which this allowance corresponds to
+    * @param _epoch The period to which this allowance corresponds to
     **/
 
-	function getEntityNameAndAllowance (address _entityAddress, uint256 _period) external view returns (string name, uint256 allowance) {
-		return (entitiesAllowance[_period][_entityAddress].name, entitiesAllowance[_period][_entityAddress].allowance);
+	function getEntityNameAndAllowance (address _entityAddress, uint256 _epoch) external view returns (string name, uint256 allowance) {
+		return (entitiesAllowance[_epoch][_entityAddress].name, entitiesAllowance[_epoch][_entityAddress].allowance);
 	}
 }

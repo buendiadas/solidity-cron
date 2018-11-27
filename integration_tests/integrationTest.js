@@ -227,7 +227,6 @@ contract('TRL<Migrations>', function (accounts) {
         const period = 0
         const owner = adminAccount
 
-        await FrontierTokenInstance.issueTokens([voterAccounts[0]], fundingValue, {from: owner})
         await FrontierTokenInstance.approve(vaultInstance.address, fundingValue, { from: voterAccounts[0]})
 
         await vaultInstance.deposit(0, FrontierTokenInstance.address, voterAccounts[0], fundingValue, { from: voterAccounts[0] })

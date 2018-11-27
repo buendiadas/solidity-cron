@@ -29,12 +29,12 @@ contract helenaAgent is Ownable, IFeeEntity {
   /**
   * @dev Calculates the amount that the receiver should receive.
   * @param _entityBalance Balance of the entity
-  * @param _period Period for which the value is to be calculated
+  * @param _epoch Period for which the value is to be calculated
   * @param _token Token for which the value is to be calculated
   * @param _receiver Receiver for which the value is to be calculated
   */
 
-  function calculatePaymentAmount(uint256 _entityBalance, uint256 _period, address _token, address _receiver) returns (uint256 amount){
+  function calculatePaymentAmount(uint256 _entityBalance, uint256 _epoch, address _token, address _receiver) returns (uint256 amount){
     // In the case of HelenaFee, it returns the full balance
     // Helena only needs to send the tokens to one account,
     // Because there is no one to share it with.
@@ -58,16 +58,16 @@ contract helenaAgent is Ownable, IFeeEntity {
   * @dev Triggers the payment to a receiver. 
   * @param _destination Address of the receiver
   * @param _token Token for which the transfer is being triggered
-  * @param _period Period for which the transfer is being triggered
+  * @param _epoch Period for which the transfer is being triggered
   */
-  function collectPayment(address _destination, address _token, uint256 _period) 
+  function collectPayment(address _destination, address _token, uint256 _epoch) 
   external
   {
     require(allowedReceivers[_destination][_token]);
 
-    uint256 entityBalance = BankInstance.getBalance(address(this), _token, _period);
-    uint256 paymentAmount = calculatePaymentAmount(entityBalance, _period, _token, _destination);
-    BankInstance.makePayment(address(this), _destination, _token, entityBalance, _period);
-    emit collectedPayment(_destination, _token, _period, paymentAmount);
+    uint256 entityBalance = BankInstance.getBalance(address(this), _token, _epoch);
+    uint256 paymentAmount = calculatePaymentAmount(entityBalance, _epoch, _token, _destination);
+    BankInstance.makePayment(address(this), _destination, _token, entityBalance, _epoch);
+    emit collectedPayment(_destination, _token, _epoch, paymentAmount);
   }
 }
