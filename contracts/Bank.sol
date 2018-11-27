@@ -18,10 +18,13 @@ contract Bank is Ownable {
 	
 	Allowance AllowanceInstance;
 	Vault VaultInstance;
-
+	
+	struct BalanceRecord{
+		uint256 startingBalance;
+		uint256 currentBalance;
+	}
 		//        period              token             entity      balance  
-	mapping (uint256 => mapping (address => mapping(address => uint256))) entityBalanceForPeriod;
-	mapping (uint256 => mapping (address => uint256)) public balanceStage; // 0= unset , 1= set, 2= changed
+	mapping (uint256 => mapping (address => mapping(address => BalanceRecord))) entityBalanceForPeriod;
 
 	constructor(address _allowanceContractAddress, address _vaultContractAddress) public {
 		require(msg.sender == owner(), "Sender must be the owner");
@@ -50,10 +53,8 @@ contract Bank is Ownable {
 			// of tokens in the bounty pool
 			uint256 entityAbsoluteAllowance = _calculateBalance(entityAllowance, periodPool);
 			// Set the entity's balance for the current period as the number of Tokens
-			entityBalanceForPeriod[_period][_tokenAddress][_entities[i]] = entityAbsoluteAllowance;
-			// Set the balance stage flag to 1, meaning "set".
-			// "set" means the balance has been calculated and had not been changed.
-			balanceStage[_period][_tokenAddress] = 1;
+			BalanceRecord memory balRecord = BalanceRecord(entityAbsoluteAllowance, entityAbsoluteAllowance);
+			entityBalanceForPeriod[_period][_tokenAddress][_entities[i]] = balRecord;
 		}
 	}
 	
@@ -72,7 +73,7 @@ contract Bank is Ownable {
 		require(msg.sender == owner() || msg.sender == _entity, "Only the owner can update this value");
 		
 		// Get the current balance of this entity, in number of tokens
-		uint256 currentBalance = entityBalanceForPeriod[_period][_tokenAddress][_entity];
+		uint256 currentBalance = entityBalanceForPeriod[_period][_tokenAddress][_entity].currentBalance;
 		
 		// --> Check that it's not withdrawing more than it has
 		require(_paymentAmount <= currentBalance, "Trying to withdraw more than the balance");
@@ -81,12 +82,8 @@ contract Bank is Ownable {
 		VaultInstance.transfer(_period, _tokenAddress, _receiver, _paymentAmount);
 		
 		// Update the entity's balance
-		entityBalanceForPeriod[_period][_tokenAddress][_entity] = currentBalance.sub(_paymentAmount);
-		
-		// Set the balance stage flag to 2, meaning "changed".
-		// "changed" means the balance has been changed after it was set.    
-		balanceStage[_period][_tokenAddress] = 2;
-	}
+		entityBalanceForPeriod[_period][_tokenAddress][_entity].currentBalance = currentBalance.sub(_paymentAmount);
+	}		
 
 	/**
     * @dev Returns an entity's balance for a period and token
@@ -96,7 +93,11 @@ contract Bank is Ownable {
     **/
 	
 	function getBalance (address _entity, address _tokenAddress, uint256 _period) external view returns (uint256) {
-		return entityBalanceForPeriod[_period][_tokenAddress][_entity];
+		return entityBalanceForPeriod[_period][_tokenAddress][_entity].currentBalance;
+	}
+
+	function getStartingBalance(address _entity, address _tokenAddress, uint256 _period) external view returns (uint256){
+		return entityBalanceForPeriod[_period][_tokenAddress][_entity].startingBalance;
 	}
 
 

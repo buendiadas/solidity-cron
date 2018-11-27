@@ -156,6 +156,7 @@ contract('TRL<Active>', function (accounts) {
     )
 
     const receiverBalance = await FrontierTokenInstance.balanceOf(receiver)
+    const originalBalanceAfterTransfer = await Bank.getStartingBalance(entity1, FrontierTokenInstance.address, period);
 
     // Checking the receiver got the correct amount of funds
     assert.equal(
@@ -169,6 +170,11 @@ contract('TRL<Active>', function (accounts) {
       afterBalance,
       initialBalance - withdrawAmount,
       'Balance after withdrawal is wrong'
+    )
+	assert.equal(
+      parseInt(originalBalanceAfterTransfer),
+      parseInt(initialBalance),
+      'Bank original balance is wrong'
     )
   })
 

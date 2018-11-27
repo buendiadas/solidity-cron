@@ -44,20 +44,14 @@ contract BasicSalaryEntity is Ownable, IFeeEntity {
   /**
   * @dev Calculates the amount that the receiver should receive.
   * @param _entityBalance Balance of the entity
-  * @param _period Period for which the value is to be calculated
+  * @param _epoch Period for which the value is to be calculated
   * @param _token Token for which the value is to be calculated
   * @param _receiver Receiver for which the value is to be calculated
   */
 
-  function calculatePaymentAmount(uint256 _entityBalance, uint256 _period, address _token, address _receiver) public returns (uint256 amount){
-    // mapping (uint256 => mapping(address => uint256)) salaryAmountPerPeriod
-    // check if payment amount has been calculated for that period
-    if(salaryAmountPerPeriod[_period][_token] == 0){
-      // calculate it, if not
-      calculateBasicSalaryForPeriod(_period, _token, _entityBalance);
-    }
-
-    return salaryAmountPerPeriod[_period][_token];
+  function calculatePaymentAmount(uint256 _entityBalance, uint256 _epoch, address _token, address _receiver) public returns (uint256 amount){
+    // shim function to implement the interface
+    return salaryAmountPerPeriod[_epoch][_token];
   }
 
   /**
@@ -77,42 +71,41 @@ contract BasicSalaryEntity is Ownable, IFeeEntity {
   * @dev Triggers the payment to a receiver. 
   * @param _destination Address of the receiver
   * @param _token Token for which the transfer is being triggered
-  * @param _period Period for which the transfer is being triggered
+  * @param _epoch Period for which the transfer is being triggered
   */
-  function collectPayment(address _destination, address _token, uint256 _period) 
+  function collectPayment(address _destination, address _token, uint256 _epoch) 
   external
   { // check user is an allowed receiver
     require(allowedReceivers[_destination][_token]);
     // check that user has not been paid yet
-    require(!paidUsers[_period][_destination][_token]);
-    // Get the basic salary entity allowance
-    /**
-    * TODO: the getBalance function always gives the updated balance.
-    * in this case we want the largest balance that this entity has had, so we need to add
-    * a new function to the Bank which returns the original balance value for this entity.
-    */
-    uint256 entityBalance = BankInstance.getBalance(address(this), _token, _period);
-    // Calculate how much the user should receive
-    uint256 paymentAmount = calculatePaymentAmount(entityBalance, _period, _token, _destination);
+    require(!paidUsers[_epoch][_destination][_token]);
+    // check if the salary has been calculated for this epoch and token
+    if(salaryAmountPerPeriod[_epoch][_token] == 0){
+        // Get the basic salary entity allowance 
+        uint256 entityBalance = BankInstance.getStartingBalance(address(this), _token, _epoch);
+        calculateBasicSalaryForPeriod(_epoch, _token, entityBalance);
+    }
+
+	// Calculate how much the user should receive
+    uint256 paymentAmount = calculatePaymentAmount(entityBalance, _epoch, _token, _destination);
     // Transfer the funds, through the Bank contract
-    BankInstance.makePayment(address(this), _destination, _token, paymentAmount, _period);
+    BankInstance.makePayment(address(this), _destination, _token, paymentAmount, _epoch);
     // Update the user as having been paid
-    paidUsers[_period][_destination][_token] = true;
+    paidUsers[_epoch][_destination][_token] = true;
     // emit event that the payment has been collected
-    emit collectedPayment(_destination, _token, _period, paymentAmount);
+    emit collectedPayment(_destination, _token, _epoch, paymentAmount);
   }
 
-  function calculateBasicSalaryForPeriod(uint256 _period, address _token, uint256 _entityBalance) public {
+  function calculateBasicSalaryForPeriod(uint256 _epoch, address _token, uint256 _entityBalance) public {
   	// it has to be onlyOwner because we have no way of getting the list of users for a given period
    // the only alternative would be to only allow this value to be calculated for the "current period".
    // TODO: generalize role-registry to keep track of list members per period
    require(msg.sender == owner(), "can only be called by the owner");
    
-
+   // we can remove the require owner if we index the candidates by epoch
    uint256 numberOfCandidates = candidateRegistry.listingCounter();
 
    uint256 basicSalaryForPeriod = _entityBalance.div(numberOfCandidates);
-   salaryAmountPerPeriod[_period][_token] = basicSalaryForPeriod;
+   salaryAmountPerPeriod[_epoch][_token] = basicSalaryForPeriod;
  }
- 
 }
