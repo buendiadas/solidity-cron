@@ -1,3 +1,4 @@
+/* global artifacts  */
 const config = require('../config')
 const Standard20TokenContract = artifacts.require('Standard20TokenMock')
 const keccak256 = require('js-sha3').keccak256

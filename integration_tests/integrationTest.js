@@ -1,3 +1,4 @@
+/* global artifacts contract before web3 describe assert describe assert it  */
 const config = require('../config')
 const advanceToBlock = require('../test/helpers/advanceToBlock')
 const { assertRevert } = require('../test/helpers/assertRevert')
@@ -8,6 +9,10 @@ const PeriodicStageContract = artifacts.require('PeriodicStages')
 const PeriodContract = artifacts.require('Period')
 const OwnedRegistryContract = artifacts.require('OwnedRegistry')
 const OwnedRegistryFactory = artifacts.require('OwnedRegistryFactory')
+const VaultContract = artifacts.require('Vault')
+const AllowanceContract = artifacts.require('Allowance')
+const HelenaFeeContract = artifacts.require('helenaAgent')
+const BankContract = artifacts.require('Bank')
 const keccak256 = require('js-sha3').keccak256
 
 let OwnedRegistryFactoryInstance
@@ -18,6 +23,10 @@ let periodicStagesAddress
 let PeriodInstance
 let PeriodicStagesInstance
 let periodAddress
+let vaultInstance
+let allowanceInstance
+let helenaFeeInstance
+let bankInstance
 
 let adminAccount = web3.eth.accounts[0]
 let voterAccounts = web3.eth.accounts.slice(1, 4)
@@ -50,6 +59,11 @@ contract('TRL<Migrations>', function (accounts) {
     PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
     periodAddress = await PeriodicStagesInstance.period.call()
     PeriodInstance = await PeriodContract.at(periodAddress)
+
+    vaultInstance = await VaultContract.deployed()
+    allowanceInstance = await AllowanceContract.deployed()
+    bankInstance = await BankContract.deployed()
+    helenaFeeInstance = await HelenaFeeContract.deployed()
   })
 
   // choose which tests to run
@@ -59,6 +73,7 @@ contract('TRL<Migrations>', function (accounts) {
     staking: true,
     voting: true,
     claiming: true,
+    payments: true,
     scoring: false // disabled because it conflicts with config.ttl
   }
 
@@ -148,6 +163,7 @@ contract('TRL<Migrations>', function (accounts) {
         const storedMinimumStake = await TRLInstance.stakingConstraints.call(0)
         assert.equal(definedMinimumStake, storedMinimumStake.toNumber())
       })
+
       it('Should edit the maximum stake amount', async () => {
         const definedMaximumStake = 1000
         await TRLInstance.setMaximumStake(definedMaximumStake)
@@ -160,6 +176,7 @@ contract('TRL<Migrations>', function (accounts) {
         await FrontierTokenInstance.approve(TRLInstance.address, definedMinimumStake - 1, {from: voterAccounts[0]})
         await assertRevert(TRLInstance.buyTokenVotes(definedMinimumStake - 1, {from: voterAccounts[0]}))
       })
+
       it('Should record the number of votes bought in period 0 on the first period', async () => {
         const listAddress = await TRLInstance.address
         const stakedTokens = 20
@@ -200,7 +217,33 @@ contract('TRL<Migrations>', function (accounts) {
       })
     })
   }
- 
+
+  if (runTests.payments) {
+    describe('Payments', async () => {
+      it('Should make the payment', async() => {
+        const fundingValue = 10
+
+        const receiver = candidateAccounts[1]
+        const period = 0
+        const owner = adminAccount
+
+        await FrontierTokenInstance.approve(vaultInstance.address, fundingValue, { from: voterAccounts[0]})
+
+        await vaultInstance.deposit(0, FrontierTokenInstance.address, voterAccounts[0], fundingValue, { from: voterAccounts[0] })
+        await vaultInstance.close(0, FrontierTokenInstance.address)
+
+        await allowanceInstance.addEntity(helenaFeeInstance.address, 'Helena-fee', 100, period)
+        await helenaFeeInstance.addAllowedReceiver(receiver, FrontierTokenInstance.address, { from: owner })
+
+        await bankInstance.setBalancesForEntities([helenaFeeInstance.address], FrontierTokenInstance.address, period)
+        await vaultInstance.setBankContractAddress(bankInstance.address, { from: owner })
+
+        await helenaFeeInstance.collectPayment(receiver, FrontierTokenInstance.address, period)
+        const receiverBalance = await FrontierTokenInstance.balanceOf(receiver)
+        assert.equal(receiverBalance, fundingValue)
+      })
+    })
+  }
 
   if (runTests.scoring) {
     describe('Reputation', async () => {
@@ -244,8 +287,6 @@ contract('TRL<Migrations>', function (accounts) {
         let actualAnalyst1LastPeriodScoreLin = await TRLInstance.weightedScore(linWeights, analyst1Scores, WINDOW_SIZE)
         actualAnalyst1LastPeriodScoreLin = Number((actualAnalyst1LastPeriodScoreLin / MUL_CONSTANT).toFixed(4))
         assert.equal(expectedAnalyst1LastPeriodScoreLin, actualAnalyst1LastPeriodScoreLin)
-
-        // assert.equal(0, score)
       })
 
       it('The WeightedScore pure function should yeld correct values when the window size is smaller', async () => {
@@ -257,20 +298,14 @@ contract('TRL<Migrations>', function (accounts) {
       it('The reputation function should calculate the correct reputation value for a user', async () => {
         const rep1ExpectedResult = 52800000000
         const listAddress = await TRLInstance.address
+
         await FrontierTokenInstance.approve(listAddress, 400, {from: voterAccounts[0]})
 
-        // clear stage
         let currentPeriod
         for (let i = 0; i < 5; i++) {
-          // advance until stage 0
-
           const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
-          console.log('-> Staked' + totalPreStaked)
-
           currentPeriod = await TRLInstance.currentPeriod.call()
-          console.log('--> Stage:' + await TRLInstance.currentStage.call())
           await TRLInstance.buyTokenVotes(70, {from: voterAccounts[0]})
-          console.log('--> Stage:' + await TRLInstance.currentStage.call())
           await TRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
           await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
         }
