@@ -9,7 +9,7 @@ services:
 stages:
   - name: test
   - name: migrate
-    if: type != pull_request AND branch = master
+    if: type != pull_request AND (branch = master OR branch = develop)
 
 jobs:
   include:
