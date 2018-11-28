@@ -98,6 +98,13 @@ contract Bank is Ownable {
 	function getBalance (address _entity, address _tokenAddress, uint256 _epoch) external view returns (uint256) {
 		return entityBalanceForPeriod[_epoch][_tokenAddress][_entity].currentBalance;
 	}
+	
+	/**
+    * @dev Returns an entity's original balance for a period and token
+    * @param _entity The entity that is making the withdraw. This needs to be passed as a param, and not just read from msg.sender, so that it can be triggerd by the owner.
+    * @param _tokenAddress The address of the token contract
+    * @param _epoch The period for which the original balance is checked
+    **/
 
 	function getStartingBalance(address _entity, address _tokenAddress, uint256 _epoch) external view returns (uint256){
 		return entityBalanceForPeriod[_epoch][_tokenAddress][_entity].startingBalance;
