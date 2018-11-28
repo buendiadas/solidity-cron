@@ -18,10 +18,13 @@ contract Bank is Ownable {
 	
 	Allowance AllowanceInstance;
 	Vault VaultInstance;
-
+	
+	struct BalanceRecord{
+		uint256 startingBalance;
+		uint256 currentBalance;
+	}
 		//        period              token             entity      balance  
-	mapping (uint256 => mapping (address => mapping(address => uint256))) entityBalanceForPeriod;
-	mapping (uint256 => mapping (address => uint256)) public balanceStage; // 0= unset , 1= set, 2= changed
+	mapping (uint256 => mapping (address => mapping(address => BalanceRecord))) entityBalanceForPeriod;
 
 	event setBalanceForEntity(address indexed _entity, address indexed _token, uint256 indexed _epoch, uint256 _balance);
 	event madePayment(address indexed _entity, address indexed _receiver, address indexed _tokenAddress, uint256 _paymentAmount);
@@ -53,11 +56,8 @@ contract Bank is Ownable {
 			// of tokens in the bounty pool
 			uint256 entityAbsoluteAllowance = _calculateBalance(entityAllowance, periodPool);
 			// Set the entity's balance for the current period as the number of Tokens
-			entityBalanceForPeriod[_epoch][_tokenAddress][_entities[i]] = entityAbsoluteAllowance;
-			emit setBalanceForEntity(_entities[i],_tokenAddress, _epoch, entityAbsoluteAllowance);
-			// Set the balance stage flag to 1, meaning "set".
-			// "set" means the balance has been calculated and had not been changed.
-			balanceStage[_epoch][_tokenAddress] = 1;
+			BalanceRecord memory balRecord = BalanceRecord(entityAbsoluteAllowance, entityAbsoluteAllowance);
+			entityBalanceForPeriod[_epoch][_tokenAddress][_entities[i]] = balRecord;
 		}
 	}
 	
@@ -76,7 +76,7 @@ contract Bank is Ownable {
 		require(msg.sender == owner() || msg.sender == _entity, "Only the owner can update this value");
 		
 		// Get the current balance of this entity, in number of tokens
-		uint256 currentBalance = entityBalanceForPeriod[_epoch][_tokenAddress][_entity];
+		uint256 currentBalance = entityBalanceForPeriod[_epoch][_tokenAddress][_entity].currentBalance;
 		
 		// --> Check that it's not withdrawing more than it has
 		require(_paymentAmount <= currentBalance, "Trying to withdraw more than the balance");
@@ -85,12 +85,8 @@ contract Bank is Ownable {
 		VaultInstance.transfer(_epoch, _tokenAddress, _receiver, _paymentAmount);
 		
 		// Update the entity's balance
-		entityBalanceForPeriod[_epoch][_tokenAddress][_entity] = currentBalance.sub(_paymentAmount);
-	    emit madePayment(_entity, _receiver, _tokenAddress, _paymentAmount);	
-		// Set the balance stage flag to 2, meaning "changed".
-		// "changed" means the balance has been changed after it was set.    
-		balanceStage[_epoch][_tokenAddress] = 2;
-	}
+		entityBalanceForPeriod[_epoch][_tokenAddress][_entity].currentBalance = currentBalance.sub(_paymentAmount);
+	}		
 
 	/**
     * @dev Returns an entity's balance for a period and token
@@ -100,7 +96,18 @@ contract Bank is Ownable {
     **/
 	
 	function getBalance (address _entity, address _tokenAddress, uint256 _epoch) external view returns (uint256) {
-		return entityBalanceForPeriod[_epoch][_tokenAddress][_entity];
+		return entityBalanceForPeriod[_epoch][_tokenAddress][_entity].currentBalance;
+	}
+	
+	/**
+    * @dev Returns an entity's original balance for a period and token
+    * @param _entity The entity that is making the withdraw. This needs to be passed as a param, and not just read from msg.sender, so that it can be triggerd by the owner.
+    * @param _tokenAddress The address of the token contract
+    * @param _epoch The period for which the original balance is checked
+    **/
+
+	function getStartingBalance(address _entity, address _tokenAddress, uint256 _epoch) external view returns (uint256){
+		return entityBalanceForPeriod[_epoch][_tokenAddress][_entity].startingBalance;
 	}
 
 
