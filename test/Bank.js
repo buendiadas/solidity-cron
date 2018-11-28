@@ -22,10 +22,11 @@ contract('TRL<Active>', function (accounts) {
   const entity2 = voterAccounts[1]
   const entity3 = voterAccounts[2]
   const totalTokenIssuance = 100 * 1000
-
-  const entity1Allowance = 50
-  const entity2Allowance = 20
-  const entity3Allowance = 10
+  
+  const percentageResolution = 1000
+  const entity1Allowance = 50*percentageResolution
+  const entity2Allowance = 20*percentageResolution
+  const entity3Allowance = 10*percentageResolution
 
   const receiver = candidateAccounts[1]
 
@@ -99,19 +100,20 @@ contract('TRL<Active>', function (accounts) {
       FrontierTokenInstance.address,
       period
     )
+
     assert.equal(
       setBalance1,
-      totalTokenIssuance * entity1Allowance / 100,
+      totalTokenIssuance * entity1Allowance / (100*percentageResolution),
       'Balance of entity' + 1 + 'wrong'
     )
     assert.equal(
       setBalance2,
-      totalTokenIssuance * entity2Allowance / 100,
+      totalTokenIssuance * entity2Allowance / (100*percentageResolution),
       'Balance of entity' + 2 + 'wrong'
     )
     assert.equal(
       setBalance3,
-      totalTokenIssuance * entity3Allowance / 100,
+      totalTokenIssuance * entity3Allowance / (100*percentageResolution),
       'Balance of entity' + 3 + 'wrong'
     )
   })

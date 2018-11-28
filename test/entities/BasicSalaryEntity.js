@@ -30,7 +30,10 @@ contract('TRL<Active>', function (accounts) {
   let Allowance
   let Balance
   const totalTokenIssuance = 100
-
+  
+  const percentageResolution = 1000
+  const entityPercentage = 100
+  const entityPercentageMultiplied = entityPercentage * percentageResolution
   const receiver = candidateAccounts[1]
   const wrongReceiver = candidateAccounts[2]
 
@@ -84,7 +87,7 @@ contract('TRL<Active>', function (accounts) {
     await Allowance.addEntity(
       basicSalaryInstance.address,
       'Helena-fee',
-      100,
+      entityPercentageMultiplied,
       period
       )
 

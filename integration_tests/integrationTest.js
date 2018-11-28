@@ -28,6 +28,10 @@ let allowanceInstance
 let helenaFeeInstance
 let bankInstance
 
+const percentageResolution = 1000
+const entityShare = 100
+const percentageMultiplied = entityShare * percentageResolution
+
 let adminAccount = web3.eth.accounts[0]
 let voterAccounts = web3.eth.accounts.slice(1, 4)
 let candidateAccounts = web3.eth.accounts.slice(5, 8)
@@ -227,12 +231,12 @@ contract('TRL<Migrations>', function (accounts) {
         const period = 0
         const owner = adminAccount
 
-        await FrontierTokenInstance.approve(vaultInstance.address, fundingValue, { from: voterAccounts[0]})
+        await FrontierTokenInstance.approve(vaultInstance.address, fundingValue, {from: voterAccounts[0]})
 
         await vaultInstance.deposit(0, FrontierTokenInstance.address, voterAccounts[0], fundingValue, { from: voterAccounts[0] })
         await vaultInstance.close(0, FrontierTokenInstance.address)
 
-        await allowanceInstance.addEntity(helenaFeeInstance.address, 'Helena-fee', 100, period)
+        await allowanceInstance.addEntity(helenaFeeInstance.address, 'Helena-fee', percentageMultiplied, period)
         await helenaFeeInstance.addAllowedReceiver(receiver, FrontierTokenInstance.address, { from: owner })
 
         await bankInstance.setBalancesForEntities([helenaFeeInstance.address], FrontierTokenInstance.address, period)
