@@ -87,4 +87,14 @@ contract Allowance is Ownable {
 	function getEntityNameAndAllowance (address _entityAddress, uint256 _epoch) external view returns (string name, uint256 allowance) {
 		return (entitiesAllowance[_epoch][_entityAddress].name, entitiesAllowance[_epoch][_entityAddress].allowance);
 	}
+	/**
+    * @dev Pure function that converts a percentage into an absolute number of tokens
+    * @param _entityAllowance The entity's % allowance
+    * @param _epochPool Amount of tokens in the bounty pool for that period
+    **/
+
+	function calculateBalance(uint256 _entityAllowance, uint256 _epochPool) public pure returns (uint256 allowance) {
+		uint256 stepCalculation = _entityAllowance.mul(_epochPool);
+		return stepCalculation.div(100);
+	}
 }

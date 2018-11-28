@@ -63,18 +63,6 @@ contract('TRL<Active>', function (accounts) {
     await Vault.setBankContractAddress(Bank.address, { from: owner })
   })
 
-  it('Should calculate the balance', async () => {
-    // _calculateBalance(uint256 _entityAllowance, uint256 _periodPool)
-    const entityAllowance = 40
-    const periodPool = 200
-    const expectedAllowance = 80
-    const actualAllowance = await Bank._calculateBalance(
-      entityAllowance,
-      periodPool
-    )
-    assert.equal(actualAllowance, expectedAllowance)
-  })
-
   it('Should be period 0', async () => {
     // _calculateBalance(uint256 _entityAllowance, uint256 _periodPool)
 
