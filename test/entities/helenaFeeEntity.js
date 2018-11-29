@@ -1,10 +1,10 @@
 /* global artifacts, contract, web3, beforeEach, assert, it */
 
+const config = require("../../config.js")
 const BalanceContract = artifacts.require('Bank')
 const AllowanceContract = artifacts.require('Allowance')
 const HelenaFeeContract = artifacts.require('helenaAgent')
 
-const config = require('../../config')
 const { assertRevert } = require('../helpers/assertRevert')
 const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 const TRLContract = artifacts.require('TRL')
@@ -20,7 +20,7 @@ contract('TRL<Active>', function (accounts) {
   let Balance
   const totalTokenIssuance = 100 * 1000
 
-  const percentageResolution = 1000
+  const percentageResolution = config.percentageResolution
   const entityPercentage = 100
   const entityPercentageMultiplied = entityPercentage * percentageResolution
  

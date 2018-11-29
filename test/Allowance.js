@@ -1,14 +1,14 @@
 /* global artifacts, contract, web3, beforeEach, assert, it, describe */
 const AllowanceContract = artifacts.require('Allowance')
 const { assertRevert } = require('./helpers/assertRevert')
-
+const config = require('../config.js')
 contract('Allowance', function (accounts) {
   let AllowanceInstance
   const owner = web3.eth.accounts[0]
   const entityAddress = web3.eth.accounts[1]
   const entityName = 'entity-name'
   const period = 0
-  const percentageResolution = 1000
+  const percentageResolution = config.percentageResolution
 
   const allowanceValue = 20 * percentageResolution
 

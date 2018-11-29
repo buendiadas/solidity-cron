@@ -23,7 +23,7 @@ contract('TRL<Active>', function (accounts) {
   const entity3 = voterAccounts[2]
   const totalTokenIssuance = 100 * 1000
   
-  const percentageResolution = 1000
+  const percentageResolution = config.percentageResolution
   const entity1Allowance = 50*percentageResolution
   const entity2Allowance = 20*percentageResolution
   const entity3Allowance = 10*percentageResolution

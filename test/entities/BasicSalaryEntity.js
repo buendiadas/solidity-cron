@@ -31,7 +31,7 @@ contract('TRL<Active>', function (accounts) {
   let Balance
   const totalTokenIssuance = 100
   
-  const percentageResolution = 1000
+  const percentageResolution = config.percentageResolution
   const entityPercentage = 100
   const entityPercentageMultiplied = entityPercentage * percentageResolution
   const receiver = candidateAccounts[1]
