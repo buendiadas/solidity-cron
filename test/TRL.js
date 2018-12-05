@@ -106,8 +106,6 @@ contract('TRL<Active>', function (accounts) {
       await TRLInstance.setMinimumStake(definedMinimumStake)
       await FrontierTokenInstance.approve(TRLInstance.address, definedMinimumStake - 1, {from: voterAccounts[0]})
       const owner = await VoteTokenInstance.owner();
-      console.log(TRLInstance.address)
-      console.log(owner)
       await assertRevert(TRLInstance.buyTokenVotes(definedMinimumStake - 1, {from: voterAccounts[0]}))
     })
     it('Should record the number of votes bought in period 0 on the first period', async () => {
@@ -142,8 +140,7 @@ contract('TRL<Active>', function (accounts) {
       await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0]})
       await TRLInstance.buyTokenVotes(stakedTokens, {from: voterAccounts[0]})
       await TRLInstance.vote(candidateAccounts[0], stakedTokens, {from: voterAccounts[0]})
-      const height = await TRLInstance.height.call()
-      const votesReceived = await TRLInstance.votesReceived.call(height, candidateAccounts[0])
+      const votesReceived = await VoteTokenInstance.balanceOf(candidateAccounts[0])
       assert.equal(true, true)
     })
     it('Should edit the maximum number of votes when admin requires for it', async () => {
@@ -168,11 +165,10 @@ contract('TRL<Active>', function (accounts) {
       for(let  i =0; i < 5; i ++){
         await PeriodInstance.next()
       }
-      const height = await PeriodInstance.height.call()
       await TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]})
-      const votingBalance = await TRLInstance.votesBalance.call(height, voterAccounts[0])
+      const votingBalance = await VoteTokenInstance.balanceOf(voterAccounts[0])
       await TRLInstance.vote(candidateAccounts[0], votingBalance, {from: voterAccounts[0]})
-      const votesReceived = await TRLInstance.votesReceived.call(height, candidateAccounts[0])
+      const votesReceived = await VoteTokenInstance.balanceOf(candidateAccounts[0])
       assert.equal(votingBalance.toNumber(), votesReceived.toNumber())
     })
     it('Should revert when someone tries to vote tokens over the MaxVotingLimitAmount', async () => {
@@ -197,8 +193,8 @@ contract('TRL<Active>', function (accounts) {
       const stakedTokens = 10
       await FrontierTokenInstance.approve(TRLInstance.address, stakedTokens, {from: voterAccounts[0]})
       await TRLInstance.buyTokenVotes(stakedTokens, {from: voterAccounts[0]})
-      const epoch = await TRLInstance.height.call()
-      const votingBalance = await TRLInstance.votesBalance.call(epoch, voterAccounts[0])
+      const votingBalance = await VoteTokenInstance.balanceOf(voterAccounts[0])
+      const epoch = await TRLInstance.height();
       await TRLInstance.vote(candidateAccounts[0], votingBalance, {from: voterAccounts[0]})
       const TRLScoring = await TRLInstance.scoring.call(epoch, candidateAccounts[0])
       assert.strictEqual(stakedTokens, TRLScoring.toNumber())
