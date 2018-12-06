@@ -8,7 +8,7 @@ const PeriodContract = artifacts.require('PeriodMock');
 const VaultContract = artifacts.require('Vault')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
 
-contract('TRL<Active>', function (accounts) {
+contract('TRL', function (accounts) {
   let ProxyInstance
   let TRLInstance
   let FrontierTokenInstance

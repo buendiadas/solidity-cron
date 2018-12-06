@@ -8,8 +8,9 @@ import "@frontier-token-research/role-registries/contracts/Registry.sol";
 
 contract TRLStorage {
 
-    mapping (uint256 => uint256) public totalEpochVotes;
 
+    // Master Token, used to buy votes
+    VoteToken public voteToken;
     
     // Registry of candidates to be voted
     Registry public candidateRegistry;
@@ -20,11 +21,8 @@ contract TRLStorage {
     // Master Token, used to buy votes
     ERC20 public token;
 
-    // Master Token, used to buy votes
-    VoteToken public voteToken;
-
     // Stages that come periodically 
-    IPeriod public period;
+    IPeriod public period ;
 
     // Contract Storing the funds
     Vault public vault;
@@ -43,12 +41,17 @@ contract TRLStorage {
     bool reputationWeightsSet = false;
     uint256[] public repWeights;
 
+    mapping (uint256 => uint256) public totalEpochVotes;
+
     /** Setters **/
 
     /**
     * @dev Sets a new candidate registry address
-    * @param _contractAddress new contract address to be set
     */
+
+    function getVoteToken() public view returns  (address){
+        return voteToken; 
+    }
 
     function setCandidateRegistry(address _contractAddress) public {
         candidateRegistry = Registry(_contractAddress);
@@ -80,7 +83,6 @@ contract TRLStorage {
     function setVoteToken(address _contractAddress) public {
         voteToken = VoteToken(_contractAddress);
     }
-
 
     /**
     * @dev Sets a new periodic stages address

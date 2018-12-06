@@ -13,7 +13,7 @@ import "./cron/contracts/IPeriod.sol";
 * Main controler for the Token Ranked List Model.
 **/
 
-contract TRL is TRLStorage, Ownable, TRLInterface {
+contract TRL is Ownable, TRLStorage, TRLInterface {
     using SafeMath for uint256;
 
     /**

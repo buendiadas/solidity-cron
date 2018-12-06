@@ -2,25 +2,22 @@ const config = require('../config')
 const { assertRevert } = require('./helpers/assertRevert')
 const TRLContract = artifacts.require('TRL')
 const ProxyContract = artifacts.require('Proxy')
-
-/// /
-
-const advanceToBlock = require('./helpers/advanceToBlock')
+const VoteTokenContract =  artifacts.require('VoteToken')
 const Standard20TokenMock = artifacts.require('Standard20TokenMock')
-const PeriodicStageContract = artifacts.require('PeriodicStages')
-const PeriodContract = artifacts.require('Period')
+const PeriodContract = artifacts.require('PeriodMock');
 const VaultContract = artifacts.require('Vault')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
-///
 
 contract('Reputation', function (accounts) {
   let TRLInstance
+  let PeriodInstance
+  let VoteTokenInstance
   let ProxyInstance
   let ProxyTRLInstance
   let Vault
   let ScoringInstance
-  let PeriodInstance
   let startTime
+
   let adminAccount = web3.eth.accounts[0]
   let voterAccounts = web3.eth.accounts.slice(1, 4)
   let candidateAccounts = web3.eth.accounts.slice(5, 8)
@@ -41,24 +38,27 @@ contract('Reputation', function (accounts) {
   })
 
   beforeEach(async () => {
-    ProxyInstance = await ProxyContract.new()
+    ProxyInstance = await ProxyContract.new({from:adminAccount})
     TRLInstance = await TRLContract.new({from: adminAccount})
     ProxyTRLInstance = await TRLContract.at(ProxyInstance.address)
     await ProxyInstance.setContractLogic(TRLInstance.address)
+    VoteTokenInstance = await VoteTokenContract.new({from:adminAccount})
+    PeriodInstance = await PeriodContract.new()
 
-    // TRLInstance = await TRLContract.new({from: adminAccount})
-
-    await ProxyTRLInstance.setToken(FrontierTokenInstance.address)
     await ProxyTRLInstance.setCandidateRegistry(CandidateRegistryInstance.address)
     await ProxyTRLInstance.setVoterRegistry(VoterRegistryInstance.address)
     await ProxyTRLInstance.setVault(Vault.address)
-    await ProxyTRLInstance.initPeriod(config.ttl)
-    await ProxyTRLInstance.initStages(config.activeTime, config.claimTime)
+    await VoteTokenInstance.setPeriod(PeriodInstance.address)
+    await ProxyTRLInstance.setToken(FrontierTokenInstance.address)
+    await ProxyTRLInstance.setVoteToken(VoteTokenInstance.address)
 
-    let periodicStagesAddress = await ProxyTRLInstance.periodicStages.call()
-    PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
-    let periodAddress = await PeriodicStagesInstance.period.call()
-    PeriodInstance = await PeriodContract.at(periodAddress)
+    await VoteTokenInstance.transferOwnership(ProxyInstance.address, {from: adminAccount})
+    await ProxyTRLInstance.setCandidateRegistry(CandidateRegistryInstance.address)
+    await ProxyTRLInstance.setVoterRegistry(VoterRegistryInstance.address)
+    await ProxyTRLInstance.setVault(Vault.address)
+
+    await ProxyTRLInstance.setPeriod(PeriodInstance.address)
+
   })
 
   const absLinWeights = [0.39999999999999997, 0.3, 0.19999999999999998, 0.10000000000000002, 0.0]
@@ -97,7 +97,7 @@ contract('Reputation', function (accounts) {
 
   describe('Weighted Scoring Pure Function Test With ProxyTRLInstance', async () => {
     it('Should yeld the same values as the Python algorithm', async () => {
-      const score = await TRLInstance.scoring(0, adminAccount)
+      const score = await ProxyTRLInstance.scoring(0, adminAccount)
 
       let actualAnalyst1LastPeriodScoreLin = await ProxyTRLInstance.weightedScore(linWeights, analyst1Scores, WINDOW_SIZE)
       actualAnalyst1LastPeriodScoreLin = Number((actualAnalyst1LastPeriodScoreLin / MUL_CONSTANT).toFixed(4))
@@ -153,7 +153,7 @@ contract('Reputation', function (accounts) {
 
   describe('Weighted Scoring Pure Function Test With TRLInstance', async () => {
     it('Should yeld the same values as the Python algorithm', async () => {
-      const score = await TRLInstance.scoring(0, adminAccount)
+      //const score = await TRLInstance.scoring(0, adminAccount)
 
       let actualAnalyst1LastPeriodScoreLin = await TRLInstance.weightedScore(linWeights, analyst1Scores, WINDOW_SIZE)
       actualAnalyst1LastPeriodScoreLin = Number((actualAnalyst1LastPeriodScoreLin / MUL_CONSTANT).toFixed(4))
@@ -211,15 +211,15 @@ contract('Reputation', function (accounts) {
     it('Should work', async () => {
       await FrontierTokenInstance.approve(ProxyTRLInstance.address, stakedTokens, {from: voterAccounts[0]})
       const rep1ExpectedResult = 52800000000
-      await ProxyTRLInstance.setWindowSize(WINDOW_SIZE)
-      await ProxyTRLInstance.setReputationLinWeights(linWeightsSmaller)
+      await ProxyTRLInstance.setWindowSize(WINDOW_SIZE, {from: adminAccount})
+      await ProxyTRLInstance.setReputationLinWeights(linWeightsSmaller, {from: adminAccount})
 
-      for (let i = 0; i < 5; i++) {
-        await ProxyTRLInstance.buyTokenVotes(votesRecord[i], {from: voterAccounts[0]})
-        await ProxyTRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
-        epoch = await ProxyTRLInstance.height.call()
-        TRLScoring = await ProxyTRLInstance.scoring.call(epoch, candidateAccounts[0])
-        await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
+       for (let i = 0; i < 5; i++) {
+          await ProxyTRLInstance.buyTokenVotes(votesRecord[i], {from: voterAccounts[0]})
+          await ProxyTRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
+          epoch = await ProxyTRLInstance.height.call()
+          TRLScoring = await ProxyTRLInstance.scoring.call(epoch, candidateAccounts[0])
+          await PeriodInstance.next();
       }
 
       let res = await ProxyTRLInstance.reputation(epoch, candidateAccounts[0])
@@ -227,8 +227,7 @@ contract('Reputation', function (accounts) {
     })
     it('Should revert when weights are not set', async () => {
       await FrontierTokenInstance.approve(ProxyTRLInstance.address, stakedTokens, {from: voterAccounts[0]})
-
-      await ProxyTRLInstance.setWindowSize(WINDOW_SIZE)
+      await ProxyTRLInstance.setWindowSize(WINDOW_SIZE, {from: adminAccount})
 
       // Buying votes and voting for the user
       for (let i = 0; i < 5; i++) {
@@ -236,7 +235,7 @@ contract('Reputation', function (accounts) {
         await ProxyTRLInstance.vote(candidateAccounts[0], votesRecord[i], {from: voterAccounts[0]})
         epoch = await ProxyTRLInstance.height.call()
         TRLScoring = await ProxyTRLInstance.scoring.call(epoch, candidateAccounts[0])
-        await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
+        await PeriodInstance.next();
       }
       await assertRevert(ProxyTRLInstance.reputation(epoch, candidateAccounts[0]))
     })

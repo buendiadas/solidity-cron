@@ -1,5 +1,4 @@
 const config = require('../config')
-const advanceToBlock = require('./helpers/advanceToBlock')
 const { assertRevert } = require('./helpers/assertRevert')
 const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 const TRLContract = artifacts.require('TRL')
@@ -47,6 +46,7 @@ contract('Subscription', function (accounts) {
     await TRLInstance.setVoterRegistry(VoterRegistryInstance.address)
     await TRLInstance.setVault(Vault.address)
     await TRLInstance.setSubscriptionAccount(SubscriptionInstance.address)
+    
     await VoteTokenInstance.setPeriod(PeriodInstance.address)
     await TRLInstance.setPeriod(PeriodInstance.address)
 
@@ -115,7 +115,9 @@ contract('Subscription', function (accounts) {
       await FrontierTokenInstance.approve(SubscriptionInstance.address, 12 * subscriptionAmount, {from: voterAccounts[0], gas: 4712388})
       await SubscriptionInstance.subscribe(subscriptionAmount, TRLInstance.address, {from: voterAccounts[0], gas: 4712388})
       const periodsToAdvance = 1
-      await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
+       for(let  i =0; i < periodsToAdvance; i ++){
+        await PeriodInstance.next()
+      }
       await SubscriptionInstance.execute(voterAccounts[0], {gas: 4712388})
       assert(true);
     })

@@ -7,7 +7,7 @@ import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
  * A proxy Smart Contract following ERC897. Delegate calls to a target contract accessible via implementation() 
  */
 
-contract Proxy is TRLStorage, Ownable {
+contract Proxy is Ownable, TRLStorage {
 
     address public logicContract;
 
