@@ -6,8 +6,8 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
 import "@frontier-token-research/role-registries/contracts/OwnedRegistryFactory.sol";
-import "@frontier-token-research/cron/contracts/Period.sol";
-import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
+import "@frontier-token-research/cron/contracts/IPeriod.sol";
+import "@frontier-token-research/cron/contracts/blocks/PeriodicStages.sol";
 
 
 /**
@@ -182,7 +182,6 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
             }
              votes[i]=  votesReceived[i][_account];
         }
-
         return weightedScore(repWeights,votes, reputationWindowSize);
     }
 
