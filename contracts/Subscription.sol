@@ -3,7 +3,7 @@ pragma solidity ^0.4.24;
 import "./TRL.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
-import "@frontier-token-research/cron/contracts/blocks/Period.sol";    
+import "./cron/contracts/blocks/Period.sol";    
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 /**
