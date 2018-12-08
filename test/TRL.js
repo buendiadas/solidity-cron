@@ -65,9 +65,16 @@ contract('TRL', function (accounts) {
       const periodInstanceAddress = await PeriodInstance.address
       assert.strictEqual(periodInstanceAddress, periodStoredAddress)
     })
+    it('Should have set the correct VoteToken address', async () => {
+      const periodStoredAddress = await TRLInstance.period.call()
+      const periodInstanceAddress = await PeriodInstance.address
+      assert.strictEqual(periodInstanceAddress, periodStoredAddress)
+    })
     it('Period number should have been set to 0', async () => {
+      const currentPeriod = await PeriodInstance.height.call()
       const height = await PeriodInstance.height.call()
       assert.equal(0, height.toNumber())
+      assert.equal(0, currentPeriod.toNumber())
     })
     it('Balance of Voter should be set to totalTokens', async () => {
       const balance = await FrontierTokenInstance.balanceOf.call(voterAccounts[0])

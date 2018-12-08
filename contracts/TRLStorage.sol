@@ -8,7 +8,6 @@ import "@frontier-token-research/role-registries/contracts/Registry.sol";
 
 contract TRLStorage {
 
-
     // Master Token, used to buy votes
     VoteToken public voteToken;
     
@@ -22,7 +21,7 @@ contract TRLStorage {
     ERC20 public token;
 
     // Stages that come periodically 
-    IPeriod public period ;
+    IPeriod public period;
 
     // Contract Storing the funds
     Vault public vault;
@@ -40,8 +39,6 @@ contract TRLStorage {
     bool reputationWindowSizeSet = true;
     bool reputationWeightsSet = false;
     uint256[] public repWeights;
-
-    mapping (uint256 => uint256) public totalEpochVotes;
 
     /** Setters **/
 

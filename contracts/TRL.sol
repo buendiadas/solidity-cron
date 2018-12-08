@@ -45,6 +45,7 @@ contract TRL is Ownable, TRLStorage, TRLInterface {
     **/
 
     function vote(address _candidateAddress, uint256 _amount) external {
+        require(address(voteToken) != 0x00);
         require(canVote(msg.sender, _candidateAddress, _amount));
         voteToken.transferFrom(msg.sender, _candidateAddress, _amount);
         emit Vote(msg.sender, _candidateAddress, _amount, height());
@@ -273,6 +274,7 @@ contract TRL is Ownable, TRLStorage, TRLInterface {
     function _votePayment(address _voterAddress, uint256 _amount) internal returns (bool success) {
         require(canStake(_voterAddress, _amount));
         require(_deposit(height(), _amount));
+        require(address(voteToken) != 0x00);
         voteToken.mint(_voterAddress, _amount);
         emit VotesBought(_voterAddress, _amount, height());
         return true;
