@@ -66,12 +66,11 @@ contract('TRL', function (accounts) {
       assert.strictEqual(periodInstanceAddress, periodStoredAddress)
     })
     it('Should have set the correct VoteToken address', async () => {
-      const periodStoredAddress = await TRLInstance.period.call()
-      const periodInstanceAddress = await PeriodInstance.address
-      assert.strictEqual(periodInstanceAddress, periodStoredAddress)
+      const voteTokenStoredAddress = await TRLInstance.voteToken.call()
+      assert.strictEqual(VoteTokenInstance.address, voteTokenStoredAddress)
     })
     it('Period number should have been set to 0', async () => {
-      const currentPeriod = await PeriodInstance.height.call()
+      const currentPeriod = await TRLInstance.currentPeriod.call()
       const height = await PeriodInstance.height.call()
       assert.equal(0, height.toNumber())
       assert.equal(0, currentPeriod.toNumber())
