@@ -1,3 +1,4 @@
 module.exports = {
-  copyNodeModules: true
+  copyNodeModules: true,
+  skipFiles:['cron/*', 'mocks/*']
 }

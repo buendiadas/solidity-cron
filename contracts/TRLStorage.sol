@@ -46,10 +46,6 @@ contract TRLStorage {
     * @dev Sets a new candidate registry address
     */
 
-    function getVoteToken() public view returns  (address){
-        return voteToken; 
-    }
-
     function setCandidateRegistry(address _contractAddress) public {
         candidateRegistry = Registry(_contractAddress);
     }
