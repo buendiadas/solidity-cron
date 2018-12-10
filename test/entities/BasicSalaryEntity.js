@@ -15,7 +15,7 @@ const AllowanceContract = artifacts.require('Allowance')
 const HelenaFeeContract = artifacts.require('helenaAgent')
 const BasicSalaryEntityContract = artifacts.require('BasicSalaryEntity')
 
-contract('TRL<Active>', function (accounts) {
+contract('BasicSalaryEntity', function (accounts) {
   let TRLInstance
   let FrontierTokenInstance
   let CandidateRegistryInstance
@@ -30,7 +30,7 @@ contract('TRL<Active>', function (accounts) {
   let Allowance
   let Balance
   const totalTokenIssuance = 100
-  
+
   const percentageResolution = config.percentageResolution
   const entityPercentage = 100
   const entityPercentageMultiplied = entityPercentage * percentageResolution

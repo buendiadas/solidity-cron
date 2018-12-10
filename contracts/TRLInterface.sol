@@ -16,11 +16,9 @@ contract TRLInterface {
     function height() public view returns(uint256);
     function currentStage() public view returns(uint256);
     function launchTestEvent() public;
-    
+    function getUserVotes(uint256 _epoch, address _account) public view returns (uint256);
+    function getEpochTotalVotes(uint256 _epoch) public view returns (uint256);    
 }
-
-
-
 
 
 

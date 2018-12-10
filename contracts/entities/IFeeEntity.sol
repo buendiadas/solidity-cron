@@ -5,6 +5,7 @@ interface IFeeEntity {
 	event addedAllowedReceiver(address indexed _receiver, address indexed _token);
 	
 	function collectPayment(address _destination, address _token, uint256 _epoch) external;
-	function addAllowedReceiver(address _destination, address _token) external;
-	function calculatePaymentAmount(uint256 _entityBalance, uint256 _epoch, address _token, address _receiver) external returns (uint256 amount);
+	// function addAllowedReceiver(address _destination, address _token) external;
+	// function calculatePaymentAmount(uint256 _entityBalance, uint256 _epoch, address _token, address _receiver) external returns (uint256 amount);
+	//function calculatePaymentAmount(uint256 _entityBalance, uint256 _epoch, address _token, address _receiver, uint256 _userVotes, uint256 _totalVotes) public returns (uint256 amount);
 }
