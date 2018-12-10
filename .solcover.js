@@ -1,3 +1,6 @@
 module.exports = {
-  copyNodeModules: true
+  copyNodeModules: true,
+  skipFiles: [
+    'mocks'
+  ]
 }
