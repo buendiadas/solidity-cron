@@ -15,7 +15,7 @@ const AllowanceContract = artifacts.require('Allowance')
 const HelenaFeeContract = artifacts.require('helenaAgent')
 const BasicSalaryEntityContract = artifacts.require('BasicSalaryEntity')
 
-contract('BasicSalaryEntity', function (accounts) {
+contract('BasicSalary', function (accounts) {
   let TRLInstance
   let FrontierTokenInstance
   let CandidateRegistryInstance
@@ -54,13 +54,6 @@ contract('BasicSalaryEntity', function (accounts) {
     await TRLInstance.setCandidateRegistry(CandidateRegistryInstance.address)
     await TRLInstance.setVoterRegistry(VoterRegistryInstance.address)
     await TRLInstance.setVault(Vault.address)
-    await TRLInstance.initPeriod(config.ttl)
-    await TRLInstance.initStages(config.activeTime, config.claimTime)
-    let periodicStagesAddress = await TRLInstance.periodicStages.call()
-    PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
-    let periodAddress = await PeriodicStagesInstance.period.call()
-    PeriodInstance = await PeriodContract.at(periodAddress)
-
     // Approving trasfer to fund Vault
     await FrontierTokenInstance.approve(Vault.address, totalTokenIssuance, {
       from: voterAccounts[0]
@@ -101,9 +94,6 @@ contract('BasicSalaryEntity', function (accounts) {
   })
 
   describe('Should pass', async () => {
-    it('Shouldpass', async () => {
-      assert.equal(1, 1)
-    })
     it('Should make the payment to the Receiver', async () => {
       let receiverBalance = -1
       const numberOfCandidates = candidateAccounts.length
