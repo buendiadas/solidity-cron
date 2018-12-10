@@ -7,42 +7,16 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
 import "@frontier-token-research/role-registries/contracts/OwnedRegistryFactory.sol";
 import "@frontier-token-research/role-registries/contracts/mocks/OwnedRegistryMock.sol";
-import "@frontier-token-research/cron/contracts/IPeriod.sol";
-import "@frontier-token-research/cron/contracts/blocks/PeriodicStages.sol";
+import "./cron/contracts/IPeriod.sol";
+
 
 
 /**
-* A Token Ranked List (TRL) enables voting with staked tokens periodically, over a registry of candidates, and sets the compensation of the candidates based on previous interactions 
+* Main controler for the Token Ranked List Model.
 **/
 
-contract TRL is TRLStorage, Ownable, TRLInterface {
+contract TRL is Ownable, TRLStorage, TRLInterface {
     using SafeMath for uint256;
-    /**
-    * @dev Initializes a new period, by creating a new instance of Periodic Stages contract (https://github.com/Frontier-project/cron) 
-    * If not set, the TRL will not be periodic. When set, different states will be stored indexed by periods.
-    * @param _T Period that is about to be set
-    **/
-
-    function initPeriod(uint256 _T) public {
-        setPeriodicStages(address(new PeriodicStages(_T)));
-        emit PeriodicStagesCreated(periodicStages);
-    }
-
-    /**
-    * @dev Initializes a set of states inside a period, that will repeat periodically.
-    * @param _activeTime  Temporal epoch when the Smart Contract is set as "Active", most of the interactions inside the period will come here
-    * @param _claimTime  Temporal epoch where participants can claim their compensation based on the interactions mader on activeTime
-    * TODO: Generalize to a general number of periods.
-    **/
-
-    function initStages(uint256 _activeTime, uint256 _claimTime) public {  
-        periodicStages.pushStage(_activeTime);
-        periodicStages.pushStage(_claimTime);
-        address periodAddress = periodicStages.period();
-        Period period = Period(periodAddress);
-        uint256 T = period.T(); 
-        emit PeriodInit(T, _activeTime, _claimTime);
-    }
 
     /*
     mapping (uint256 => mapping(address => uint256)) public votesReceived;
@@ -90,12 +64,13 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
 
     function vote(address _candidateAddress, uint256 _amount) external {
         uint256 currentEpoch = height();
+        require(address(voteToken) != 0x00);
         require(canVote(msg.sender, _candidateAddress, _amount));
-        require(votesBalance[currentEpoch][msg.sender] >= _amount);
+        voteToken.transferFrom(msg.sender, _candidateAddress, _amount);
         votesReceived[currentEpoch][_candidateAddress] = votesReceived[currentEpoch][_candidateAddress].add(_amount);
         votesBalance[currentEpoch][msg.sender] -= _amount;
         totalEpochVotes[currentEpoch] = totalEpochVotes[currentEpoch] + _amount;
-        emit Vote(msg.sender, _candidateAddress, _amount, currentEpoch);
+        emit Vote(msg.sender, _candidateAddress, _amount, height());
     }
 
     /*
@@ -138,7 +113,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         votingConstraints[1] = _maxVoteAmount; 
     }
 
-       /**
+    /**
     * @dev Sets the reputation calculation Window Size
     * @param _windowSize Size of the window
     **/
@@ -178,7 +153,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function scoring(uint256 _epoch, address _account) public view returns (uint256) {
-        return votesReceived[_epoch][_account];
+        return voteToken.balanceAt(_epoch,_account);
     }
 
     /**
@@ -199,7 +174,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
             if(_epoch<i){
                 votes[i] = 0;
             }
-             votes[i]=  votesReceived[i][_account];
+             votes[i]=  voteToken.balanceAt(i,_account);
         }
         return weightedScore(repWeights,votes, reputationWindowSize);
     }
@@ -218,17 +193,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function height() public view returns(uint256) { 
-        address periodAddress = periodicStages.period();
-        Period period = Period(periodAddress);
-        return period.getPeriodNumber();
-    }
-    
-    /**
-    * @dev Returns the current stage number, by calling the PeriodicStages lib
-    **/
-
-    function currentStage() public view returns(uint256) {
-        return periodicStages.currentStage();
+        return period.height();
     }
          
     /**
@@ -261,7 +226,7 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         uint256 _amount) 
         public view returns (bool) 
     {
-        return (stakeInsideConstraints(_amount + votesBalance[height()][_sender]));
+        return (stakeInsideConstraints(_amount));
 
     }
 
@@ -328,10 +293,10 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     */
 
     function _votePayment(address _voterAddress, uint256 _amount) internal returns (bool success) {
-        require(currentStage() == 0);
         require(canStake(_voterAddress, _amount));
         require(_deposit(height(), _amount));
-        votesBalance[height()][_voterAddress] = votesBalance[height()][msg.sender].add(_amount);
+        require(address(voteToken) != 0x00);
+        voteToken.mint(_voterAddress, _amount);
         emit VotesBought(_voterAddress, _amount, height());
         return true;
     }

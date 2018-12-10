@@ -1,16 +1,17 @@
 const config = require('../config')
-const advanceToBlock = require('./helpers/advanceToBlock')
 const { assertRevert } = require('./helpers/assertRevert')
 const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 const TRLContract = artifacts.require('TRL')
+const VoteTokenContract =  artifacts.require('VoteToken')
 const PeriodicStageContract = artifacts.require('PeriodicStages')
-const PeriodContract = artifacts.require('Period')
+const PeriodContract = artifacts.require('PeriodMock');
 const VaultContract = artifacts.require('Vault')
 const SubscriptionContract = artifacts.require('Subscription')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
 
 contract('Subscription', function (accounts) {
   let TRLInstance
+  let VoteTokenInstance
   let FrontierTokenInstance
   let CandidateRegistryInstance
   let VoterRegistryInstance
@@ -31,21 +32,24 @@ contract('Subscription', function (accounts) {
     VoterRegistryInstance = await OwnedRegistryContract.new(voterAccounts, {from: adminAccount})
     Vault = await VaultContract.new({from: adminAccount})
     FrontierTokenInstance = await Standard20TokenMock.new(voterAccounts, config.totalTokens, {from: adminAccount})
+    PeriodInstance = await PeriodContract.new()
   })
   beforeEach(async () => {
     SubscriptionInstance = await SubscriptionContract.new()
     TRLInstance = await TRLContract.new({from: adminAccount})
+    VoteTokenInstance = await VoteTokenContract.new()
+
     await TRLInstance.setToken(FrontierTokenInstance.address)
+    await TRLInstance.setVoteToken(VoteTokenInstance.address)
+    await VoteTokenInstance.transferOwnership(TRLInstance.address, {from: adminAccount})
     await TRLInstance.setCandidateRegistry(CandidateRegistryInstance.address)
     await TRLInstance.setVoterRegistry(VoterRegistryInstance.address)
     await TRLInstance.setVault(Vault.address)
-    await TRLInstance.initPeriod(config.ttl)
-    await TRLInstance.initStages(config.ttl, 0)
     await TRLInstance.setSubscriptionAccount(SubscriptionInstance.address)
-    let periodicStagesAddress = await TRLInstance.periodicStages.call()
-    PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
-    let periodAddress = await PeriodicStagesInstance.period.call()
-    PeriodInstance = await PeriodContract.at(periodAddress)
+    
+    await VoteTokenInstance.setPeriod(PeriodInstance.address)
+    await TRLInstance.setPeriod(PeriodInstance.address)
+
   })
   describe('Adding a subscription', async () => {
     it('Should set a subscription as active when a voter requires it', async () => {
@@ -111,7 +115,9 @@ contract('Subscription', function (accounts) {
       await FrontierTokenInstance.approve(SubscriptionInstance.address, 12 * subscriptionAmount, {from: voterAccounts[0], gas: 4712388})
       await SubscriptionInstance.subscribe(subscriptionAmount, TRLInstance.address, {from: voterAccounts[0], gas: 4712388})
       const periodsToAdvance = 1
-      await advanceToBlock.advanceToBlock(web3.eth.blockNumber + 1 * config.ttl)
+       for(let  i =0; i < periodsToAdvance; i ++){
+        await PeriodInstance.next()
+      }
       await SubscriptionInstance.execute(voterAccounts[0], {gas: 4712388})
       assert(true);
     })
