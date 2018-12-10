@@ -1,16 +1,15 @@
 pragma solidity ^0.4.24;
 
+import "./VoteToken.sol";
 import "./Vault.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
-import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
+
 
 contract TRLStorage {
 
-    mapping (uint256 => mapping(address => uint256)) public votesReceived;
-    mapping (uint256 => mapping(address => uint256)) public votesBalance;
-    mapping (uint256 => uint256) public totalEpochVotes;
-
+    // Master Token, used to buy votes
+    VoteToken public voteToken;
     
     // Registry of candidates to be voted
     Registry public candidateRegistry;
@@ -22,7 +21,7 @@ contract TRLStorage {
     ERC20 public token;
 
     // Stages that come periodically 
-    PeriodicStages public periodicStages;
+    IPeriod public period;
 
     // Contract Storing the funds
     Vault public vault;
@@ -45,7 +44,6 @@ contract TRLStorage {
 
     /**
     * @dev Sets a new candidate registry address
-    * @param _contractAddress new contract address to be set
     */
 
     function setCandidateRegistry(address _contractAddress) public {
@@ -71,14 +69,22 @@ contract TRLStorage {
     }
 
     /**
+    * @dev Sets a new Vote Token address
+    * @param _contractAddress new contract address to be set
+    */
+
+    function setVoteToken(address _contractAddress) public {
+        voteToken = VoteToken(_contractAddress);
+    }
+
+    /**
     * @dev Sets a new periodic stages address
     * @param _contractAddress new contract address to be set
     */
 
-    function setPeriodicStages(address _contractAddress) public {
-        periodicStages = PeriodicStages(_contractAddress);
+    function setPeriod(address _contractAddress) public {
+        period = IPeriod(_contractAddress);
     }
-
 
     /**
     * @dev Sets a new Vault Address

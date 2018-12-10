@@ -19,7 +19,7 @@ contract Bank is Ownable {
 	Allowance AllowanceInstance;
 	Vault VaultInstance;
 	
-	struct BalanceRecord{
+	struct BalanceRecord {
 		uint256 startingBalance;
 		uint256 currentBalance;
 	}

@@ -2,17 +2,21 @@ const config = require('../config')
 const { assertRevert } = require('./helpers/assertRevert')
 const TRLContract = artifacts.require('TRL')
 const ProxyContract = artifacts.require('Proxy')
+const PeriodContract = artifacts.require('PeriodMock')
 
 contract('Proxy', function (accounts) {
   let TRLInstance
   let ProxyInstance
   let adminAccount = web3.eth.accounts[0]
   let ProxyTRLInstance
+  let PeriodInstance
 
   before('Deploying required contracts', async () => {
     ProxyInstance = await ProxyContract.new()
     TRLInstance = await TRLContract.new({from: adminAccount})
+    PeriodInstance = await PeriodContract.new()
     ProxyTRLInstance = await TRLContract.at(ProxyInstance.address)
+    ProxyTRLInstance.setPeriod(PeriodInstance.address)
     await ProxyInstance.setContractLogic(TRLInstance.address)
   })
 
@@ -35,9 +39,9 @@ contract('Proxy', function (accounts) {
     })
     it('Should be able to initialize the contract', async () => {
       const ProxyTRLInstance = await TRLContract.at(ProxyInstance.address)
-      await ProxyTRLInstance.initPeriod(config.ttl)
-      let periodicStagesAddress = await ProxyTRLInstance.periodicStages.call()
-      assert(periodicStagesAddress != 0x00, 'PeriodicStagesAddress is initialized')
+      ProxyTRLInstance.setPeriod(PeriodInstance.address)
+      let periodAddress = await ProxyTRLInstance.period()
+      assert(periodAddress != 0x00, 'Periodic Address is initialized')
     })
   })
 })

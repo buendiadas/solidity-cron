@@ -1,8 +1,8 @@
 const config = require('../config')
 const keccak256 = require('js-sha3').keccak256
+const PeriodContract = artifacts.require('Daily');
 const Standard20TokenContract = artifacts.require('Standard20TokenMock')
 const ProxyContract = artifacts.require('Proxy')
-const PeriodicStageContract = artifacts.require('PeriodicStages')
 const VaultContract = artifacts.require('Vault')
 const options = {from: config.ownerAccount}
 const TRLContract = artifacts.require('TRL')
@@ -20,6 +20,7 @@ module.exports = (deployer) => {
 
     if (config.proxyMigration) {
       const RegistryFactory = await OwnedRegistryFactoryContract.deployed()
+      const PeriodInstance = await PeriodContract.deployed()
       const voterRegistryAddress = await RegistryFactory.getRegistry.call(keccak256('voter'))
       const candidateRegistryAddress = await RegistryFactory.getRegistry.call(keccak256('candidate'))
       const FrontierToken = await Standard20TokenContract.deployed()
@@ -29,10 +30,9 @@ module.exports = (deployer) => {
       await ProxyTRL.setCandidateRegistry(candidateRegistryAddress)
       await ProxyTRL.setVoterRegistry(voterRegistryAddress)
       await ProxyTRL.setVault(Vault.address)
-      await ProxyTRL.initPeriod(config.ttl)
-      await ProxyTRL.initStages(config.activeTime, config.claimTime)
-      await ProxyTRL.setWindowSize(WINDOW_SIZE)
-      await ProxyTRL.setReputationLinWeights(linWeightsSmaller)
+      await ProxyTRL.setPeriod(PeriodInstance.address)
+      //await ProxyTRL.setWindowSize(WINDOW_SIZE)
+      //await ProxyTRL.setReputationLinWeights(linWeightsSmaller)
 
       // storing the contract address
       // added this comment to trigger a release

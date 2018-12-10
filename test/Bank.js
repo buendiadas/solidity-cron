@@ -9,7 +9,7 @@ const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 const TRLContract = artifacts.require('TRL')
 const VaultContract = artifacts.require('Vault')
 
-contract('TRL<Active>', function (accounts) {
+contract('Bank', function (accounts) {
   let FrontierTokenInstance
   let Vault
   let owner = web3.eth.accounts[0]
