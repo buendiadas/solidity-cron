@@ -1,6 +1,6 @@
 
 pragma solidity 0.4.24;
-import "../cron/contracts/IPeriod.sol";
+import "../IPeriod.sol";
 
 
 contract PeriodMock is IPeriod { 
