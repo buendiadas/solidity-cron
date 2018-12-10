@@ -117,8 +117,8 @@ contract Bank is Ownable {
     * @param _epochPool Amount of tokens in the bounty pool for that period
     **/
 
-	function _calculateBalance(uint256 _entityAllowance, uint256 _epochPool) pure returns (uint256 allowance) {
-		uint256 stepCalculation = _entityAllowance.mul(_epochPool);
-		return stepCalculation.div(100);
+	function _calculateBalance(uint256 _entityAllowance, uint256 _epochPool) returns (uint256) {
+		uint256 balance =  AllowanceInstance.calculateBalance(_entityAllowance, _epochPool);
+		return balance;
 	}
 }

@@ -6,8 +6,9 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
 import "@frontier-token-research/role-registries/contracts/OwnedRegistryFactory.sol";
-import "@frontier-token-research/cron/contracts/Period.sol";
-import "@frontier-token-research/cron/contracts/PeriodicStages.sol";
+import "@frontier-token-research/role-registries/contracts/mocks/OwnedRegistryMock.sol";
+import "@frontier-token-research/cron/contracts/IPeriod.sol";
+import "@frontier-token-research/cron/contracts/blocks/PeriodicStages.sol";
 
 
 /**
@@ -43,6 +44,22 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
         emit PeriodInit(T, _activeTime, _claimTime);
     }
 
+    /*
+    mapping (uint256 => mapping(address => uint256)) public votesReceived;
+    mapping (uint256 => mapping(address => uint256)) public votesBalance;
+    mapping (uint256 => uint256) public totalEpochVotes;
+
+    */
+
+    function getUserVotes(uint256 _epoch, address _account) public view returns (uint256) {
+        return votesReceived[_epoch][_account];
+    }
+
+    function getEpochTotalVotes(uint256 _epoch) public view returns (uint256) {
+        require(height() > _epoch);
+        return totalEpochVotes[_epoch];
+    }
+
     /**
     * @dev Exchanges the main token for an amount of votes
     * @param _amount Amount of votes that the voter wants to buy
@@ -72,11 +89,13 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
     **/
 
     function vote(address _candidateAddress, uint256 _amount) external {
+        uint256 currentEpoch = height();
         require(canVote(msg.sender, _candidateAddress, _amount));
-        require(votesBalance[height()][msg.sender] >= _amount);
-        votesReceived[height()][_candidateAddress] = votesReceived[height()][_candidateAddress].add(_amount);
-        votesBalance[height()][msg.sender] -= _amount;
-        emit Vote(msg.sender, _candidateAddress, _amount, height());
+        require(votesBalance[currentEpoch][msg.sender] >= _amount);
+        votesReceived[currentEpoch][_candidateAddress] = votesReceived[currentEpoch][_candidateAddress].add(_amount);
+        votesBalance[currentEpoch][msg.sender] -= _amount;
+        totalEpochVotes[currentEpoch] = totalEpochVotes[currentEpoch] + _amount;
+        emit Vote(msg.sender, _candidateAddress, _amount, currentEpoch);
     }
 
     /*
@@ -182,7 +201,6 @@ contract TRL is TRLStorage, Ownable, TRLInterface {
             }
              votes[i]=  votesReceived[i][_account];
         }
-
         return weightedScore(repWeights,votes, reputationWindowSize);
     }
 

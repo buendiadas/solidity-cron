@@ -20,10 +20,17 @@ contract Allowance is Ownable {
 	// This variable is used to keep track of the total allowance of a period
 	// It's necessary to make sure the value never exceeds 100	
 	mapping (uint256 => uint256) currentTotalAllowance;
-
+    uint256 percentageResolution;
+	uint256 maxPercentageValue;
 	struct Entity {
 		string name;
 		uint256 allowance;
+	}
+
+	constructor (){
+       percentageResolution = 1000;
+	   uint256 totalPercentage = 100;
+	   maxPercentageValue = totalPercentage.mul(percentageResolution);
 	}
 
 	/**
@@ -38,8 +45,8 @@ contract Allowance is Ownable {
 
 	function addEntity(address _entityAddress, string _name, uint256 _allowance, uint256 _epoch) external{
 		require(msg.sender == owner(),"Message sender is not the owner");
-		require(_allowance != 0 && _allowance <= 100, "Invalid allowance value. Has to be 0<x<=100");
-		require(_allowance.add(currentTotalAllowance[_epoch]) <= 100, "New allowance exceeds 100 as total allowance");
+		require(_allowance != 0 && _allowance <= maxPercentageValue, "Invalid allowance value. Has to be 0<x<=100 000");
+		require(_allowance.add(currentTotalAllowance[_epoch]) <= maxPercentageValue, "New allowance exceeds 100 as total allowance");
 
 		entitiesAllowance[_epoch][_entityAddress] = Entity(_name,_allowance);
 		currentTotalAllowance[_epoch] = currentTotalAllowance[_epoch].add(_allowance);
@@ -86,5 +93,15 @@ contract Allowance is Ownable {
 
 	function getEntityNameAndAllowance (address _entityAddress, uint256 _epoch) external view returns (string name, uint256 allowance) {
 		return (entitiesAllowance[_epoch][_entityAddress].name, entitiesAllowance[_epoch][_entityAddress].allowance);
+	}
+	/**
+    * @dev Pure function that converts a percentage into an absolute number of tokens
+    * @param _entityAllowance The entity's % allowance
+    * @param _epochPool Amount of tokens in the bounty pool for that period
+    **/
+
+	function calculateBalance(uint256 _entityAllowance, uint256 _epochPool) public returns (uint256 allowance) {
+		uint256 stepCalculation = _entityAllowance.mul(_epochPool);
+		return stepCalculation.div(maxPercentageValue);
 	}
 }

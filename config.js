@@ -22,5 +22,6 @@ module.exports = {
     '0x87f25bfea6d93e30fa0a3e0d86c386244f636a41'
   ],
   reputationWindowSize: 5,
-  reputationWeights: [400000000, 300000000, 200000000, 100000000, 0]
+  reputationWeights: [400000000, 300000000, 200000000, 100000000, 0],
+  percentageResolution: 1000
 }
