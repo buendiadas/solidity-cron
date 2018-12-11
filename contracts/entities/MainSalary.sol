@@ -9,6 +9,7 @@ import "../Bank.sol";
 import "../Vault.sol";
 import "../TRLInterface.sol";
 import "./IFeeEntity.sol";
+import "../VoteToken.sol";
 
 contract MainSalaryEntity is Ownable, IFeeEntity {
 
@@ -30,6 +31,7 @@ TODOS
   Vault VaultInstance;
   OwnedRegistry candidateRegistry;
   TRL TRLInstance;
+  VoteToken VoteTokenInstance;
 
   // New storage
 
@@ -40,10 +42,11 @@ TODOS
   //        epoch            user               token        amount
   //mapping (uint256=> mapping(address => mapping(address => uint256))) salaryAmountPerEpochPerUser;
 
-  constructor (address _vaultAddress, address _balanceAddress, address _trlAddress){   
+  constructor (address _vaultAddress, address _balanceAddress, address _trlAddress, address _voteTokenAddress){   
     BankInstance = Bank(_balanceAddress);
     VaultInstance = Vault(_vaultAddress);
     TRLInstance = TRL(_trlAddress);
+    VoteTokenInstance = VoteToken(_voteTokenAddress);
   }
 
   function setCandidateRegistry(address _candidateRegistryAddress) external {

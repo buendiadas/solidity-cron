@@ -6,7 +6,10 @@ import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 import "@frontier-token-research/role-registries/contracts/Registry.sol";
 
 contract TRLStorage {
-
+    mapping (uint256 => mapping(address => uint256)) public votesReceived;
+    mapping (uint256 => mapping(address => uint256)) public votesBalance;
+    mapping (uint256 => uint256) public totalEpochVotes;
+    
     // Master Token, used to buy votes
     VoteToken public voteToken;
     

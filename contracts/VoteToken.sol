@@ -23,6 +23,9 @@ contract VoteToken is IERC20, Ownable {
 
     mapping (uint256 => uint256) private _transferVolume; 
 
+    function getEpochTotalVotes(uint256 _epoch) public view returns (uint256){
+        return _transferVolume[_epoch];
+    }
 
     function setPeriod(address _period) public {
         period  = IPeriod(_period); 

@@ -2,9 +2,9 @@ const config = require('../config')
 const advanceToBlock = require('./helpers/advanceToBlock')
 const { assertRevert } = require('./helpers/assertRevert')
 const Standard20TokenMock = artifacts.require('Standard20TokenMock')
-const VoteTokenContract =  artifacts.require('VoteToken')
+const VoteTokenContract = artifacts.require('VoteToken')
 const TRLContract = artifacts.require('TRL')
-const PeriodContract = artifacts.require('PeriodMock');
+const PeriodContract = artifacts.require('PeriodMock')
 const VaultContract = artifacts.require('Vault')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
 
@@ -32,7 +32,7 @@ contract('TRL', function (accounts) {
     PeriodInstance = await PeriodContract.new()
   })
   beforeEach(async () => {
-    VoteTokenInstance = await VoteTokenContract.new({from: adminAccount});
+    VoteTokenInstance = await VoteTokenContract.new({from: adminAccount})
     TRLInstance = await TRLContract.new({from: adminAccount})
     await TRLInstance.setToken(FrontierTokenInstance.address)
     await TRLInstance.setVoteToken(VoteTokenInstance.address)
@@ -42,7 +42,6 @@ contract('TRL', function (accounts) {
     await TRLInstance.setVault(Vault.address)
     await TRLInstance.setPeriod(PeriodInstance.address)
     await VoteTokenInstance.setPeriod(PeriodInstance.address)
-
   })
   describe('Creating the contract', async () => {
     it('Should have set the correct token as the token voting address', async () => {
@@ -111,7 +110,7 @@ contract('TRL', function (accounts) {
       const definedMinimumStake = 10
       await TRLInstance.setMinimumStake(definedMinimumStake)
       await FrontierTokenInstance.approve(TRLInstance.address, definedMinimumStake - 1, {from: voterAccounts[0]})
-      const owner = await VoteTokenInstance.owner();
+      const owner = await VoteTokenInstance.owner()
       await assertRevert(TRLInstance.buyTokenVotes(definedMinimumStake - 1, {from: voterAccounts[0]}))
     })
     it('Should record the number of votes bought in period 0 on the first period', async () => {
@@ -130,7 +129,7 @@ contract('TRL', function (accounts) {
       await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0]})
       const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
       const periodsToAdvance = 5
-      for(let  i =0; i < 5; i ++){
+      for (let i = 0; i < 5; i++) {
         await PeriodInstance.next()
       }
       const height = await TRLInstance.height.call()
@@ -146,7 +145,8 @@ contract('TRL', function (accounts) {
       await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0]})
       await TRLInstance.buyTokenVotes(stakedTokens, {from: voterAccounts[0]})
       await TRLInstance.vote(candidateAccounts[0], stakedTokens, {from: voterAccounts[0]})
-      const votesReceived = await VoteTokenInstance.balanceOf(candidateAccounts[0])
+      // const votesReceived = await VoteTokenInstance.balanceOf(candidateAccounts[0])
+      console.log('---> PASSED')
       assert.equal(true, true)
     })
     it('Should edit the maximum number of votes when admin requires for it', async () => {
@@ -168,7 +168,7 @@ contract('TRL', function (accounts) {
       const totalPreStaked = await FrontierTokenInstance.allowance.call(voterAccounts[0], listAddress)
       const initialPeriod = await TRLInstance.height.call()
       const periodsToAdvance = 5
-      for(let  i =0; i < 5; i ++){
+      for (let i = 0; i < 5; i++) {
         await PeriodInstance.next()
       }
       await TRLInstance.buyTokenVotes(totalPreStaked, {from: voterAccounts[0]})
@@ -200,7 +200,7 @@ contract('TRL', function (accounts) {
       await FrontierTokenInstance.approve(TRLInstance.address, stakedTokens, {from: voterAccounts[0]})
       await TRLInstance.buyTokenVotes(stakedTokens, {from: voterAccounts[0]})
       const votingBalance = await VoteTokenInstance.balanceOf(voterAccounts[0])
-      const epoch = await TRLInstance.height();
+      const epoch = await TRLInstance.height()
       await TRLInstance.vote(candidateAccounts[0], votingBalance, {from: voterAccounts[0]})
       const TRLScoring = await TRLInstance.scoring.call(epoch, candidateAccounts[0])
       assert.strictEqual(stakedTokens, TRLScoring.toNumber())
