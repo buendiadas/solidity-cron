@@ -145,8 +145,9 @@ contract('TRL', function (accounts) {
       await FrontierTokenInstance.approve(listAddress, stakedTokens, {from: voterAccounts[0]})
       await TRLInstance.buyTokenVotes(stakedTokens, {from: voterAccounts[0]})
       await TRLInstance.vote(candidateAccounts[0], stakedTokens, {from: voterAccounts[0]})
-      // const votesReceived = await VoteTokenInstance.balanceOf(candidateAccounts[0])
       console.log('---> PASSED')
+      const votesReceived = await VoteTokenInstance.balanceOf(candidateAccounts[0])
+
       assert.equal(true, true)
     })
     it('Should edit the maximum number of votes when admin requires for it', async () => {

@@ -6,9 +6,10 @@ const Standard20TokenMock = artifacts.require('Standard20TokenMock')
 // const TRLContract = artifacts.require('TRL')
 const TRLContract = artifacts.require('TRLMock')
 const PeriodicStageContract = artifacts.require('PeriodicStages')
-const PeriodContract = artifacts.require('Period')
+const PeriodContract = artifacts.require('PeriodMock')
 const VaultContract = artifacts.require('Vault')
 const OwnedRegistryContract = artifacts.require('OwnedRegistryMock')
+const VoteTokenContract = artifacts.require('VoteToken')
 
 // Payments
 const BankContract = artifacts.require('Bank')
@@ -31,6 +32,7 @@ contract('MainSalaryEntity', function (accounts) {
   let voterAccounts = web3.eth.accounts.slice(1, 4)
   let candidateAccounts = web3.eth.accounts.slice(5, 8)
   let PeriodInstance
+  let VoteTokenInstance
 
   let Allowance
   let Balance
@@ -54,19 +56,26 @@ contract('MainSalaryEntity', function (accounts) {
     VoterRegistryInstance = await OwnedRegistryContract.new(voterAccounts, {from: adminAccount})
   })
   beforeEach(async () => {
+    PeriodInstance = await PeriodContract.new()
     FrontierTokenInstance = await Standard20TokenMock.new(voterAccounts, config.totalTokens, {from: adminAccount})
     Vault = await VaultContract.new({from: adminAccount})
+    VoteTokenInstance = await VoteTokenContract.new({from: adminAccount})
     TRLInstance = await TRLContract.new({from: adminAccount})
+
+    await TRLInstance.setVoteToken(VoteTokenInstance.address)
     await TRLInstance.setToken(FrontierTokenInstance.address)
+    await VoteTokenInstance.transferOwnership(TRLInstance.address, {from: adminAccount})
     await TRLInstance.setCandidateRegistry(CandidateRegistryInstance.address)
     await TRLInstance.setVoterRegistry(VoterRegistryInstance.address)
     await TRLInstance.setVault(Vault.address)
-    await TRLInstance.initPeriod(config.ttl)
-    await TRLInstance.initStages(config.activeTime, config.claimTime)
-    let periodicStagesAddress = await TRLInstance.periodicStages.call()
-    PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
-    let periodAddress = await PeriodicStagesInstance.period.call()
-    PeriodInstance = await PeriodContract.at(periodAddress)
+    await TRLInstance.setPeriod(PeriodInstance.address)
+    await VoteTokenInstance.setPeriod(PeriodInstance.address)
+    // await TRLInstance.initPeriod(config.ttl)
+    // await TRLInstance.initStages(config.activeTime, config.claimTime)
+    // let periodicStagesAddress = await TRLInstance.periodicStages.call()
+    // PeriodicStagesInstance = await PeriodicStageContract.at(periodicStagesAddress)
+    // let periodAddress = await PeriodicStagesInstance.period.call()
+    // PeriodInstance = await PeriodContract.at(periodAddress)
 
     // Aproving and buying votes
     await FrontierTokenInstance.approve(TRLInstance.address, totalVotesBought, {from: voterAccounts[0]})
@@ -77,9 +86,6 @@ contract('MainSalaryEntity', function (accounts) {
 
     await FrontierTokenInstance.approve(TRLInstance.address, totalVotesBought, {from: voterAccounts[2]})
     await TRLInstance.buyTokenVotes(totalVotesBought, { from: voterAccounts[2] })
-
-    printLogs(String('ADMIN: ' + await FrontierTokenInstance.balanceOf(adminAccount)))
-    printLogs(String('Acc1: ' + await FrontierTokenInstance.balanceOf(voterAccounts[0])))
 
     // Approving trasfer to fund Vault
     await FrontierTokenInstance.approve(Vault.address, totalTokenIssuance, { from: voterAccounts[0] })
@@ -101,7 +107,8 @@ contract('MainSalaryEntity', function (accounts) {
     mainSalaryInstance = await MainSalaryEntityContract.new(
       Vault.address,
       Balance.address,
-      TRLInstance.address
+      TRLInstance.address,
+      VoteTokenInstance.address
       )
     await Allowance.addEntity(
       mainSalaryInstance.address,
@@ -140,7 +147,6 @@ contract('MainSalaryEntity', function (accounts) {
     it('Transfer the correct to 2 users', async () => {
       const VaultBalance = await FrontierTokenInstance.balanceOf(Vault.address)
       let userBalance = await FrontierTokenInstance.balanceOf(candidateAccounts[1])
-      printLogs(String('InitBal: ' + userBalance))
 
       const voter1VotesCast = totalVotesBought
       // Voting and  checking the user received the votes
@@ -149,19 +155,11 @@ contract('MainSalaryEntity', function (accounts) {
 
       await TRLInstance.mock_next()
 
-      printLogs(String('H1: ' + await CandidateRegistryInstance.getHeight()))
       await CandidateRegistryInstance.debug_forceUpdate()
       await CandidateRegistryInstance.next()
       await CandidateRegistryInstance.debug_forceUpdate()
       await CandidateRegistryInstance.next()
       await CandidateRegistryInstance.debug_forceUpdate()
-      printLogs(String('H2: ' + await CandidateRegistryInstance.getHeight()))
-
-      printLogs(String('0 --> ' + await CandidateRegistryInstance.debug_getArchive(0)))
-      printLogs(String('1 --> ' + await CandidateRegistryInstance.debug_getArchive(1)))
-
-      printLogs(String('White? --> ' + JSON.stringify(await CandidateRegistryInstance.wasWhitelisted(candidateAccounts[0], 0))))
-      printLogs(String('Account 1: ' + candidateAccounts[0]))
 
       /*
         The problem in on the collectPayment function, in the
@@ -176,10 +174,6 @@ contract('MainSalaryEntity', function (accounts) {
 
       */
 
-      printLogs(String(' entityBalance: ' + await Balance.getStartingBalance(mainSalaryInstance.address, FrontierTokenInstance.address, 0)))
-      printLogs(String(' _userVotes: ' + await TRLInstance.getUserVotes(0, candidateAccounts[0])))
-      printLogs(String(' _totalVotes: ' + await TRLInstance.getEpochTotalVotes(0)))
-
       await mainSalaryInstance.collectPayment(candidateAccounts[0], FrontierTokenInstance.address, 0)
       await mainSalaryInstance.collectPayment(candidateAccounts[1], FrontierTokenInstance.address, 0)
 
@@ -193,7 +187,6 @@ contract('MainSalaryEntity', function (accounts) {
     it('Should fail when collecting payment from current period', async () => {
       const VaultBalance = await FrontierTokenInstance.balanceOf(Vault.address)
       let userBalance = await FrontierTokenInstance.balanceOf(candidateAccounts[1])
-      printLogs(String('InitBal: ' + userBalance))
 
       const voter1VotesCast = totalVotesBought
       // Voting and  checking the user received the votes
@@ -205,7 +198,6 @@ contract('MainSalaryEntity', function (accounts) {
     it('Should fail when collecting payment past the period limit (12 periods)', async () => {
       const VaultBalance = await FrontierTokenInstance.balanceOf(Vault.address)
       let userBalance = await FrontierTokenInstance.balanceOf(candidateAccounts[1])
-      printLogs(String('InitBal: ' + userBalance))
 
       const voter1VotesCast = totalVotesBought
       // Voting and  checking the user received the votes
@@ -240,7 +232,6 @@ contract('MainSalaryEntity', function (accounts) {
     it('Transfer the correct to 2 users', async () => {
       const VaultBalance = await FrontierTokenInstance.balanceOf(Vault.address)
       let userBalance = await FrontierTokenInstance.balanceOf(candidateAccounts[1])
-      printLogs(String('InitBal: ' + userBalance))
 
       const voter1VotesCast = totalVotesBought
       // Voting and  checking the user received the votes
@@ -249,19 +240,11 @@ contract('MainSalaryEntity', function (accounts) {
 
       await TRLInstance.mock_next()
 
-      printLogs(String('H1: ' + await CandidateRegistryInstance.getHeight()))
       await CandidateRegistryInstance.debug_forceUpdate()
       await CandidateRegistryInstance.next()
       await CandidateRegistryInstance.debug_forceUpdate()
       await CandidateRegistryInstance.next()
       await CandidateRegistryInstance.debug_forceUpdate()
-      printLogs(String('H2: ' + await CandidateRegistryInstance.getHeight()))
-
-      printLogs(String('0 --> ' + await CandidateRegistryInstance.debug_getArchive(0)))
-      printLogs(String('1 --> ' + await CandidateRegistryInstance.debug_getArchive(1)))
-
-      printLogs(String('White? --> ' + JSON.stringify(await CandidateRegistryInstance.wasWhitelisted(candidateAccounts[0], 0))))
-      printLogs(String('Account 1: ' + candidateAccounts[0]))
 
       /*
         The problem in on the collectPayment function, in the
@@ -276,10 +259,6 @@ contract('MainSalaryEntity', function (accounts) {
 
       */
 
-      printLogs(String(' entityBalance: ' + await Balance.getStartingBalance(mainSalaryInstance.address, FrontierTokenInstance.address, 0)))
-      printLogs(String(' _userVotes: ' + await TRLInstance.getUserVotes(0, candidateAccounts[0])))
-      printLogs(String(' _totalVotes: ' + await TRLInstance.getEpochTotalVotes(0)))
-
       await mainSalaryInstance.collectPayment(candidateAccounts[0], FrontierTokenInstance.address, 0)
       await mainSalaryInstance.collectPayment(candidateAccounts[1], FrontierTokenInstance.address, 0)
 
@@ -289,9 +268,6 @@ contract('MainSalaryEntity', function (accounts) {
       const diff = VaultBalance - (finalBalance1 + finalBalance2)
 
       const passes = (diff <= 2) && (diff >= 0)
-
-      printLogs(String('Diff: ' + diff))
-      printLogs(String('Passes: ' + passes))
 
       assert.equal(passes, true)
     })
@@ -321,8 +297,6 @@ contract('MainSalaryEntity', function (accounts) {
         const finalBalance2 = parseInt(await FrontierTokenInstance.balanceOf(candidateAccounts[1]))
         // The sum of distributed tokens can not vary by more than 1 token per user
         const diff = VaultBalance - (finalBalance1 + finalBalance2)
-
-        printLogs(String('DIFF: ' + diff))
 
         const passes = (diff <= 2) && (diff >= 0)
 

@@ -26,12 +26,15 @@ contract TRL is Ownable, TRLStorage, TRLInterface {
     */
 
     function getUserVotes(uint256 _epoch, address _account) public view returns (uint256) {
-        return votesReceived[_epoch][_account];
+        //return votesReceived[_epoch][_account];
+        return voteToken.balanceAt(_epoch, _account);
+
     }
 
     function getEpochTotalVotes(uint256 _epoch) public view returns (uint256) {
         require(height() > _epoch);
-        return totalEpochVotes[_epoch];
+        return voteToken.getEpochTotalVotes(_epoch);
+        //return totalEpochVotes[_epoch];
     }
 
     /**
@@ -62,16 +65,24 @@ contract TRL is Ownable, TRLStorage, TRLInterface {
     * @param _amount of votes used
     **/
 
+    // function vote(address _candidateAddress, uint256 _amount) external {
+    //     //uint256 currentEpoch = height();
+    //     require(address(voteToken) != 0x00);
+    //     require(canVote(msg.sender, _candidateAddress, _amount));
+    //     voteToken.transferFrom(msg.sender, _candidateAddress, _amount);
+    //     // votesReceived[currentEpoch][_candidateAddress] = votesReceived[currentEpoch][_candidateAddress].add(_amount);
+    //     // votesBalance[currentEpoch][msg.sender] -= _amount;
+    //     // totalEpochVotes[currentEpoch] = totalEpochVotes[currentEpoch] + _amount;
+    //     emit Vote(msg.sender, _candidateAddress, _amount, height());
+    // }
+
     function vote(address _candidateAddress, uint256 _amount) external {
-        //uint256 currentEpoch = height();
         require(address(voteToken) != 0x00);
         require(canVote(msg.sender, _candidateAddress, _amount));
         voteToken.transferFrom(msg.sender, _candidateAddress, _amount);
-        // votesReceived[currentEpoch][_candidateAddress] = votesReceived[currentEpoch][_candidateAddress].add(_amount);
-        // votesBalance[currentEpoch][msg.sender] -= _amount;
-        // totalEpochVotes[currentEpoch] = totalEpochVotes[currentEpoch] + _amount;
         emit Vote(msg.sender, _candidateAddress, _amount, height());
     }
+
 
     /*
     * @dev Sets the minimum stake to participate in a period 
