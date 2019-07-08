@@ -8,31 +8,14 @@ import "../Traceable.sol";
  * A particular case of a periodic contract where the height increased by one every period
  */
 
-library Daily is IPeriod, Traceable {
+library Hourly is IPeriod, Traceable {
     using DateTime for *;
-
-    /**
-     *
-     */
-    
-    function unit() public view returns(string) {
-        return  'd';   
-    }
-
 
     /**
      * @return 1 as this contract is set  to be changing every single day. 
      */
-    function length() public view returns(uint256) {
+    function getLength() public view returns(uint256) {
         return 1;
-    }
-
-    /**
-     * @return A particular case of heightOf, using the current timestamp
-     */
-
-    function height() public view returns (uint256) {
-        return heightOf(block.timestamp);
     }
 
     /**
@@ -41,13 +24,14 @@ library Daily is IPeriod, Traceable {
      */
 
     function heightOf(uint256 _timestamp) public view returns (uint256) {
-        return DateTime.diffDays(_timestamp, 0) - DateTime.diffDays(creationTimestamp(), 0);
+        return DateTime.diffHours(_timestamp, 0) - DateTime.diffHours(creationTimestamp(), 0);
     }
     
+    /**
+     * @return A particular case of heightOf, using the current timestamp
+     */
 
-
-
-    function next() publlic view returns(uint256) {
-        
+    function height() public view returns (uint256) {
+        return heightOf(block.timestamp);
     }
 }
