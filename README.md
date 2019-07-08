@@ -1,6 +1,6 @@
 # Cron
 
-[![Build Status](https://travis-ci.com/Frontier-project/cron.svg?token=DJeMzxJJncp3nRaEUuxH&branch=master)](https://travis-ci.com/Frontier-project/cron)
+[![Build Status](https://travis-ci.com/Frontier-project/cron.svg?token=DJeMzxJJncp3nRaEUuxH&branch=master)](https://travis-ci.com/carlos-buendia/cron-solidity)
 [![codecov](https://codecov.io/gh/Frontier-project/cron/branch/master/graph/badge.svg?token=BGbU5Q6IRV)](https://codecov.io/gh/Frontier-project/cron)
 
 
