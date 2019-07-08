@@ -8,15 +8,10 @@
 ## About
 
 The project enables to schedule periodical signals on the Ethereum Blockchain, with a cron-like sintax. 
-![stages](https://image.ibb.co/f6cMZd/Periodic_Stages.png)
 
 ## Install
 In order to install the library, just run the following commands on your root solidity directory
 
-```bash
-npm init -y
-npm i -E @frontier-token-research/cron
-```
 ## How to use
 
 There are two different cases where the library could be used: 
