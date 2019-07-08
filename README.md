@@ -12,6 +12,11 @@ The project enables to schedule periodical signals on the Ethereum Blockchain, w
 ## Install
 In order to install the library, just run the following commands on your root solidity directory
 
+```bash
+npm init -y
+npm i -E solidity-cron
+```
+
 ## How to use
 
 There are two different cases where the library could be used: 
