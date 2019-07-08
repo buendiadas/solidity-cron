@@ -7,9 +7,7 @@
 
 ## About
 
-This solidity library enable schedule periodical states on the Ethereum Blockchain from a Smart Contract , making it possible for external contracts to lazily allow other state changes on a periodic Basis.
-
-
+The project enables to schedule periodical signals on the Ethereum Blockchain, with a cron-like sintax. 
 ![stages](https://image.ibb.co/f6cMZd/Periodic_Stages.png)
 
 ## Install
