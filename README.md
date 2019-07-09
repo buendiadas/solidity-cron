@@ -7,7 +7,7 @@
 
 ## About
 
-*  The project lets the developer divide the time in epochs on Ethereum Smart Contracts. 
+* The project lets the developer divide the time in epochs on Ethereum Smart Contracts. 
 
 * Every clock has its own contract and address, all of them follow the same interface.
 
@@ -16,7 +16,9 @@
 
 ## Motivation
 
-The library summarizes and generalizes the work and lessons learnt in different projects, where the time recurring pattern for different onchain events had to be specifically developed for each project. Decoupling the scheduling logic from the Smart Contract developer has the following benefits:
+The library summarizes and generalizes the work and lessons learnt in different projects, where the time recurring pattern for different onchain events had to be specifically developed for each project. 
+
+Decoupling the scheduling logic from the Smart Contract developer has the following benefits:
 
  * **Interoperability**: By decoupling the scheduling logic, Smart Contracts and external services (oracles) can easily sync their clocks.
  * **Programability**: Most Smart Contracts develop their own arithmetic rules every time they want to schedule periodic changes. The complexity of coding an arbitrarily complex rule may prevent the developer to include it
@@ -45,7 +47,6 @@ Every cron deployed must include the `ICron.sol` interface.
 While a crontab generator is WIP, you can deploy one of the Smart Contracts provided at [./contracts/calendar](https://github.com/carlos-buendia/solidity-cron/tree/develop/contracts/calendar)
 
 
-
 #### 3. Use it
 
 ```javascript
@@ -53,10 +54,8 @@ import "solidity-cron/contracts/ICron.sol";
 
 address monthly =  0x1234567891011;
 Cron c = ICron(monthly)
-uint256 currentPeriod =  myDappPeriod.getCurrentPeriod();
+uint256 height =  c.height();
 ```
-
-## Examples
 
 
 ## Testing
