@@ -7,7 +7,7 @@
 
 ## About
 
-* The project lets the developer divide the time in epochs on Ethereum Smart Contracts. 
+* Lets the developer divide the time in epochs on Ethereum Smart Contracts. 
 
 * Every clock has its own contract and address, all of them follow the same interface.
 
