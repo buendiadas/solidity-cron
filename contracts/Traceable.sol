@@ -1,11 +1,10 @@
-pragma solidity 0.4.24;
+pragma solidity ^0.4.25;
 
 /**
  * Every Standard period is able to return a height based on the creation block of the smart contract, given a time unit used to make calculations.
  */
 
 contract Traceable {
-
     uint256 private _creationTimestamp;
     uint256 private _creationBlock;
     uint256 private _offset;

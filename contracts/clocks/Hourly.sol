@@ -1,21 +1,29 @@
-pragma solidity 0.4.24;
+pragma solidity 0.4.25;
 
 import "./DateTime.sol";
-import "../IPeriod.sol";
+import "../ICron.sol";
 import "../Traceable.sol";
 
 /**
  * A particular case of a periodic contract where the height increased by one every period
  */
 
-library Hourly is IPeriod, Traceable {
+contract Hourly is ICron, Traceable {
     using DateTime for *;
 
     /**
      * @return 1 as this contract is set  to be changing every single day. 
      */
-    function getLength() public view returns(uint256) {
+    function length() public view returns(uint256) {
         return 1;
+    }
+
+     /**
+     * @return A particular case of heightOf, using the current timestamp
+     */
+
+    function height() public view returns (uint256) {
+        return heightOf(block.timestamp);
     }
 
     /**
@@ -26,12 +34,5 @@ library Hourly is IPeriod, Traceable {
     function heightOf(uint256 _timestamp) public view returns (uint256) {
         return DateTime.diffHours(_timestamp, 0) - DateTime.diffHours(creationTimestamp(), 0);
     }
-    
-    /**
-     * @return A particular case of heightOf, using the current timestamp
-     */
 
-    function height() public view returns (uint256) {
-        return heightOf(block.timestamp);
-    }
 }
