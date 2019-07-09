@@ -30,16 +30,16 @@ npm i -E solidity-cron
 
 The rationale of the project is to make it easy for developers to deploy and use their cron signal and can be done in two easy steps: 
 
-### 1. Deploying a new cron
+#### 1. Deploying a new cron
   `npm run deploy`
   
-### 2. Include the Periodic Interface
+#### 2. Include the Periodic Interface
 
 ```javascript
 import "@frontier-token-research/contracts/Period.sol";
 ```
 
-### 3. Use it in your project
+#### 3. Use it in your project
 
 ```javascript
 Period MyDAppPeriod = new Period(T)
