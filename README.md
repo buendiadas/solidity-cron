@@ -30,7 +30,7 @@ npm i -E solidity-cron
 ```
 
 #### 2. Deploying a new cron
-  `npm run deploy`
+Every cron 
   
 #### 3. Include the Periodic Interface
 
@@ -41,7 +41,7 @@ import "@frontier-token-research/contracts/Period.sol";
 #### 4. Use it 
 
 ```javascript
-Period MyDAppPeriod = new Period(T)
+Period p = IPeriod(T)
 uint256 currentPeriod =  myDappPeriod.getCurrentPeriod();
 ```
 
