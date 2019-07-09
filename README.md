@@ -30,8 +30,11 @@ npm i -E solidity-cron
 ```
 
 #### 2. Deploying a new cron
-Every cron 
-  
+
+Every cron deployed must include the ´ICron´ interface. While a crontab generator is WIP, you can deploy one of the Smart Contracts provided at [./contracts/calendar](https://github.com/carlos-buendia/solidity-cron/tree/develop/contracts/calendar)
+
+
+
 #### 3. Include the Periodic Interface
 
 ```javascript
@@ -44,6 +47,8 @@ import "@frontier-token-research/contracts/Period.sol";
 Period p = IPeriod(T)
 uint256 currentPeriod =  myDappPeriod.getCurrentPeriod();
 ```
+
+## Examples
 
 
 ## Testing
