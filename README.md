@@ -7,7 +7,14 @@
 
 ## About
 
-The project lets the developer divide the time in epochs on Ethereum Smart Contracts. This is done via a contract per clock, each one of them following the same interface. The final scope of the project includes a cron generator, creating a new contract for each Crontab pattern.
+The project lets the developer divide the time in epochs on Ethereum Smart Contracts. 
+
+Every clock has its own contract and address, all of them follow the same interface.
+
+Clocks will be automatically generated via a Crontab syntax, creating a new contract for each Crontab pattern.
+
+!!!! The project is WIP, **not audited** and should not be used to manage funds.
+
 
 ## Motivation
 
@@ -19,15 +26,14 @@ The library summarizes and generalizes the work and lessons learnt in different 
  
  ## Structure
  
- 
 ![image](https://i.ibb.co/vLN4K5L/Untitled-Diagram-42.png)
 
 
-## How to use
-
-The rationale of the project is to make it easy for developers to deploy and use their cron signal.
+## Using it
 
 #### 1. Install
+
+Download the last state of `solidity-cron`
 
 ```bash
 npm init -y
@@ -36,20 +42,19 @@ npm i -E solidity-cron
 
 #### 2. Deploying a new cron
 
-Every cron deployed must include the `ICron` interface. While a crontab generator is WIP, you can deploy one of the Smart Contracts provided at [./contracts/calendar](https://github.com/carlos-buendia/solidity-cron/tree/develop/contracts/calendar)
+Every cron deployed must include the `ICron.sol` interface. 
+
+While a crontab generator is WIP, you can deploy one of the Smart Contracts provided at [./contracts/calendar](https://github.com/carlos-buendia/solidity-cron/tree/develop/contracts/calendar)
 
 
 
-#### 3. Include the Periodic Interface
-
-```javascript
-import "@frontier-token-research/contracts/Period.sol";
-```
-
-#### 4. Use it 
+#### 3. Use it
 
 ```javascript
-Period p = IPeriod(T)
+import "solidity-cron/contracts/ICron.sol";
+
+address monthly =  0x1234567891011;
+Cron c = ICron(monthly)
 uint256 currentPeriod =  myDappPeriod.getCurrentPeriod();
 ```
 
