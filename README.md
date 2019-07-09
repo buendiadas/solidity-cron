@@ -7,7 +7,9 @@
 
 ## About
 
-The project adds a library to easily divide the time spectrum in epochs, enabling to schedule state changes on Ethereum, by only using arithmetic calculations. To simplify the problem, the current version only uses pre-defined expressions: `@daily`, `@monthly`, `@yearly` generalize 
+The project adds a library to easily divide the time spectrum in epochs, enabling to schedule state changes on Ethereum, by only using arithmetic calculations. To simplify the problem, the current version only uses pre-defined expressions: `@daily`, `@monthly`, `@yearly`. 
+
+Eventually, the project aims to generalize this pattern to enable full programability, with a cron like synthax.
 
 ## Install
 In order to install the library, just run the following commands on your root solidity directory
