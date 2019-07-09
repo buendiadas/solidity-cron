@@ -1,4 +1,4 @@
-pragma solidity 0.4.24;
+pragma solidity ^0.4.25;
 
 
 /**
@@ -9,7 +9,6 @@ pragma solidity 0.4.24;
 
 
 library DateTime {
-  
     struct _DateTime {
         uint16 year;
         uint8 month;
@@ -241,7 +240,7 @@ library DateTime {
         if(_day == 31) return d31[array_index];
         else if(_day ==30) return d30[array_index];
         else if(_day == 29) return d29[array_index];
-        else return d28[array_index];
+        else return d28[array_index]; 
     }
     
     ///    *      *      *          *        *
@@ -324,9 +323,7 @@ library DateTime {
     /// (minute, hour, day(month), month, day(week)  year
     
     
-    function numHours(uint _x, uint _y, uint256 _minute, uint _hour) public view returns (uint256) {
-        
-        
+    function numHours(uint _x, uint _y, uint256 _minute, uint _hour) public view returns (uint256) { 
         if (_hour == 999) {
             return (numMinutes(_x, _y, _minute));
         }
@@ -388,6 +385,8 @@ library DateTime {
       }
         
    }
+
+}
     
     
     

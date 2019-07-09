@@ -1,8 +1,7 @@
-pragma solidity 0.4.24;
+pragma solidity 0.4.25;
 
 
 contract Crontab {
-
     byte constant STAR = '*';
     uint256 t_days;
     uint256 t_months;

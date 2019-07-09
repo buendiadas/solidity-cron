@@ -5,7 +5,6 @@ const DateTimeContract = artifacts.require('DateTimeMock')
 const MockDate1 = 636015272; // Tue, 26-02-1990 GMT 6:54:32
 const MockDate2 = 1542749251; // Tue, 20-11-2018 GMT 9:27:31 pm
 const MockDateLeap = 1586649600; // Wed, 21 Nov 2018 15:09:02 
-const MockDateLeap400 = 
 const MockDateFuture = 13572230400; // 2400-02-02T00:00:00+00:00
 let DateTime;
 
@@ -75,10 +74,6 @@ contract('DateTime', function (accounts) {
         const yearDiff = await DateTime.diffYears(MockDate2, MockDate1);
         assert.equal(28, yearDiff);
     })
-    it('Should return a correct amount of months between two dates', async () => {
-        const monthDiff = await DateTime.diffMonths(MockDate2, MockDate1);
-        assert.equal(9 + 12 * 27, monthDiff.toNumber());
-    })
     it('Should return a correct amount of days between two dates', async () => {
         const dayDiff = await DateTime.diffDays(MockDate2, MockDate1);
         assert.equal(10494, dayDiff.toNumber());
@@ -88,10 +83,6 @@ contract('DateTime', function (accounts) {
     it('Should return a correct timestamp given all data', async () => {
         const yearDiff = await DateTime.diffYears(MockDate2, MockDate1);
         assert.equal(28, yearDiff);
-    })
-    it('Should a correct amount of months between two dates', async () => {
-        const monthDiff = await DateTime.diffMonths(MockDate2, MockDate1);
-        assert.equal(9 + 12 * 27, monthDiff.toNumber());
     })
     it('Should a correct amount of days between two dates', async () => {
         const dayDiff = await DateTime.diffDays(MockDate2, MockDate1);
@@ -124,18 +115,5 @@ contract('DateTime', function (accounts) {
         const secondsPerMinute = await DateTime.minuteInSeconds();
         assert.equal(60, secondsPerMinute);
     })
-    it('Number of seconds per hour returns correct value', async () => {
-        const monthDiff = await DateTime.diffMonths(MockDate2, MockDate1);
-        assert.equal(9 + 12 * 27, monthDiff.toNumber());
-    })
-    it('Should a correct amount of days between two dates', async () => {
-        const dayDiff = await DateTime.diffDays(MockDate2, MockDate1);
-        assert.equal(10494, dayDiff.toNumber());
-    })
   })
-
-
-
-
-
 })

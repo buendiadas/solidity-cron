@@ -22,7 +22,7 @@ contract('Montly Period', function (accounts) {
       assert.strictEqual(0, height.toNumber())
     }),
     it('Should return 1 as length when being a  daily', async () => {
-      const length = await PeriodInstance.getLength()
+      const length = await PeriodInstance.length()
       assert.strictEqual(1, length.toNumber())
     }),
     it('Should return return the same period when increasing evm an arbitrary number of months', async () => {
