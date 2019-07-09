@@ -15,8 +15,7 @@ An interface simmilar to Cron in Ethereum would have the following benefits:
 
  * **Interoperability**: By decoupling the scheduling logic, Smart Contracts and external services (oracles) can easily sync their clocks.
  * **Programability**: Most Smart Contracts develop their own arithmetic rules every time they want to schedule periodic changes. The complexity of coding an arbitrarily complex rule may prevent the developer to include it
- * **Security**: As having a robust library externalizes the development 
-
+ * **Security**: Relaying all programable logic to a single trusted source.
 
 
 ## Install
@@ -29,53 +28,24 @@ npm i -E solidity-cron
 
 ## How to use
 
+The rationale of the project is to make it easy for developers to deploy and use their cron signal and can be done in two easy steps: 
 
-#### Importing
-Just import the Periodic contract into your Smart Contract, and initialize it.
+### 1. Deploying a new cron
+  `npm run deploy`
+  
+### 2. Include the Periodic Interface
+
 ```javascript
 import "@frontier-token-research/contracts/Period.sol";
 ```
-#### Initializing
-After that you can define your own period in Blocks, just doing
+
+### 3. Use it in your project
 
 ```javascript
 Period MyDAppPeriod = new Period(T)
-```
-
-Being `T` the amount of blocks that you want to have as a period. 
-
-#### Getting the current period number
-After that, from your Smart Contract you can always reference your current period by calling `getCurrentPeriod()`: 
-
-```javascript
 uint256 currentPeriod =  myDappPeriod.getCurrentPeriod();
 ```
-It will return an incremented value every `T` blocks. 
 
-### Using Periodic Stages
-
-Your DApp might have **different stages that are repeated over the previously defined period**. For example, you might need to give permissions to certain actions only on a certain stage of your period. In this case, instead of creating just a period, it is possible to create a Periodic Stages instance, defininig just the period number : 
-
-#### Importing
-```javascript
-import "@frontier-token-research/contracts/Period.sol";
-
-PeriodicStages MyDAppStages = new PeriodicStages(T)
-```
-#### Pushing stages
-You can now push any stage using the stages `FIFO`stack, just defininng the amount of blocks the given stage is going to last:
-
-```javascript
-myDappStages.push(duration)
-```
-
-This will add to your stack a new scheduled Task, filling the period since last pushed stage index to the specified above `duration`
-
-#### Getting the current stage
-Once the stage has been pushed, you can always get the current stage (by reading the current block), by calling 
-```javascriptg 
-myDappStages.currentStage()
-````
 
 ## Testing
 
