@@ -7,7 +7,7 @@
 
 ## About
 
-Divide the time spectrum in epochs, enabling to schedule state changes on Ethereum. 
+The project helps the developer divide the time spectrum in epochs, enabling to schedule state changes on Ethereum Smart Contracts. It uses a contract per clock, each one of them following the same interface. The final scope of the project includes a cron generator, creating a new contract for each Crontab pattern
 
 ## Motivation
 
