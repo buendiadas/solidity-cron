@@ -11,7 +11,7 @@ Library to easily divide the time spectrum in epochs, enabling to schedule state
 
 ## Motivation
 
-An interface simmilar to Cron in Ethereum would have the following benefits: 
+An interface simmilar to Cron in Ethereum has the following benefits: 
 
  * **Interoperability**: By decoupling the scheduling logic, Smart Contracts and external services (oracles) can easily sync their clocks.
  * **Programability**: Most Smart Contracts develop their own arithmetic rules every time they want to schedule periodic changes. The complexity of coding an arbitrarily complex rule may prevent the developer to include it
