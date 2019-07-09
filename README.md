@@ -7,11 +7,11 @@
 
 ## About
 
-* Lets the developer divide the time in epochs on Ethereum Smart Contracts. 
+* The repo enables to divide time in epochs on Ethereum Smart Contracts. 
 
 * Every clock has its own contract and address, all of them follow the same interface.
 
-* Clocks are automatically generated via a Crontab syntax, creating a new contract for each Crontab pattern.
+* Tthis Clocks are generated via a Crontab syntax, creating a new contract for each Crontab pattern.
 
 
 ## Motivation
