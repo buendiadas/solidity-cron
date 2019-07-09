@@ -7,7 +7,7 @@
 
 ## About
 
-The project enables to schedule periodical signals on the Ethereum Blockchain, with a cron-like sintax. 
+The project adds a library to easily divide the time spectrum in epochs, enabling to schedule state changes on Ethereum. 
 
 ## Install
 In order to install the library, just run the following commands on your root solidity directory
@@ -19,12 +19,6 @@ npm i -E solidity-cron
 
 ## How to use
 
-There are two different cases where the library could be used: 
-- **Periods**: When your DApp just needs an index counting the amount of blocks passed since a certain block-
-- **Periodic Stages**: When your DApp includes also certain actions inside every period.
-
-### Using Periods
-A periodic Ethereum DApp that needs to handle the current period index. 
 
 #### Importing
 Just import the Periodic contract into your Smart Contract, and initialize it.
