@@ -18,28 +18,27 @@ An interface simmilar to Cron in Ethereum would have the following benefits:
  * **Security**: Relaying all programable logic to a single trusted source.
 
 
-## Install
-In order to install the library, just run the following commands on your root solidity directory
+## How to use
+
+The rationale of the project is to make it easy for developers to deploy and use their cron signal.
+
+#### 1. Install
 
 ```bash
 npm init -y
 npm i -E solidity-cron
 ```
 
-## How to use
-
-The rationale of the project is to make it easy for developers to deploy and use their cron signal and can be done in two easy steps: 
-
-#### 1. Deploying a new cron
+#### 2. Deploying a new cron
   `npm run deploy`
   
-#### 2. Include the Periodic Interface
+#### 3. Include the Periodic Interface
 
 ```javascript
 import "@frontier-token-research/contracts/Period.sol";
 ```
 
-#### 3. Use it in your project
+#### 4. Use it in your project
 
 ```javascript
 Period MyDAppPeriod = new Period(T)
