@@ -7,7 +7,7 @@
 
 ## About
 
-Library to easily divide the time spectrum in epochs, enabling to schedule state changes on Ethereum. 
+Divide the time spectrum in epochs, enabling to schedule state changes on Ethereum. 
 
 ## Motivation
 
