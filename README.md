@@ -7,7 +7,15 @@
 
 ## About
 
-The project adds a library to easily divide the time spectrum in epochs, enabling to schedule state changes on Ethereum. To simplify the problem, the current version only uses pre-defined expressions: `@hourly`, `@daily`, `@monthly`, `@yearly`. Eventually, the project aims to generalize this pattern to enable full programability, with a cron like synthax.
+The project adds a library to easily divide the time spectrum in epochs, enabling to schedule state changes on Ethereum. To simplify the problem, the current version only uses pre-defined expressions: `@hourly`, `@daily`, `@monthly`, `@yearly`. Eventually, the project will enable full state programability, with a cron like synthax.
+
+## Motivation
+
+An interface simmilar to Cron in Ethereum would have the following benefits: 
+
+ * **Interoperability**: By decoupling the scheduling logic, Smart Contracts and external services (oracles) can easily sync their clocks.
+ * **Programability**: Most Smart Contracts develop their own arithmetic rules every time they want to schedule periodic changes. The complexity of coding an arbitrarily complex rule may prevent the developer to include it
+ * **Security**: As having a robust library externalizes the development 
 
 
 
