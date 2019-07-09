@@ -7,7 +7,7 @@
 
 ## About
 
-The project adds a library to easily divide the time spectrum in epochs, enabling to schedule state changes on Ethereum. To simplify the problem, the current version only uses pre-defined expressions: `@hourly`, `@daily`, `@monthly`, `@yearly`. Eventually, the project will enable full state programability, with a cron like synthax.
+The project adds a library to easily divide the time spectrum in epochs, enabling to schedule state changes on Ethereum. 
 
 ## Motivation
 
