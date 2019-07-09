@@ -1,4 +1,4 @@
-# Cron
+# Cron 🕒 
 
 [![Build Status](https://travis-ci.com/carlos-buendia/cron-solidity.svg?token=DJeMzxJJncp3nRaEUuxH&branch=develop)](https://travis-ci.com/carlos-buendia/cron-solidity)
 [![codecov](https://codecov.io/gh/Frontier-project/cron/branch/master/graph/badge.svg?token=BGbU5Q6IRV)](https://codecov.io/gh/Frontier-project/cron)
@@ -7,7 +7,7 @@
 
 ## About
 
-The project adds a library to easily divide the time spectrum in epochs, enabling to schedule state changes on Ethereum. 
+Library to easily divide the time spectrum in epochs, enabling to schedule state changes on Ethereum. 
 
 ## Motivation
 
