@@ -9,8 +9,6 @@
 
 The project helps the developer divide the time spectrum in epochs, enabling to schedule state changes on Ethereum Smart Contracts. It uses a contract per clock, each one of them following the same interface. The final scope of the project includes a cron generator, creating a new contract for each Crontab pattern.
 
-![image](https://i.ibb.co/vLN4K5L/Untitled-Diagram-42.png)
-
 ## Motivation
 
 The library summarizes and generalizes the work and lessons learnt in different projects, where the time recurring pattern for different onchain events had to be specifically developed for each project. Decoupling the scheduling logic from the Smart Contract developer has the following benefits:
@@ -18,6 +16,11 @@ The library summarizes and generalizes the work and lessons learnt in different 
  * **Interoperability**: By decoupling the scheduling logic, Smart Contracts and external services (oracles) can easily sync their clocks.
  * **Programability**: Most Smart Contracts develop their own arithmetic rules every time they want to schedule periodic changes. The complexity of coding an arbitrarily complex rule may prevent the developer to include it
  * **Security**: Relaying all programable logic to a single trusted source.
+ 
+ ## Structure
+ 
+ 
+![image](https://i.ibb.co/vLN4K5L/Untitled-Diagram-42.png)
 
 
 ## How to use
