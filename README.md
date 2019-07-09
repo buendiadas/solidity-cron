@@ -13,8 +13,6 @@ Every clock has its own contract and address, all of them follow the same interf
 
 Clocks will be automatically generated via a Crontab syntax, creating a new contract for each Crontab pattern.
 
-!!!! The project is WIP, **not audited** and should not be used to manage funds.
-
 
 ## Motivation
 
