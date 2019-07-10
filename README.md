@@ -18,7 +18,7 @@
 
 Decoupling the scheduling logic from the Smart Contract developer has the following benefits:
 
- * **Interoperability**: By decoupling the scheduling logic, Smart Contracts and external services (oracles) can easily sync their clocks.
+ * **Interoperability**: By decoupling the scheduling logic, Smart Contracts and oracles can easily sync their clocks.
  * **Programability**: Most Smart Contracts develop their own arithmetic rules every time they want to schedule periodic changes. The complexity of coding an arbitrarily complex rule may prevent the developer to include it
  * **Security**: Relaying all programable logic to a single trusted source.
  
@@ -49,8 +49,6 @@ While a crontab generator is WIP, you can deploy one of the Smart Contracts prov
 
 ```javascript
 import "solidity-cron/contracts/ICron.sol";
-
-address monthly =  0x1234567891011;
 Cron c = ICron(monthly)
 uint256 height =  c.height();
 ```
