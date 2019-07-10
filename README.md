@@ -11,7 +11,7 @@
 
 * Every clock has its own contract and address, all of them follow the same interface.
 
-* Tthis Clocks are generated via a Crontab syntax, creating a new contract for each Crontab pattern.
+* Clocks are generated via a Crontab syntax, creating a new contract for each Crontab pattern.
 
 
 ## Motivation
