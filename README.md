@@ -60,9 +60,9 @@ While we explore a generic clock compiler, some clocks are provided to test in R
 
 | Test Contract | Cron expression | Network | Address           | Link  |
 | ------------- |----|------|:-------------:| -----:|
-| Hourly      |0 * * * * / @hourly| Rinkeby |right-aligned | $1600 |
-| Daily      || Rinkeby |centered      |   $12 |
-| Monthly || Rinkeby |are neat      |    $1 |
+| Hourly      |0 * * * * / @hourly| Rinkeby | |  |
+| Daily      |0 0 * * *  / @Daily| Rinkeby |      |   $12 |
+| Monthly |0 0 1 * * /@Monthly| Rinkeby |      |    $1 |
 
 
 
