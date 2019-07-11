@@ -7,7 +7,7 @@
 
 ## About
 
-The repo provides tools enabing to divide time in epochs on Ethereum Smart Contracts, through onchain "clocks". Every clock is a contract and all of them follow the same interface. Clocks are generated via a Crontab syntax, creating a new contract for each Crontab pattern.
+The repo provides tools enabing to divide time in epochs on Ethereum Smart Contracts, through onchain "clocks". Clocks are single contracts following a common interface. They can be generated via a Crontab syntax, creating a new contract for each Crontab pattern.
 
 
 ## Motivation
@@ -38,7 +38,9 @@ npm i -E solidity-cron
 
 Every cron deployed must include the `ICron.sol` interface. 
 
-While a crontab generator is WIP, you can deploy one of the Smart Contracts provided at [./contracts/calendar](https://github.com/carlos-buendia/solidity-cron/tree/develop/contracts/calendar)
+While a Crontab expression compiler is WI
+
+[./contracts/calendar](https://github.com/carlos-buendia/solidity-cron/tree/develop/contracts/calendar)
 
 
 #### 3. Use it
