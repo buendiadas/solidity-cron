@@ -17,10 +17,6 @@ Decoupling the scheduling logic from the Smart Contract developer has the follow
  * **Interoperability**: By decoupling the scheduling logic, Smart Contracts and oracles can easily sync their clocks.
  * **Programability**: Most Smart Contracts develop their own arithmetic rules every time they want to schedule periodic changes. The complexity of coding an arbitrarily complex rule may prevent the developer to include it
  * **Security**: Relaying all programable logic to a single trusted source.
- 
- ## Structure
- 
-![image](https://i.ibb.co/vLN4K5L/Untitled-Diagram-42.png)
 
 
 ## Using it
