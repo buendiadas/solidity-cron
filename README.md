@@ -10,18 +10,52 @@
 The repo provides tools enabing to divide time in epochs on Ethereum Smart Contracts, through onchain "clocks". Clocks are single contracts following a common interface (`ICron.sol`)
 
 
-## Motivation
+## How it works
 
-Decoupling the scheduling logic from the Smart Contract developer has the following benefits:
 
- * **Interoperability**: By decoupling the scheduling logic and sharing a commong interface Smart Contracts and oracles can easily sync their clocks.
- * **Programability**: Most Smart Contracts develop their own arithmetic rules every time they want to schedule periodic changes. The complexity of coding an arbitrarily complex rule may prevent the developer to include it
- * **Security**: Relaying all programable logic to a single trusted source.
+All contracts provided will follow the next interface:
+
+#### initialTimestamp
+
+Timestamp(in seconds) where the counter starts. 
+
+
+```solidity
+   function initTimestamp() public view returns (uint256);
+  ```
+   
+#### height
+
+Return the number of occurrences of the stored crontab expression from `initialTimestamp()` to `block.timestamp`
+
+
+```solidity
+ function height(bytes32 _id) public view returns (uint256);
+  ```
+   
+#### heightOf
+
+Return the number of occurrences of the stored crontab expression from `initTimestamp()` to a given `_timestamp`
+
+
+
+```solidity
+function heightOf(bytes32 _id, uint256 _timestamp) public view returns (uint256);
+  ```
+
+
+#### next
+
+Return the next timestamp where height will be changed, `2^256-1` if no new event is expected
+ 
+```solidity
+ function next(bytes32 _id) public view returns (uint256);
+```
 
 
 ## Using Cron
 
-While a clock compiler is under development, some clocks are already provided in Rinkeby. Their solidity code can be found at [./contracts/clocks](./contracts/clocks). 
+While we explore a generic clock compiler. Some clocks are provided to test in Rinkeby. Their solidity code can be found at [./contracts/clocks](./contracts/clocks). 
 
 ```javascript
 import "solidity-cron/contracts/ICron.sol";
