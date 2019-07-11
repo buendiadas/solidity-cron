@@ -21,19 +21,7 @@ Decoupling the scheduling logic from the Smart Contract developer has the follow
 
 ## Using Cron
 
-While a clock compiler is under development, 
-
-#### 1. Install
-
-Download the last state of `solidity-cron`
-
-```bash
-npm init -y
-npm i -E solidity-cron
-```
-
-
-#### 3. Use it
+While a clock compiler is under development, some clocks are already provided in Rinkeby. Their solidity code can be found at [./contracts/clocks](./contracts/clocks). 
 
 ```javascript
 import "solidity-cron/contracts/ICron.sol";
