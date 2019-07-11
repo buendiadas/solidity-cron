@@ -7,7 +7,7 @@
 
 ## About
 
-The repo provides tools enabing to divide time in epochs on Ethereum Smart Contracts, through onchain "clocks". Clocks are single contracts following a common interface. They can be generated via a Crontab syntax, creating a new contract for each Crontab pattern.
+The repo provides tools enabing to divide time in epochs on Ethereum Smart Contracts, through onchain "clocks". Clocks are single contracts following a common interface (`ICron.sol`), and registered in the Crontab.eth registry.
 
 
 ## Motivation
