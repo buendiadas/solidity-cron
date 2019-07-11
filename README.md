@@ -14,12 +14,14 @@ The repo provides tools enabing to divide time in epochs on Ethereum Smart Contr
 
 Decoupling the scheduling logic from the Smart Contract developer has the following benefits:
 
- * **Interoperability**: By decoupling the scheduling logic, Smart Contracts and oracles can easily sync their clocks.
+ * **Interoperability**: By decoupling the scheduling logic and sharing a commong interface Smart Contracts and oracles can easily sync their clocks.
  * **Programability**: Most Smart Contracts develop their own arithmetic rules every time they want to schedule periodic changes. The complexity of coding an arbitrarily complex rule may prevent the developer to include it
  * **Security**: Relaying all programable logic to a single trusted source.
 
 
-## Using it
+## Using Cron
+
+While a clock compiler is under development, 
 
 #### 1. Install
 
@@ -29,14 +31,6 @@ Download the last state of `solidity-cron`
 npm init -y
 npm i -E solidity-cron
 ```
-
-#### 2. Deploying a new cron
-
-Every cron deployed must include the `ICron.sol` interface. 
-
-While a Crontab expression compiler is WI
-
-[./contracts/calendar](https://github.com/carlos-buendia/solidity-cron/tree/develop/contracts/calendar)
 
 
 #### 3. Use it
