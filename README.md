@@ -7,7 +7,7 @@
 
 ## About
 
-The repo provides tools enabing to divide time in epochs on Ethereum Smart Contracts, through onchain "clocks". Clocks are single contracts following a common interface (`ICron.sol`)
+The repo provides tools to let you easily schedule state changes on the EVM. It does it by dividing time in epochs through onchain "clocks". Clocks are single contracts following a common interface (`ICron.sol`)
 
 
 ## How it works
