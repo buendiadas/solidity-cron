@@ -12,8 +12,9 @@ The repo provides tools enabing to divide time in epochs on Ethereum Smart Contr
 
 ## How it works
 
+Every cron contract calculates the number of ocurrences a given pattern has done since a initial date, called `initialTimestamp()`, using modular arithmetics through the DateTime library.
 
-All contracts provided will follow the next interface:
+This number is provided via `heigh()` function, enabling you to handle states referencing this contract.  They also provide the following event, through a `next()`function. This one is useful for schedule external contract execution through oracles.
 
 #### initialTimestamp
 
@@ -55,13 +56,15 @@ Return the next timestamp where height will be changed, `2^256-1` if no new even
 
 ## Using Cron
 
-While we explore a generic clock compiler. Some clocks are provided to test in Rinkeby. Their solidity code can be found at [./contracts/clocks](./contracts/clocks). 
+While we explore a generic clock compiler, some clocks are provided to test in Rinkeby, and their solidity code can be found at [./contracts/clocks](./contracts/clocks). 
 
-```javascript
-import "solidity-cron/contracts/ICron.sol";
-Cron c = ICron(monthly)
-uint256 height =  c.height();
-```
+| Test Contract | Cron expression | Network | Address           | Link  |
+| ------------- |----|------|:-------------:| -----:|
+| Hourly      |0 * * * * / @hourly| Rinkeby |right-aligned | $1600 |
+| Daily      || Rinkeby |centered      |   $12 |
+| Monthly || Rinkeby |are neat      |    $1 |
+
+
 
 
 ## Testing
