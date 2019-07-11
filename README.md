@@ -59,11 +59,11 @@ Return the next timestamp where height will be changed, `2^256-1` if no new even
 
 While we explore a generic clock compiler, some clocks are provided to test in Rinkeby, and their solidity code can be found at [./contracts/clocks](./contracts/clocks). 
 
-| Test Contract | Cron expression | Network | Address           | Link  |
-| ------------- |----|------|:-------------:| -----:|
-| Hourly      |0 * * * * / @hourly| Rinkeby | |  |
-| Daily      |0 0 * * *  / @Daily| Rinkeby |      |   $12 |
-| Monthly |0 0 1 * * /@Monthly| Rinkeby |      |    $1 |
+| Test Contract | Cron expression | Network | Address        
+| ------------- |----|------|:-------------:| 
+| Hourly      |0 * * * * / @hourly| Rinkeby | [0xaeec5734b4fbf6fd176d308ed5cdd143fc0d0810](https://rinkeby.etherscan.io/address/0xaeec5734b4fbf6fd176d308ed5cdd143fc0d0810#readContract)| 
+| Daily      |0 0 * * *  / @Daily| Rinkeby | [0x4b8eb7f7788f2770d0b172a8e3757f481cdc5cb0](https://rinkeby.etherscan.io/address/0x4b8eb7f7788f2770d0b172a8e3757f481cdc5cb0#readContract)  | 
+| Monthly |0 0 1 * * /@Monthly| Rinkeby |  [0x4e8A7a5dcE61bF881Cebe4193410FC496414ca09](https://rinkeby.etherscan.io/address/0x4e8a7a5dce61bf881cebe4193410fc496414ca09#readContract)    |   
 
 
 
