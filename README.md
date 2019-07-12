@@ -23,7 +23,7 @@ Timestamp(in seconds) where the counter starts.
 
 
 ```solidity
-   function initTimestamp() public view returns (uint256);
+function initTimestamp() public view returns (uint256);
   ```
    
 #### height
