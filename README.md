@@ -57,7 +57,9 @@ Return the next timestamp where height will be changed, `2^256-1` if no new even
 
 ## Using Cron
 
-While we explore a generic clock compiler, some clocks are provided to test in Rinkeby, and their solidity code can be found at [./contracts/clocks](./contracts/clocks). 
+While we explore a generic clock compiler, we have set some clocks provided to test in Rinkeby, tracking the amount of days/months/hours since the network was released.
+
+Their solidity code can be found at [./contracts/clocks](./contracts/clocks). 
 
 | Test Contract | Cron expression | Network | Address        
 | ------------- |----|------|:-------------:| 
@@ -65,8 +67,13 @@ While we explore a generic clock compiler, some clocks are provided to test in R
 | Daily      |0 0 * * *  / @Daily| Rinkeby | [0x4b8eb7f7788f2770d0b172a8e3757f481cdc5cb0](https://rinkeby.etherscan.io/address/0x4b8eb7f7788f2770d0b172a8e3757f481cdc5cb0#readContract)  | 
 | Monthly |0 0 1 * * /@Monthly| Rinkeby |  [0x4e8A7a5dcE61bF881Cebe4193410FC496414ca09](https://rinkeby.etherscan.io/address/0x4e8a7a5dce61bf881cebe4193410fc496414ca09#readContract)    |   
 
+In order to use it in your project, you can just import ICron interface and point to one of the previously mentioned instances: 
 
-
+```javascript
+address hourly = 0xaeec5734b4fbf6fd176d308ed5cdd143fc0d0810
+ICron c = ICron(0xaeec5734b4fbf6fd176d308ed5cdd143fc0d0810)
+uint256 height() =c.height() // this variable will automatically increment every hour!
+````
 
 ## Testing
 
