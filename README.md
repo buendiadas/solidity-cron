@@ -1,4 +1,4 @@
-# Cron 
+# Cron [Unmantained]
 *Schedule state changes on the EVM*
 
 [![Build Status](https://travis-ci.com/carlos-buendia/cron-solidity.svg?token=DJeMzxJJncp3nRaEUuxH&branch=develop)](https://travis-ci.com/carlos-buendia/cron-solidity)
